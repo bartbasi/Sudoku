@@ -1,14 +1,19 @@
 extends RefCounted
 ## Design tokens for the three Phase 1 directions: colors for light and dark,
-## shape tokens (line weights, radii, spacing) and type styles.
+## shape tokens (line weights, radii, spacing) and type styles. Since Phase 2
+## it also reads the final skins, pop_light and pop_dark, from their files in
+## src/skins/ (see "Final skins" below).
 ##
 ## Every color, line weight, radius and font the Phase 1 prototypes draw with
 ## comes from this file. Never hardcode one. If you need a token that is not
 ## here, ask the senior-graphic-designer; do not invent it locally.
 ##
-## Prototype data in tools/, never shipped. The chosen direction is rebuilt as
-## skin Resources in src/skins/ and a Theme in src/design/ in Phase 2.
-## Owner: senior-graphic-designer.
+## Prototype data in tools/, never shipped. The final skin values are edited
+## in docs/DESIGN_SYSTEM.md section 1 and written into src/skins/ by
+## tools/design/write_skins.gd; this file holds no copy of them. The Phase 1
+## "pop" palette is derived from the final skins (_POP_PHASE1), so the Phase 1
+## prototypes draw Pop's final colors; Gridline and Pebble keep their Phase 1
+## values. Owner: senior-graphic-designer.
 ##
 ## Usage:
 ##   const Palettes := preload("res://tools/design/directions/palettes.gd")
@@ -224,10 +229,10 @@ static func palette(direction: String, dark: bool) -> Palette:
 	var result: Palette = Palette.new()
 	result.direction = direction
 	result.dark = dark
-	if not _COLORS.has(direction):
+	if not DIRECTIONS.has(direction):
 		push_error("Unknown direction: %s" % direction)
 		return result
-	var table: Dictionary = _COLORS[direction]["dark" if dark else "light"]
+	var table: Dictionary = color_table(direction, dark)
 	for token: String in color_tokens():
 		if not table.has(token):
 			push_error("%s is missing color token %s" % [key, token])
@@ -291,8 +296,15 @@ static func shape_tokens() -> PackedStringArray:
 	return _script_vars(Shape.new(), ["direction"])
 
 
-## Raw hex table of one palette, for the docs and the checker.
+## Raw hex table of one palette, for the docs and the checker. Pop's comes
+## from the final skins through _POP_PHASE1.
 static func color_table(direction: String, dark: bool) -> Dictionary:
+	if direction == "pop":
+		var skin_colors: Dictionary = skin_table("pop_dark" if dark else "pop_light")
+		var table: Dictionary = {}
+		for token: String in _POP_PHASE1:
+			table[token] = skin_colors[_POP_PHASE1[token]]
+		return table
 	return _COLORS[direction]["dark" if dark else "light"]
 
 
@@ -722,136 +734,137 @@ const _COLORS: Dictionary = {
 			"mode_toggle_active_text": "#15122B",
 		},
 	},
-	"pop": {
-		"light": {
-			"app_bg": "#FFE45C",
-			"surface": "#FFFFFF",
-			"surface_alt": "#FFF5C2",
-			"text": "#111111",
-			"text_muted": "#3B3B3B",
-			"text_accent": "#1A40D9",
-			"accent": "#1A40D9",
-			"text_on_accent": "#FFFFFF",
-			"accent_2": "#FF5FA2",
-			"text_on_accent_2": "#111111",
-			"tag_bg": "#2BD47D",
-			"tag_text": "#111111",
-			"outline": "#111111",
-			"shadow": "#111111",
-			"chart_bar": "#1A40D9",
-			"chart_bar_alt": "#D1005A",
-			"celebrate_1": "#FF5FA2",
-			"celebrate_2": "#2BD47D",
-			"celebrate_3": "#1A40D9",
-			"board_bg": "#FFFFFF",
-			"cell_bg": "#FFFFFF",
-			"cell_selected_bg": "#FFB3DE",
-			"cell_peer_bg": "#DDF0FF",
-			"cell_same_digit_bg": "#E5DDFF",
-			"cell_conflict_bg": "#FFC6BE",
-			"cell_hint_target_bg": "#B4F0CB",
-			"cell_hint_reason_bg": "#DEF9E8",
-			"digit_given": "#111111",
-			"digit_placed": "#1A40D9",
-			"digit_conflict": "#9E0024",
-			"candidate_open": "#111111",
-			"candidate_crossed": "#5A5A5A",
-			"x_mark": "#D1005A",
-			"x_mark_auto": "#4A4A4A",
-			"line_cell": "#4A4A4A",
-			"line_box": "#111111",
-			"line_outer": "#111111",
-			# Not ink: the frame's dashes sit on box lines, and the hint marks
-			# touch the frame and the box lines, so each needs its own color.
-			"selected_outline": "#1A40D9",
-			"hint_target_marker": "#087A38",
-			"hint_reason_marker": "#087A38",
-			"conflict_marker": "#B8002A",
-			"hud_bg": "#FFFFFF",
-			"hud_text": "#111111",
-			"hud_label": "#3B3B3B",
-			"hud_accent_bg": "#FF5FA2",
-			"hud_accent_text": "#111111",
-			"button_bg": "#FFFFFF",
-			"button_text": "#111111",
-			"button_primary_bg": "#1A40D9",
-			"button_primary_text": "#FFFFFF",
-			"button_disabled_bg": "#EFE6B8",
-			"button_disabled_text": "#6E6A55",
-			"pad_bg": "#FFE45C",
-			"pad_key_place_bg": "#FFFFFF",
-			"pad_key_place_text": "#111111",
-			"pad_key_cross_bg": "#111111",
-			"pad_key_cross_text": "#FFFFFF",
-			"pad_key_cross_mark": "#FF5FA2",
-			"mode_toggle_bg": "#FFFFFF",
-			"mode_toggle_text": "#111111",
-			"mode_toggle_active_bg": "#111111",
-			"mode_toggle_active_text": "#FFFFFF",
-		},
-		"dark": {
-			"app_bg": "#161616",
-			"surface": "#232323",
-			"surface_alt": "#2E2E2E",
-			"text": "#FFFFFF",
-			"text_muted": "#BDBDBD",
-			"text_accent": "#FFE45C",
-			"accent": "#FFE45C",
-			"text_on_accent": "#111111",
-			"accent_2": "#FF6FB5",
-			"text_on_accent_2": "#111111",
-			"tag_bg": "#2BD47D",
-			"tag_text": "#111111",
-			"outline": "#F0F0F0",
-			"shadow": "#FFE45C",
-			"chart_bar": "#FFE45C",
-			"chart_bar_alt": "#FF6FB5",
-			"celebrate_1": "#FFE45C",
-			"celebrate_2": "#FF6FB5",
-			"celebrate_3": "#6E8CFF",
-			"board_bg": "#1E1E1E",
-			"cell_bg": "#1E1E1E",
-			"cell_selected_bg": "#5E1F48",
-			"cell_peer_bg": "#1B2E3D",
-			"cell_same_digit_bg": "#2E2552",
-			"cell_conflict_bg": "#4A1A16",
-			"cell_hint_target_bg": "#1D4A30",
-			"cell_hint_reason_bg": "#163324",
-			"digit_given": "#FFFFFF",
-			"digit_placed": "#8FB0FF",
-			"digit_conflict": "#FF96A3",
-			"candidate_open": "#F0F0F0",
-			"candidate_crossed": "#9A9A9A",
-			"x_mark": "#FF6FB5",
-			"x_mark_auto": "#BDBDBD",
-			"line_cell": "#6A6A6A",
-			"line_box": "#FFE45C",
-			"line_outer": "#FFE45C",
-			"selected_outline": "#FF6FB5",
-			"hint_target_marker": "#5BE08F",
-			"hint_reason_marker": "#5BE08F",
-			"conflict_marker": "#FF7A8A",
-			"hud_bg": "#232323",
-			"hud_text": "#FFFFFF",
-			"hud_label": "#BDBDBD",
-			"hud_accent_bg": "#FF6FB5",
-			"hud_accent_text": "#111111",
-			"button_bg": "#232323",
-			"button_text": "#FFFFFF",
-			"button_primary_bg": "#FFE45C",
-			"button_primary_text": "#111111",
-			"button_disabled_bg": "#2E2E2E",
-			"button_disabled_text": "#7A7A7A",
-			"pad_bg": "#161616",
-			"pad_key_place_bg": "#232323",
-			"pad_key_place_text": "#FFFFFF",
-			"pad_key_cross_bg": "#FFFFFF",
-			"pad_key_cross_text": "#111111",
-			"pad_key_cross_mark": "#D1005A",
-			"mode_toggle_bg": "#232323",
-			"mode_toggle_text": "#BDBDBD",
-			"mode_toggle_active_bg": "#FF6FB5",
-			"mode_toggle_active_text": "#111111",
-		},
-	},
+	# Pop's Phase 1 palette is derived from the final skins: see _POP_PHASE1.
+}
+
+
+# Final skins
+#
+# The two built-in skins live in src/skins/pop_light.tres and pop_dark.tres
+# (script class GameSkin, docs/ARCHITECTURE.md section 6). Their values are
+# the tables of docs/DESIGN_SYSTEM.md section 1, written into the files by
+# tools/design/write_skins.gd. This file only reads them: for the checker,
+# the studies, and Pop's Phase 1 prototype colors (_POP_PHASE1).
+
+## The built-in skins, in display order. pop_light is the default.
+const SKIN_IDS: Array[String] = ["pop_light", "pop_dark"]
+
+const SKIN_IDENTITY_FIELDS: Array[String] = ["id", "display_name", "is_dark"]
+
+
+## Path of a skin file.
+static func skin_path(id: String) -> String:
+	return "res://src/skins/%s.tres" % id
+
+
+## A final skin by id ("pop_light" or "pop_dark"), loaded from its file.
+## Null if the file is missing or is not a GameSkin.
+static func skin(id: String) -> GameSkin:
+	if not SKIN_IDS.has(id):
+		push_error("Unknown skin: %s" % id)
+		return null
+	var path: String = skin_path(id)
+	if not ResourceLoader.exists(path):
+		push_error("Missing skin file %s; run tools/design/write_skins.gd" % path)
+		return null
+	return load(path) as GameSkin
+
+
+## Names of every skin token, in GameSkin's (and the table's) order.
+static func skin_tokens() -> PackedStringArray:
+	return _script_vars(GameSkin.new(), SKIN_IDENTITY_FIELDS.duplicate())
+
+
+## "Color" or "float", as GameSkin declares it.
+static func skin_token_type(token: String) -> String:
+	for info: Dictionary in GameSkin.new().get_property_list():
+		if info["name"] == token:
+			var kind: int = info["type"]
+			return "Color" if kind == TYPE_COLOR else ("float" if kind == TYPE_FLOAT else "")
+	return ""
+
+
+## Raw values of one skin: "#RRGGBB" (or "#RRGGBBAA" when translucent) for
+## each color, a float for each number.
+static func skin_table(id: String) -> Dictionary:
+	var table: Dictionary = {}
+	var loaded: GameSkin = skin(id)
+	if loaded == null:
+		return table
+	for token: String in skin_tokens():
+		var value: Variant = loaded.get(token)
+		if value is Color:
+			var color: Color = value
+			table[token] = "#" + color.to_html(color.a < 1.0).to_upper()
+		else:
+			table[token] = value
+	return table
+
+
+## Phase 1 Pop token -> final skin token. The Phase 1 prototypes keep drawing
+## from Palette; for Pop they now get the final colors. Phase 1 shapes and
+## type for Pop are unchanged (they are in design units, not dp).
+const _POP_PHASE1: Dictionary[String, String] = {
+	"app_bg": "page_bg",
+	"surface": "surface_bg",
+	"surface_alt": "surface_alt_bg",
+	"text": "text",
+	"text_muted": "text_muted",
+	"text_accent": "text_accent",
+	"accent": "button_primary_bg",
+	"text_on_accent": "button_primary_text",
+	"accent_2": "celebrate_bg",
+	"text_on_accent_2": "celebrate_text",
+	"tag_bg": "sticker_bg",
+	"tag_text": "sticker_text",
+	"outline": "outline",
+	"shadow": "shadow",
+	"chart_bar": "chart_bar",
+	"chart_bar_alt": "cross_mark_hand",
+	"celebrate_1": "celebrate_bg",
+	"celebrate_2": "sticker_bg",
+	"celebrate_3": "digit_placed",
+	"board_bg": "board_bg",
+	"cell_bg": "cell_bg",
+	"cell_selected_bg": "cell_selected_bg",
+	"cell_peer_bg": "cell_peer_bg",
+	"cell_same_digit_bg": "cell_same_digit_bg",
+	"cell_conflict_bg": "cell_conflict_bg",
+	"cell_hint_target_bg": "cell_hint_target_bg",
+	"cell_hint_reason_bg": "cell_hint_reason_bg",
+	"digit_given": "digit_given",
+	"digit_placed": "digit_placed",
+	"digit_conflict": "digit_conflict",
+	"candidate_open": "candidate_open",
+	"candidate_crossed": "candidate_crossed",
+	"x_mark": "cross_mark_hand",
+	"x_mark_auto": "cross_mark_auto",
+	"line_cell": "line_cell",
+	"line_box": "line_box",
+	"line_outer": "line_outer",
+	"selected_outline": "selection_frame_place",
+	"hint_target_marker": "hint_target_mark",
+	"hint_reason_marker": "hint_reason_mark",
+	"conflict_marker": "conflict_mark",
+	"hud_bg": "hud_bg",
+	"hud_text": "hud_text",
+	"hud_label": "hud_label",
+	"hud_accent_bg": "hud_score_bg",
+	"hud_accent_text": "hud_score_text",
+	"button_bg": "button_bg",
+	"button_text": "button_text",
+	"button_primary_bg": "button_primary_bg",
+	"button_primary_text": "button_primary_text",
+	"button_disabled_bg": "button_disabled_bg",
+	"button_disabled_text": "button_disabled_text",
+	"pad_bg": "page_bg",
+	"pad_key_place_bg": "pad_key_place_bg",
+	"pad_key_place_text": "pad_key_place_text",
+	"pad_key_cross_bg": "pad_key_cross_bg",
+	"pad_key_cross_text": "pad_key_cross_text",
+	"pad_key_cross_mark": "pad_key_cross_mark",
+	"mode_toggle_bg": "mode_toggle_bg",
+	"mode_toggle_text": "mode_toggle_text",
+	"mode_toggle_active_bg": "mode_toggle_active_bg",
+	"mode_toggle_active_text": "mode_toggle_active_text",
 }

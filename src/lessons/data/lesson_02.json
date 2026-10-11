@@ -1,0 +1,185 @@
+{
+  "format": 1,
+  "id": "lesson_02",
+  "number": 2,
+  "title": "The ring and Cross Out",
+  "subtitle": "Cross out what a cell cannot be",
+  "solution": "314752698968431257527896134836145972792683541451279386289364715175928463643517829",
+  "screens": [
+    {
+      "board": "3..7...9...8..12...2...6..48.6.4..7..9...3....5.2..3.6..9.6..1.1....84...4.5.78..",
+      "start": { "selected": null, "mode": "place", "placed": {}, "crossed": {} },
+      "marked_cells": ["r5c5"],
+      "marked_controls": [],
+      "text": "See the small digits in each empty cell? We call this the ring. It helps you keep track of which digits might still go in that cell. At the start, all nine are there. Tap the marked cell in the middle of the board.",
+      "goal": {
+        "order": "any",
+        "steps": [ { "action": "cell", "cell": "r5c5" } ],
+        "technique": ""
+      },
+      "praise": "Good. That cell is selected. Its row, column and box light up.",
+      "wrong": [
+        { "match": { "action": "cell", "cells": "other" }, "text": "That is a different cell. Tap the marked cell in the middle of the board." },
+        { "match": { "action": "pad" }, "text": "First pick a cell. Tap the marked cell in the middle of the board." },
+        { "match": { "action": "mode" }, "text": "We will use that soon. First, tap the marked cell in the middle of the board." }
+      ],
+      "fallback": "Tap the marked cell in the middle of the board."
+    },
+    {
+      "board": "3..7...9...8..12...2...6..48.6.4..7..9...3....5.2..3.6..9.6..1.1....84...4.5.78..",
+      "start": { "selected": "r5c5", "mode": "place", "placed": {}, "crossed": {} },
+      "marked_cells": [],
+      "marked_controls": ["mode"],
+      "text": "The number pad has two modes. Place mode puts a big digit in the cell. Cross Out mode puts an X on a small digit in the ring. Tap the mode switch to choose Cross Out.",
+      "goal": {
+        "order": "any",
+        "steps": [ { "action": "mode" } ],
+        "technique": ""
+      },
+      "praise": "Good. The number pad is in Cross Out mode now.",
+      "wrong": [
+        { "match": { "action": "pad" }, "text": "In Place mode, that would put a big digit in the cell. Tap the mode switch first." },
+        { "match": { "action": "cell", "cells": ["r5c5"] }, "text": "This cell is ready. Now tap the mode switch." },
+        { "match": { "action": "cell", "cells": "other" }, "text": "Keep this cell selected. Tap the mode switch." }
+      ],
+      "fallback": "Tap the mode switch to choose Cross Out."
+    },
+    {
+      "board": "3..7...9...8..12...2...6..48.6.4..7..9...3....5.2..3.6..9.6..1.1....84...4.5.78..",
+      "start": { "selected": "r5c5", "mode": "cross_out", "placed": {}, "crossed": {} },
+      "marked_cells": ["r5c2"],
+      "marked_controls": [],
+      "text": "A row can have each digit only once. This row already has a 9. So this cell cannot be 9. Tap 9 on the number pad to cross it out.",
+      "goal": {
+        "order": "any",
+        "steps": [ { "action": "pad", "digit": 9 } ],
+        "technique": ""
+      },
+      "praise": "Well done. You crossed out 9.",
+      "wrong": [
+        { "match": { "action": "pad", "digits": [3] }, "text": "Yes, this row has a 3 too. We will cross it out next. Tap 9 first." },
+        { "match": { "action": "pad", "digits": [4, 6] }, "text": "Yes, this column has a {d}. We will get to the column soon. Tap 9 first." },
+        { "match": { "action": "pad", "digits": [2] }, "text": "Yes, this box has a 2. We will get to the box soon. Tap 9 first." },
+        { "match": { "action": "pad", "digits": [1, 5, 7, 8] }, "text": "There is no {d} in this row, column or box. So {d} can still go here. Tap 9." },
+        { "match": { "action": "cell", "cells": ["r5c5"] }, "text": "The small digits are too small to tap. Tap 9 on the number pad instead." },
+        { "match": { "action": "cell", "cells": ["r5c2"] }, "text": "That is the 9 in the row. To cross out 9 in the ring, tap 9 on the number pad." },
+        { "match": { "action": "cell", "cells": "other" }, "text": "Keep this cell selected. Tap 9 on the number pad." },
+        { "match": { "action": "mode" }, "text": "Stay in Cross Out mode for now. Tap 9 on the number pad." }
+      ],
+      "fallback": "Tap 9 on the number pad."
+    },
+    {
+      "board": "3..7...9...8..12...2...6..48.6.4..7..9...3....5.2..3.6..9.6..1.1....84...4.5.78..",
+      "start": { "selected": "r5c5", "mode": "cross_out", "placed": {}, "crossed": { "r5c5": [9] } },
+      "marked_cells": ["r5c6"],
+      "marked_controls": [],
+      "text": "See the X on the 9? It stays in the ring, so you can always see what you ruled out. This row also has a 3. Cross out 3 too.",
+      "goal": {
+        "order": "any",
+        "steps": [ { "action": "pad", "digit": 3 } ],
+        "technique": ""
+      },
+      "praise": "Good. 9 and 3 are both crossed out.",
+      "wrong": [
+        { "match": { "action": "pad", "digits": [9], "crossed": true }, "text": "9 already has an X. Tapping it again would bring it back. Tap 3." },
+        { "match": { "action": "pad", "digits": [4, 6] }, "text": "Yes, this column has a {d}. We will get to the column next. Tap 3 first." },
+        { "match": { "action": "pad", "digits": [2] }, "text": "Yes, this box has a 2. We will get to the box soon. Tap 3 first." },
+        { "match": { "action": "pad", "digits": [1, 5, 7, 8] }, "text": "There is no {d} in this row, column or box. So {d} can still go here. Tap 3." },
+        { "match": { "action": "cell", "cells": ["r5c5"] }, "text": "The small digits are too small to tap. Tap 3 on the number pad instead." },
+        { "match": { "action": "cell", "cells": ["r5c6"] }, "text": "That is the 3 in the row. To cross out 3 in the ring, tap 3 on the number pad." },
+        { "match": { "action": "cell", "cells": "other" }, "text": "Keep this cell selected. Tap 3 on the number pad." },
+        { "match": { "action": "mode" }, "text": "Stay in Cross Out mode for now. Tap 3 on the number pad." }
+      ],
+      "fallback": "Tap 3 on the number pad."
+    },
+    {
+      "board": "3..7...9...8..12...2...6..48.6.4..7..9...3....5.2..3.6..9.6..1.1....84...4.5.78..",
+      "start": { "selected": "r5c5", "mode": "cross_out", "placed": {}, "crossed": { "r5c5": [3, 9] } },
+      "marked_cells": ["r4c5", "r7c5"],
+      "marked_controls": [],
+      "text": "A column can have each digit only once, too. This column has a 4 and a 6. Cross out 4 and 6.",
+      "goal": {
+        "order": "any",
+        "steps": [ { "action": "pad", "digit": 4 }, { "action": "pad", "digit": 6 } ],
+        "technique": ""
+      },
+      "next": { "start": "Cross out 4 and 6.", "after": { "pad:4": "Now cross out 6.", "pad:6": "Now cross out 4." } },
+      "praise": "Nice work. The column is done.",
+      "wrong": [
+        { "match": { "action": "pad", "digits": [3, 4, 6, 9], "crossed": true }, "text": "{d} already has an X. Tapping it again would bring it back. {next}" },
+        { "match": { "action": "pad", "digits": [2] }, "text": "Yes, this box has a 2. We will get to the box next. {next}" },
+        { "match": { "action": "pad", "digits": [1, 5, 7, 8] }, "text": "There is no {d} in this row, column or box. So {d} can still go here. {next}" },
+        { "match": { "action": "cell", "cells": ["r5c5"] }, "text": "The small digits are too small to tap. Use the number pad. {next}" },
+        { "match": { "action": "cell", "cells": ["r4c5"] }, "text": "That is the 4 in the column. Use the number pad to cross out digits. {next}" },
+        { "match": { "action": "cell", "cells": ["r7c5"] }, "text": "That is the 6 in the column. Use the number pad to cross out digits. {next}" },
+        { "match": { "action": "cell", "cells": "other" }, "text": "Keep this cell selected. {next}" },
+        { "match": { "action": "mode" }, "text": "Stay in Cross Out mode for now. {next}" }
+      ],
+      "fallback": "{next}"
+    },
+    {
+      "board": "3..7...9...8..12...2...6..48.6.4..7..9...3....5.2..3.6..9.6..1.1....84...4.5.78..",
+      "start": { "selected": "r5c5", "mode": "cross_out", "placed": {}, "crossed": { "r5c5": [3, 4, 6, 9] } },
+      "marked_cells": ["r4c5", "r5c6", "r6c4"],
+      "marked_controls": [],
+      "text": "A box can have each digit only once as well. This box has a 2, a 3 and a 4. You already crossed out 3 and 4. Cross out 2.",
+      "goal": {
+        "order": "any",
+        "steps": [ { "action": "pad", "digit": 2 } ],
+        "technique": ""
+      },
+      "praise": "Great. Only 1, 5, 7 and 8 are still open. One of them is the right digit for this cell.",
+      "wrong": [
+        { "match": { "action": "pad", "digits": [3, 4, 6, 9], "crossed": true }, "text": "{d} already has an X. Tapping it again would bring it back. Tap 2." },
+        { "match": { "action": "pad", "digits": [1, 5, 7, 8] }, "text": "There is no {d} in this row, column or box. So {d} can still go here. Tap 2." },
+        { "match": { "action": "cell", "cells": ["r5c5"] }, "text": "The small digits are too small to tap. Tap 2 on the number pad instead." },
+        { "match": { "action": "cell", "cells": ["r6c4"] }, "text": "That is the 2 in the box. To cross out 2 in the ring, tap 2 on the number pad." },
+        { "match": { "action": "cell", "cells": ["r5c6", "r4c5"] }, "text": "That digit is in the box, and it already has an X in the ring. Tap 2 on the number pad." },
+        { "match": { "action": "cell", "cells": "other" }, "text": "Keep this cell selected. Tap 2 on the number pad." },
+        { "match": { "action": "mode" }, "text": "Stay in Cross Out mode for now. Tap 2 on the number pad." }
+      ],
+      "fallback": "Tap 2 on the number pad."
+    },
+    {
+      "board": "3..7...9...8..12...2...6..48.6.4..7..9...3....5.2..3.6..9.6..1.1....84...4.5.78..",
+      "start": { "selected": "r5c5", "mode": "cross_out", "placed": {}, "crossed": { "r5c5": [2, 3, 4, 6, 7, 9] } },
+      "marked_cells": ["r5c5"],
+      "marked_controls": [],
+      "text": "Everyone taps the wrong digit sometimes. To show you the fix, we crossed out 7 for you. But there is no 7 in this row, column or box, so 7 can still go here. Tap 7 to bring it back.",
+      "goal": {
+        "order": "any",
+        "steps": [ { "action": "pad", "digit": 7 } ],
+        "technique": ""
+      },
+      "praise": "7 is back. In Cross Out mode, tap a crossed digit again to bring it back.",
+      "wrong": [
+        { "match": { "action": "pad", "digits": [1, 5, 8], "crossed": false }, "text": "That would cross out {d}. But there is no {d} in this row, column or box, so leave it open. Tap 7." },
+        { "match": { "action": "pad", "digits": [3, 9], "crossed": true }, "text": "Leave the X on {d}. This row has a {d}, so this cell cannot be {d}. Tap 7." },
+        { "match": { "action": "pad", "digits": [4, 6], "crossed": true }, "text": "Leave the X on {d}. This column has a {d}, so this cell cannot be {d}. Tap 7." },
+        { "match": { "action": "pad", "digits": [2], "crossed": true }, "text": "Leave the X on 2. This box has a 2, so this cell cannot be 2. Tap 7." },
+        { "match": { "action": "cell", "cells": ["r5c5"] }, "text": "The small digits are too small to tap. Tap 7 on the number pad instead." },
+        { "match": { "action": "cell", "cells": "other" }, "text": "Keep this cell selected. Tap 7 on the number pad." },
+        { "match": { "action": "mode" }, "text": "Stay in Cross Out mode for now. Tap 7 on the number pad." }
+      ],
+      "fallback": "Tap 7 on the number pad."
+    },
+    {
+      "board": "3..7...9...8..12...2...6..48.6.4..7..9...3....5.2..3.6..9.6..1.1....84...4.5.78..",
+      "start": { "selected": "r5c5", "mode": "cross_out", "placed": {}, "crossed": { "r5c5": [2, 3, 4, 6, 9] } },
+      "marked_cells": [],
+      "marked_controls": ["mode"],
+      "text": "To put a big digit in a cell, you need Place mode. Tap the mode switch to go back to Place mode.",
+      "goal": {
+        "order": "any",
+        "steps": [ { "action": "mode" } ],
+        "technique": ""
+      },
+      "praise": "Well done. You are back in Place mode, and you know how the ring works.",
+      "wrong": [
+        { "match": { "action": "pad" }, "text": "In Cross Out mode, that would change the ring. Tap the mode switch to go back to Place mode." },
+        { "match": { "action": "cell" }, "text": "Tap the mode switch to go back to Place mode." }
+      ],
+      "fallback": "Tap the mode switch to go back to Place mode."
+    }
+  ]
+}

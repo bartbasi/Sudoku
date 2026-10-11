@@ -1,4 +1,4 @@
-# bartssudoku
+# Sudoku
 
 A free, offline Sudoku for Android. Every empty cell shows all nine candidates around its edge, and you cross them out as you rule them out. No ads, no purchases, no network.
 

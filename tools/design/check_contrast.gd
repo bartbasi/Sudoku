@@ -1,9 +1,17 @@
 extends SceneTree
-## Contrast checker for the Phase 1 design directions.
+## Contrast checker for the final skins and the Phase 1 design directions.
 ##
 ##   timeout 300 godot --headless --path . --script res://tools/design/check_contrast.gd
 ##
-## For every direction in light and dark it computes the WCAG 2 contrast
+## Part 1, the final skins: src/skins/pop_light.tres and pop_dark.tres, loaded
+## as GameSkin. Every pair in SKIN_RULES, the marks that must differ in color
+## (SKIN_TOLD_APART), each file setting every property with opaque colors, the
+## sizes on the phone readability is judged on, and that the two tables in
+## docs/DESIGN_SYSTEM.md section 1 match the files exactly (names, order,
+## types and values). Edit values in the doc, then run write_skins.gd.
+##
+## Part 2, the Phase 1 record: for every direction in light and dark it
+## computes the WCAG 2 contrast
 ## ratio of each foreground token against every background it can sit on,
 ## prints one line per pair, and exits with 1 if any pair misses its target.
 ## It also checks that every palette defines every token, that checked colors
@@ -103,14 +111,106 @@ const MIN_CELL_LINE_PX: float = 1.0 ## Cell line, in device pixels at 720 px wid
 const MIN_BOX_TO_CELL_WEIGHT: float = 2.5 ## Box separation / cell separation.
 
 
+# Final skins
+
+const DESIGN_SYSTEM_PATH: String = "res://docs/DESIGN_SYSTEM.md"
+
+## Every fill a cell holding a digit can have.
+const DIGIT_FILLS: Array[String] = [
+	"cell_bg", "cell_selected_bg", "cell_peer_bg", "cell_same_digit_bg",
+	"cell_conflict_bg", "cell_hint_target_bg", "cell_hint_reason_bg",
+]
+## Every fill a cell showing its ring can have. Same digit and conflict only
+## ever fill cells that hold a digit, and those hide their ring.
+const RING_FILLS: Array[String] = [
+	"cell_bg", "cell_selected_bg", "cell_peer_bg", "cell_hint_target_bg", "cell_hint_reason_bg",
+]
+const PAGE_BGS: Array[String] = ["page_bg", "surface_bg", "surface_alt_bg"]
+
+## [foreground, backgrounds, target, what it is]. Frame, hint marks and lines
+## sit on the cell edge, so they meet the fills of both cells beside it.
+const SKIN_RULES: Array = [
+	["digit_given", DIGIT_FILLS, 4.5, "digit"],
+	["digit_placed", DIGIT_FILLS, 4.5, "digit"],
+	["digit_conflict", DIGIT_FILLS, 4.5, "digit"],
+	["candidate_open", RING_FILLS, 4.5, "open candidate"],
+	["candidate_crossed", RING_FILLS, 3.0, "crossed digit"],
+	["cross_mark_hand", RING_FILLS, 3.0, "hand X"],
+	["cross_mark_auto", RING_FILLS, 3.0, "Auto Cross slash"],
+	["cross_mark_auto", ["candidate_crossed"], 1.5, "Auto Cross slash on its digit"],
+	["selection_frame_place", DIGIT_FILLS, 3.0, "selection frame, Place"],
+	["selection_frame_cross", DIGIT_FILLS, 3.0, "selection frame, Cross Out"],
+	["hint_target_mark", DIGIT_FILLS, 3.0, "hint target bracket"],
+	["hint_reason_mark", DIGIT_FILLS, 3.0, "hint reason tick, lesson mark"],
+	["hint_reason_mark", ["page_bg"], 3.0, "lesson mark around a control"],
+	["conflict_mark", ["cell_conflict_bg", "cell_selected_bg", "surface_bg"], 3.0, "conflict bar, board message mark"],
+	["line_box", DIGIT_FILLS, 3.0, "box line"],
+	["line_outer", DIGIT_FILLS + ["page_bg"], 3.0, "outer line"],
+	["line_cell", ["cell_bg", "cell_peer_bg"], 1.2, "cell line"],
+	["text", PAGE_BGS, 4.5, "text"],
+	["text_muted", PAGE_BGS, 4.5, "text"],
+	["text_accent", PAGE_BGS, 4.5, "text"],
+	["sticker_text", ["sticker_bg"], 4.5, "text"],
+	["celebrate_text", ["celebrate_bg"], 4.5, "text"],
+	["hint_tag_text", ["hint_tag_bg"], 4.5, "text"],
+	["chart_bar", ["surface_bg", "surface_alt_bg"], 3.0, "chart mark"],
+	["outline", PAGE_BGS + ["switch_off_bg"], 3.0, "UI outline"],
+	["hud_text", ["hud_bg"], 4.5, "text"],
+	["hud_label", ["hud_bg"], 4.5, "text"],
+	["hud_score_text", ["hud_score_bg"], 4.5, "text"],
+	["button_text", ["button_bg"], 4.5, "text"],
+	["button_primary_text", ["button_primary_bg"], 4.5, "text"],
+	["button_danger_text", ["button_danger_bg"], 4.5, "text"],
+	["button_disabled_text", ["button_disabled_bg", "button_disabled_hatch"], 3.0, "disabled text"],
+	["button_disabled_outline", ["page_bg", "surface_bg"], 3.0, "disabled outline"],
+	["button_disabled_hatch", ["button_disabled_bg"], 1.15, "disabled hatch"],
+	["pad_key_place_text", ["pad_key_place_bg"], 4.5, "digit"],
+	["pad_key_cross_text", ["pad_key_cross_bg"], 4.5, "digit"],
+	["pad_key_cross_mark", ["pad_key_cross_bg"], 3.0, "cross mark"],
+	["mode_toggle_text", ["mode_toggle_bg"], 4.5, "text"],
+	["mode_toggle_active_text", ["mode_toggle_active_bg"], 4.5, "text"],
+	["switch_on_bg", ["surface_bg"], 3.0, "switch track"],
+	["switch_knob", ["switch_on_bg"], 3.0, "switch knob"],
+]
+
+## [token, other tokens, minimum color distance, what it is]. Marks that touch
+## must differ in color as well as shape; the selected fill must stand apart
+## from its peers.
+const SKIN_TOLD_APART: Array = [
+	["selection_frame_place", ["line_box", "line_outer", "hint_target_mark", "hint_reason_mark"], 0.3, "Place frame"],
+	["selection_frame_cross", ["line_box", "line_outer", "hint_target_mark", "hint_reason_mark"], 0.3, "Cross Out frame"],
+	["hint_target_mark", ["line_box", "line_outer"], 0.3, "hint target bracket"],
+	["hint_reason_mark", ["line_box", "line_outer"], 0.3, "hint reason tick"],
+	["cross_mark_auto", ["cross_mark_hand"], 0.3, "Auto Cross slash and hand X"],
+	["cell_selected_bg", ["cell_peer_bg"], 0.15, "selected fill and peer fill"],
+]
+
+## Tokens that may be translucent.
+const SKIN_TRANSLUCENT: Array[String] = ["scrim"]
+
+## Readability is judged on a 360 dp wide screen tall enough that the width
+## sets the board's size (GDD AT-66). Densities: 720, 945 and 1080 px wide.
+const JUDGED_DP_WIDTH: float = 360.0
+const JUDGED_DENSITIES: Array[float] = [2.0, 2.625, 3.0]
+## The floor in DESIGN_SYSTEM.md section 3: the candidate font size the board
+## draws with, in dp, on the judged screen.
+const CANDIDATE_FLOOR_DP: float = 11.0
+## And the ink of the tallest digit at that size, in dp.
+const CANDIDATE_INK_FLOOR_DP: float = 8.5
+const MIN_KNOCKOUT_PX: float = 1.0
+const MIN_RING_CLEARANCE_DP: float = 1.0 ## Ring box clear of the frame and hint marks.
+const MIN_RING_LINE_CLEARANCE_DP: float = 0.5 ## Ring box clear of the outer line.
+
+
 func _initialize() -> void:
 	var result: Variant = call("_run")
 	quit(result if result is int else 1)
 
 
 func _run() -> int:
-	var total: int = 0
-	var failed: int = 0
+	var final_result: Vector2i = _run_final_skins()
+	var total: int = final_result.x
+	var failed: int = final_result.y
 	print("Contrast check, Phase 1 directions (WCAG 2 contrast ratio)")
 	print("")
 	for direction: String in Palettes.DIRECTIONS:
@@ -163,6 +263,244 @@ func _run() -> int:
 	print("")
 	print("Pairs and checks: %d, passed: %d, failed: %d" % [total, total - failed, failed])
 	return 0 if failed == 0 else 1
+
+
+## Part 1. Returns Vector2i(checks, failures).
+func _run_final_skins() -> Vector2i:
+	var total: int = 0
+	var failed: int = 0
+	print("Final skins (src/skins/pop_light.tres and pop_dark.tres), WCAG 2 contrast ratio")
+	print("")
+	for id: String in Palettes.SKIN_IDS:
+		print("%s (%s)" % [id, Palettes.skin_path(id)])
+		var problems: PackedStringArray = _check_skin_file(id)
+		for problem: String in problems:
+			print("  FAIL  %s" % problem)
+		total += 1
+		failed += 1 if not problems.is_empty() else 0
+		var skin: GameSkin = Palettes.skin(id)
+		if skin == null:
+			print("")
+			continue
+		for rule: Array in SKIN_RULES:
+			var fg_name: String = rule[0]
+			var bg_names: Array = rule[1]
+			var target: float = rule[2]
+			var kind: String = rule[3]
+			for bg_name: String in bg_names:
+				var fg: Color = skin.get(fg_name)
+				var bg: Color = skin.get(bg_name)
+				var ratio: float = contrast(fg, bg)
+				var ok: bool = ratio >= target and fg.a >= 1.0 and bg.a >= 1.0
+				total += 1
+				failed += 0 if ok else 1
+				print("  %s  %5.2f  >= %.2f  %-24s on %-20s (%s)" % ["PASS" if ok else "FAIL", ratio, target, fg_name, bg_name, kind])
+		for rule: Array in SKIN_TOLD_APART:
+			var name_a: String = rule[0]
+			var others: Array = rule[1]
+			var minimum: float = rule[2]
+			var what: String = rule[3]
+			for name_b: String in others:
+				var distance: float = color_distance(skin.get(name_a), skin.get(name_b))
+				var apart: bool = distance >= minimum
+				total += 1
+				failed += 0 if apart else 1
+				print("  %s  %5.2f  >= %.2f  %-24s vs %-20s (%s, color distance)" % ["PASS" if apart else "FAIL", distance, minimum, name_a, name_b, what])
+		print("")
+	print("Final skin sizes on the judged screen (%d dp wide, width-bound board)" % int(JUDGED_DP_WIDTH))
+	var size_problems: PackedStringArray = _check_skin_sizes()
+	total += 1
+	if size_problems.is_empty():
+		print("  PASS  sizes")
+	else:
+		failed += 1
+		for problem: String in size_problems:
+			print("  FAIL  %s" % problem)
+	print("")
+	print("docs/DESIGN_SYSTEM.md section 1 tables against the two skin files")
+	var doc_problems: PackedStringArray = _check_design_doc()
+	total += 1
+	if doc_problems.is_empty():
+		print("  PASS  3 identity fields and %d tokens: names, order, types and both values match" % Palettes.skin_tokens().size())
+	else:
+		failed += 1
+		for problem: String in doc_problems:
+			print("  FAIL  %s" % problem)
+	print("")
+	print("Final skins: %d checks, %d failed" % [total, failed])
+	print("")
+	return Vector2i(total, failed)
+
+
+## The file loads as a GameSkin, writes every property itself (so a change to
+## a default in game_skin.gd can never change a skin silently), has the right
+## identity, and every color is opaque except the scrim.
+func _check_skin_file(id: String) -> PackedStringArray:
+	var problems: PackedStringArray = PackedStringArray()
+	var path: String = Palettes.skin_path(id)
+	if not FileAccess.file_exists(path):
+		problems.append("%s does not exist; run tools/design/write_skins.gd" % path)
+		return problems
+	var skin: GameSkin = Palettes.skin(id)
+	if skin == null:
+		problems.append("%s does not load as a GameSkin" % path)
+		return problems
+	var written: Dictionary[String, bool] = {}
+	for line: String in FileAccess.get_file_as_string(path).split("
+"):
+		if line.contains(" = "):
+			written[line.get_slice(" = ", 0).strip_edges()] = true
+	var names: PackedStringArray = PackedStringArray(Palettes.SKIN_IDENTITY_FIELDS)
+	names.append_array(Palettes.skin_tokens())
+	for name: String in names:
+		if not written.has(name):
+			problems.append("%s does not set %s" % [path.get_file(), name])
+	for token: String in Palettes.skin_tokens():
+		var kind: String = Palettes.skin_token_type(token)
+		if kind == "":
+			problems.append("%s has no type" % token)
+		elif kind == "Color":
+			var color: Color = skin.get(token)
+			if not SKIN_TRANSLUCENT.has(token) and color.a < 1.0:
+				problems.append("%s must be opaque" % token)
+	if String(skin.id) != id or skin.display_name.is_empty():
+		problems.append("identity fields not set")
+	if skin.is_dark != (id == "pop_dark"):
+		problems.append("is_dark is wrong")
+	return problems
+
+
+## Board geometry and stroke sizes on the judged screen, at every density in
+## JUDGED_DENSITIES. The numbers are the same in both skins.
+func _check_skin_sizes() -> PackedStringArray:
+	var problems: PackedStringArray = PackedStringArray()
+	var s: GameSkin = Palettes.skin("pop_light")
+	var dark: GameSkin = Palettes.skin("pop_dark")
+	if s == null or dark == null:
+		problems.append("the skin files do not load")
+		return problems
+	for token: String in Palettes.skin_tokens():
+		if Palettes.skin_token_type(token) == "float" and s.get(token) != dark.get(token):
+			problems.append("%s differs between the skins; the size checks assume one value" % token)
+	var board_dp: float = JUDGED_DP_WIDTH - 2.0 * s.page_margin - s.shadow_offset - s.line_outer_w
+	var font: Font = Fonts.get_font(Fonts.Weight.SEMIBOLD)
+	for density: float in JUDGED_DENSITIES:
+		var ring_px: float = (board_dp / 9.0 - 2.0 * s.ring_inset) * density
+		var size_px: int = RingLayouts.fit_font_size(RingLayouts.Layout.ROWS, ring_px, font)
+		var size_dp: float = float(size_px) / density
+		var ink_dp: float = Fonts.digit_cell(font, size_px).y / density
+		print("  density %.3f: board %.1f dp, cell %.2f dp, candidates %d px = %.2f dp (floor %.1f), tallest digit %.2f dp" % [
+			density, board_dp, board_dp / 9.0, size_px, size_dp, CANDIDATE_FLOOR_DP, ink_dp])
+		if ink_dp < CANDIDATE_INK_FLOOR_DP:
+			problems.append("the tallest candidate digit is %.2f dp at density %.3f, below the %.1f dp floor" % [ink_dp, density, CANDIDATE_INK_FLOOR_DP])
+		if size_dp < CANDIDATE_FLOOR_DP:
+			problems.append("candidates are %.2f dp at density %.3f, below the %.1f dp floor" % [size_dp, density, CANDIDATE_FLOOR_DP])
+		var cell_px: float = maxf(1.0, roundf(s.line_cell_w * density))
+		var box_px: float = maxf(1.0, roundf(s.line_box_w * density))
+		if box_px < MIN_BOX_TO_CELL_WEIGHT * cell_px:
+			problems.append("box line %d px is not %.1f times the cell line %d px at density %.3f" % [int(box_px), MIN_BOX_TO_CELL_WEIGHT, int(cell_px), density])
+		if s.cross_mark_w * density < MIN_X_STROKE_PX:
+			problems.append("mark stroke %.2f px at density %.3f, below %.1f px" % [s.cross_mark_w * density, density, MIN_X_STROKE_PX])
+		if maxf(1.0, roundf(s.knockout_w * density)) < MIN_KNOCKOUT_PX:
+			problems.append("knockout under 1 px")
+	if not is_equal_approx(s.candidate_gap, RingLayouts.GAP):
+		problems.append("candidate_gap %.2f differs from the fitting gap %.2f in ring_layouts.gd" % [s.candidate_gap, RingLayouts.GAP])
+	var frame_in: float = s.selection_frame_w * 0.5
+	var marks_in: float = s.hint_mark_w * 0.5
+	if s.ring_inset - frame_in < MIN_RING_CLEARANCE_DP or s.ring_inset - marks_in < MIN_RING_CLEARANCE_DP:
+		problems.append("ring box clears the frame and marks by %.2f dp, needs %.1f" % [s.ring_inset - maxf(frame_in, marks_in), MIN_RING_CLEARANCE_DP])
+	if s.ring_inset - s.line_outer_w * 0.5 < MIN_RING_LINE_CLEARANCE_DP:
+		problems.append("ring box clears the outer line by %.2f dp" % (s.ring_inset - s.line_outer_w * 0.5))
+	if s.hint_mark_w < s.selection_frame_w:
+		problems.append("hint marks (%.1f dp) must be at least as heavy as the frame (%.1f dp) to cover it" % [s.hint_mark_w, s.selection_frame_w])
+	var corner_dash: float = (1.0 - s.selection_mid_dash - 2.0 * s.selection_gap) * 0.5
+	if corner_dash <= 0.0:
+		problems.append("Cross Out frame has no corner dashes")
+	if s.hint_bracket_len + 0.001 < corner_dash:
+		problems.append("hint brackets (%.2f) must cover the corner dashes (%.2f)" % [s.hint_bracket_len, corner_dash])
+	if s.hint_tick_len + 0.001 < s.selection_mid_dash:
+		problems.append("hint ticks (%.2f) must cover the middle dashes (%.2f)" % [s.hint_tick_len, s.selection_mid_dash])
+	var box_cell_dp: float = s.line_box_w / s.line_cell_w
+	print("  box line %.1f dp / cell line %.1f dp = %.1f; Cross Out frame: corner dash %.2f, gap %.2f, middle dash %.2f of the side" % [
+		s.line_box_w, s.line_cell_w, box_cell_dp, corner_dash, s.selection_gap, s.selection_mid_dash])
+	return problems
+
+
+## The two tables in section 1 of docs/DESIGN_SYSTEM.md against the skin
+## files. Identity rows look like: | `id` | StringName | `pop_light` | `pop_dark` |
+## Token rows look like: | `token` | Color | `#RRGGBB` | `#RRGGBB` | what |
+## The token rows must list exactly GameSkin's tokens, in its order, with its
+## types and both files' values.
+func _check_design_doc() -> PackedStringArray:
+	var problems: PackedStringArray = PackedStringArray()
+	if not FileAccess.file_exists(DESIGN_SYSTEM_PATH):
+		problems.append("%s does not exist" % DESIGN_SYSTEM_PATH)
+		return problems
+	var light_skin: GameSkin = Palettes.skin("pop_light")
+	var dark_skin: GameSkin = Palettes.skin("pop_dark")
+	if light_skin == null or dark_skin == null:
+		problems.append("the skin files do not load")
+		return problems
+	var lines: PackedStringArray = FileAccess.get_file_as_string(DESIGN_SYSTEM_PATH).split("
+")
+	var in_section: bool = false
+	var rows: Array[PackedStringArray] = []
+	var identity: Array[PackedStringArray] = []
+	for line: String in lines:
+		if line.begins_with("## "):
+			in_section = line.begins_with("## 1.")
+			continue
+		if not in_section or not line.begins_with("| `"):
+			continue
+		var cells: PackedStringArray = PackedStringArray()
+		for cell: String in line.trim_prefix("|").trim_suffix("|").split("|"):
+			cells.append(cell.strip_edges())
+		if cells.size() < 4:
+			continue
+		if cells[1] == "Color" or cells[1] == "float":
+			rows.append(cells)
+		elif cells[1] in ["StringName", "String", "bool"]:
+			identity.append(cells)
+	if identity.size() != Palettes.SKIN_IDENTITY_FIELDS.size():
+		problems.append("the identity table has %d rows, GameSkin has %d identity fields" % [identity.size(), Palettes.SKIN_IDENTITY_FIELDS.size()])
+	for cells: PackedStringArray in identity:
+		var field: String = _unquote(cells[0])
+		for side: int in 2:
+			var skin: GameSkin = light_skin if side == 0 else dark_skin
+			var written: String = _unquote(cells[2 + side])
+			var actual: String = str(skin.get(field)) if field != "is_dark" else ("true" if skin.is_dark else "false")
+			if written != actual:
+				problems.append("%s %s: the table says %s, the file %s" % [field, Palettes.SKIN_IDS[side], written, actual])
+	var tokens: PackedStringArray = Palettes.skin_tokens()
+	if rows.size() != tokens.size():
+		problems.append("the table has %d token rows, GameSkin has %d tokens" % [rows.size(), tokens.size()])
+	var light: Dictionary = Palettes.skin_table("pop_light")
+	var dark: Dictionary = Palettes.skin_table("pop_dark")
+	for n: int in mini(rows.size(), tokens.size()):
+		var cells: PackedStringArray = rows[n]
+		var token: String = _unquote(cells[0])
+		if token != tokens[n]:
+			problems.append("row %d is %s, GameSkin has %s there" % [n + 1, token, tokens[n]])
+			continue
+		var kind: String = Palettes.skin_token_type(token)
+		if cells[1] != kind:
+			problems.append("%s: the table says %s, GameSkin %s" % [token, cells[1], kind])
+		for side: int in 2:
+			var written: String = _unquote(cells[2 + side])
+			var expected: Variant = (light if side == 0 else dark)[token]
+			var where: String = Palettes.SKIN_IDS[side]
+			if kind == "Color":
+				if written.to_upper() != String(expected).to_upper():
+					problems.append("%s %s: the table says %s, the file %s" % [token, where, written, expected])
+			elif not written.is_valid_float() or not is_equal_approx(written.to_float(), float(expected)):
+				problems.append("%s %s: the table says %s, the file %s" % [token, where, written, str(expected)])
+	return problems
+
+
+static func _unquote(cell: String) -> String:
+	if cell.length() >= 2 and cell.begins_with("`") and cell.ends_with("`"):
+		return cell.substr(1, cell.length() - 2)
+	return cell
 
 
 ## Every token present, no unknown tokens, checked colors opaque and valid.

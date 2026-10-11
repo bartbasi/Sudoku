@@ -1,0 +1,129 @@
+{
+  "format": 1,
+  "id": "lesson_01",
+  "number": 1,
+  "title": "How Sudoku works",
+  "subtitle": "Rows, columns and boxes",
+  "solution": "314752698968431257527896134836145972792683541451279386289364715175928463643517829",
+  "screens": [
+    {
+      "board": "31..5..9..6.4..2.75.7.9..3..3.1.597279...35.1.51.7.386.8.3..7.517592.46364.5.7..9",
+      "start": { "selected": null, "mode": "place", "placed": {}, "crossed": {} },
+      "marked_cells": ["r5c5"],
+      "marked_controls": [],
+      "text": "Welcome to Sudoku! This is the board. It has 81 small squares, called cells. Some cells hold a digit, and the rest are empty. Your goal is to fill every empty cell with a digit from 1 to 9. Tap the marked cell to select it.",
+      "goal": {
+        "order": "any",
+        "steps": [ { "action": "cell", "cell": "r5c5" } ],
+        "technique": ""
+      },
+      "praise": "Good. Tapping a cell selects it. Next, the one rule that says which digit goes where.",
+      "wrong": [
+        { "match": { "action": "cell", "cells": "other" }, "text": "That is a different cell. Tap the marked cell in the middle of the board." },
+        { "match": { "action": "pad" }, "text": "First pick a cell. Tap the marked cell in the middle of the board." },
+        { "match": { "action": "mode" }, "text": "That switch is for later. Tap the marked cell in the middle of the board." }
+      ],
+      "fallback": "Tap the marked cell in the middle of the board."
+    },
+    {
+      "board": "31..5..9..6.4..2.75.7.9..3..3.1.597279...35.1.51.7.386.8.3..7.517592.46364.5.7..9",
+      "start": { "selected": null, "mode": "place", "placed": {}, "crossed": {} },
+      "marked_cells": ["r8c1", "r8c2", "r8c3", "r8c4", "r8c5", "r8c6", "r8c7", "r8c8", "r8c9"],
+      "marked_controls": [],
+      "text": "A row is a line of 9 cells going across. When a puzzle is solved, every row holds each digit from 1 to 9 exactly once. The marked row has one empty cell. Tap it.",
+      "goal": {
+        "order": "any",
+        "steps": [ { "action": "cell", "cell": "r8c6" } ],
+        "technique": ""
+      },
+      "praise": "Yes. See the whole row light up? A row never holds the same digit twice.",
+      "wrong": [
+        { "match": { "action": "cell", "cells": ["r8c1", "r8c2", "r8c3", "r8c4", "r8c5", "r8c7", "r8c8", "r8c9"] }, "text": "That cell already holds a digit. Tap the empty cell in the marked row." },
+        { "match": { "action": "cell", "cells": "other" }, "text": "That cell is not in the marked row. Tap the empty cell in the marked row." },
+        { "match": { "action": "pad" }, "text": "First tap the empty cell in the marked row." },
+        { "match": { "action": "mode" }, "text": "That switch is for later. Tap the empty cell in the marked row." }
+      ],
+      "fallback": "Tap the empty cell in the marked row."
+    },
+    {
+      "board": "31..5..9..6.4..2.75.7.9..3..3.1.597279...35.1.51.7.386.8.3..7.517592.46364.5.7..9",
+      "start": { "selected": null, "mode": "place", "placed": {}, "crossed": {} },
+      "marked_cells": ["r1c2", "r2c2", "r3c2", "r4c2", "r5c2", "r6c2", "r7c2", "r8c2", "r9c2"],
+      "marked_controls": [],
+      "text": "A column is a line of 9 cells going down. Every column holds each digit from 1 to 9 exactly once, too. The marked column has one empty cell. Tap it.",
+      "goal": {
+        "order": "any",
+        "steps": [ { "action": "cell", "cell": "r3c2" } ],
+        "technique": ""
+      },
+      "praise": "Right. A column follows the same rule as a row.",
+      "wrong": [
+        { "match": { "action": "cell", "cells": ["r1c2", "r2c2", "r4c2", "r5c2", "r6c2", "r7c2", "r8c2", "r9c2"] }, "text": "That cell already holds a digit. Tap the empty cell in the marked column." },
+        { "match": { "action": "cell", "cells": "other" }, "text": "That cell is not in the marked column. Tap the empty cell in the marked column." },
+        { "match": { "action": "pad" }, "text": "First tap the empty cell in the marked column." },
+        { "match": { "action": "mode" }, "text": "That switch is for later. Tap the empty cell in the marked column." }
+      ],
+      "fallback": "Tap the empty cell in the marked column."
+    },
+    {
+      "board": "31..5..9..6.4..2.75.7.9..3..3.1.597279...35.1.51.7.386.8.3..7.517592.46364.5.7..9",
+      "start": { "selected": null, "mode": "place", "placed": {}, "crossed": {} },
+      "marked_cells": ["r4c7", "r4c8", "r4c9", "r5c7", "r5c8", "r5c9", "r6c7", "r6c8", "r6c9"],
+      "marked_controls": [],
+      "text": "The thick lines split the board into 9 boxes. Each box is 3 cells wide and 3 cells tall. Every box holds each digit from 1 to 9 exactly once, too. The marked box has one empty cell. Tap it.",
+      "goal": {
+        "order": "any",
+        "steps": [ { "action": "cell", "cell": "r5c8" } ],
+        "technique": ""
+      },
+      "praise": "That is the whole rule of Sudoku: every row, column and box holds 1 to 9, once each.",
+      "wrong": [
+        { "match": { "action": "cell", "cells": ["r4c7", "r4c8", "r4c9", "r5c7", "r5c9", "r6c7", "r6c8", "r6c9"] }, "text": "That cell already holds a digit. Tap the empty cell in the marked box." },
+        { "match": { "action": "cell", "cells": "other" }, "text": "That cell is not in the marked box. Tap the empty cell in the marked box." },
+        { "match": { "action": "pad" }, "text": "First tap the empty cell in the marked box." },
+        { "match": { "action": "mode" }, "text": "That switch is for later. Tap the empty cell in the marked box." }
+      ],
+      "fallback": "Tap the empty cell in the marked box."
+    },
+    {
+      "board": "31..5..9..6.4..2.75.7.9..3..3.1.597279...35.1.51.7.386.8.3..7.517592.46364.5.7..9",
+      "start": { "selected": null, "mode": "place", "placed": {}, "crossed": {} },
+      "marked_cells": ["r1c5"],
+      "marked_controls": [],
+      "text": "The digits on the board at the start are called given digits. They are locked, so they never change. The digits you place look different, and you can change those. The Erase button clears a digit you placed. Tap the marked 5.",
+      "goal": {
+        "order": "any",
+        "steps": [ { "action": "cell", "cell": "r1c5" } ],
+        "technique": ""
+      },
+      "praise": "That 5 is a given digit, so it stays put. See how every other 5 lights up too? No row, column or box has two of them.",
+      "wrong": [
+        { "match": { "action": "cell", "cells": ["r3c1", "r4c6", "r5c7", "r6c2", "r7c9", "r8c3", "r9c4"] }, "text": "That is a given 5 too. For now, tap the marked one near the top." },
+        { "match": { "action": "cell", "cells": "other" }, "text": "Tap the marked 5 near the top of the board." },
+        { "match": { "action": "pad" }, "text": "Given digits never change. Tap the marked 5 to select it." },
+        { "match": { "action": "mode" }, "text": "That switch is for later. Tap the marked 5." }
+      ],
+      "fallback": "Tap the marked 5 near the top of the board."
+    },
+    {
+      "board": "31..5..9..6.4..2.75.7.9..3..3.1.597279...35.1.51.7.386.8.3..7.517592.46364.5.7..9",
+      "start": { "selected": "r8c6", "mode": "place", "placed": {}, "crossed": {} },
+      "marked_cells": ["r8c1", "r8c2", "r8c3", "r8c4", "r8c5", "r8c6", "r8c7", "r8c8", "r8c9"],
+      "marked_controls": [],
+      "text": "Back to the row from before. We selected its empty cell for you. This row has every digit but one. Which digit is missing? Tap it on the number pad.",
+      "goal": {
+        "order": "any",
+        "steps": [ { "action": "pad", "digit": 8 } ],
+        "technique": "last_empty_cell"
+      },
+      "praise": "You placed your first digit! This row now holds 1 to 9, once each. That is how Sudoku works.",
+      "wrong": [
+        { "match": { "action": "pad", "digits": [1, 2, 3, 4, 5, 6, 7, 9] }, "text": "This row already has a {d}, and a row holds each digit only once. Find the digit the row is missing." },
+        { "match": { "action": "cell", "cells": ["r8c6"] }, "text": "This cell is ready. Tap the missing digit on the number pad." },
+        { "match": { "action": "cell", "cells": "other" }, "text": "Keep this cell selected. Tap the missing digit on the number pad." },
+        { "match": { "action": "mode" }, "text": "That switch is for later. Lesson 2 shows it. Tap the missing digit." }
+      ],
+      "fallback": "Tap the digit this row is missing."
+    }
+  ]
+}

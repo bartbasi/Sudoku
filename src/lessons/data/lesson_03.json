@@ -1,0 +1,125 @@
+{
+  "format": 1,
+  "id": "lesson_03",
+  "number": 3,
+  "title": "Last empty cell",
+  "subtitle": "When a row, column or box has one cell left",
+  "solution": "314752698968431257527896134836145972792683541451279386289364715175928463643517829",
+  "screens": [
+    {
+      "board": "314.52698.6.43..575.7.9.1.4.3.14..727.26.3..1..1279.8.28936...5175.28.6364.51.8.9",
+      "start": { "selected": null, "mode": "place", "placed": {}, "crossed": {} },
+      "marked_cells": ["r1c1", "r1c2", "r1c3", "r1c4", "r1c5", "r1c6", "r1c7", "r1c8", "r1c9"],
+      "marked_controls": [],
+      "text": "When a row has only one empty cell, just one digit is missing from it. That digit must go in the empty cell. We call this the last empty cell. The marked row has one. Tap its empty cell, then tap the digit the row is missing.",
+      "goal": {
+        "order": "sequence",
+        "steps": [ { "action": "cell", "cell": "r1c4" }, { "action": "pad", "digit": 7 } ],
+        "technique": "last_empty_cell"
+      },
+      "next": { "start": "Tap the empty cell in the marked row, then tap the missing digit.", "after": { "cell:r1c4": "Now tap the digit this row is missing." } },
+      "praise": "Right. 7 was the only digit this row was missing.",
+      "wrong": [
+        { "match": { "action": "pad", "digits": [1, 2, 3, 4, 5, 6, 8, 9] }, "text": "This row already has a {d}. {next}" },
+        { "match": { "action": "pad", "digits": [7] }, "text": "Pick the cell first. {next}" },
+        { "match": { "action": "cell", "cells": ["r1c4"] }, "text": "This cell is ready. {next}" },
+        { "match": { "action": "cell", "cells": ["r1c1", "r1c2", "r1c3", "r1c5", "r1c6", "r1c7", "r1c8", "r1c9"] }, "text": "That cell already holds a digit. {next}" },
+        { "match": { "action": "cell", "cells": "other" }, "text": "That cell is not in the marked row. {next}" },
+        { "match": { "action": "mode" }, "text": "Stay in Place mode. {next}" }
+      ],
+      "fallback": "{next}"
+    },
+    {
+      "board": "314.52698.6.43..575.7.9.1.4.3.14..727.26.3..1..1279.8.28936...5175.28.6364.51.8.9",
+      "start": { "selected": null, "mode": "place", "placed": { "r1c4": 7 }, "crossed": {} },
+      "marked_cells": ["r1c9", "r2c9", "r3c9", "r4c9", "r5c9", "r6c9", "r7c9", "r8c9", "r9c9"],
+      "marked_controls": [],
+      "text": "The same works for a column. The marked column has only one empty cell. Tap it, then tap the digit the column is missing.",
+      "goal": {
+        "order": "sequence",
+        "steps": [ { "action": "cell", "cell": "r6c9" }, { "action": "pad", "digit": 6 } ],
+        "technique": "last_empty_cell"
+      },
+      "next": { "start": "Tap the empty cell in the marked column, then tap the missing digit.", "after": { "cell:r6c9": "Now tap the digit this column is missing." } },
+      "praise": "Yes. 6 was the only digit missing from this column.",
+      "wrong": [
+        { "match": { "action": "pad", "digits": [1, 2, 3, 4, 5, 7, 8, 9] }, "text": "This column already has a {d}. {next}" },
+        { "match": { "action": "pad", "digits": [6] }, "text": "Pick the cell first. {next}" },
+        { "match": { "action": "cell", "cells": ["r6c9"] }, "text": "This cell is ready. {next}" },
+        { "match": { "action": "cell", "cells": ["r1c9", "r2c9", "r3c9", "r4c9", "r5c9", "r7c9", "r8c9", "r9c9"] }, "text": "That cell already holds a digit. {next}" },
+        { "match": { "action": "cell", "cells": "other" }, "text": "That cell is not in the marked column. {next}" },
+        { "match": { "action": "mode" }, "text": "Stay in Place mode. {next}" }
+      ],
+      "fallback": "{next}"
+    },
+    {
+      "board": "314.52698.6.43..575.7.9.1.4.3.14..727.26.3..1..1279.8.28936...5175.28.6364.51.8.9",
+      "start": { "selected": null, "mode": "place", "placed": { "r1c4": 7, "r6c9": 6 }, "crossed": {} },
+      "marked_cells": ["r7c1", "r7c2", "r7c3", "r8c1", "r8c2", "r8c3", "r9c1", "r9c2", "r9c3"],
+      "marked_controls": [],
+      "text": "And the same works for a box. The marked box has only one empty cell. Tap it, then tap the digit the box is missing.",
+      "goal": {
+        "order": "sequence",
+        "steps": [ { "action": "cell", "cell": "r9c3" }, { "action": "pad", "digit": 3 } ],
+        "technique": "last_empty_cell"
+      },
+      "next": { "start": "Tap the empty cell in the marked box, then tap the missing digit.", "after": { "cell:r9c3": "Now tap the digit this box is missing." } },
+      "praise": "Well done. 3 was the only digit missing from this box.",
+      "wrong": [
+        { "match": { "action": "pad", "digits": [1, 2, 4, 5, 6, 7, 8, 9] }, "text": "This box already has a {d}. {next}" },
+        { "match": { "action": "pad", "digits": [3] }, "text": "Pick the cell first. {next}" },
+        { "match": { "action": "cell", "cells": ["r9c3"] }, "text": "This cell is ready. {next}" },
+        { "match": { "action": "cell", "cells": ["r7c1", "r7c2", "r7c3", "r8c1", "r8c2", "r8c3", "r9c1", "r9c2"] }, "text": "That cell already holds a digit. {next}" },
+        { "match": { "action": "cell", "cells": "other" }, "text": "That cell is not in the marked box. {next}" },
+        { "match": { "action": "mode" }, "text": "Stay in Place mode. {next}" }
+      ],
+      "fallback": "{next}"
+    },
+    {
+      "board": "314.52698.6.43..575.7.9.1.4.3.14..727.26.3..1..1279.8.28936...5175.28.6364.51.8.9",
+      "start": { "selected": null, "mode": "place", "placed": { "r1c4": 7, "r6c9": 6, "r9c3": 3 }, "crossed": {} },
+      "marked_cells": [],
+      "marked_controls": [],
+      "text": "Now find one on your own. Somewhere on this board, one row, column or box has just one empty cell. Tap that cell, then tap the digit that is missing.",
+      "goal": {
+        "order": "sequence",
+        "steps": [ { "action": "cell", "cell": "r5c5" }, { "action": "pad", "digit": 8 } ],
+        "technique": "last_empty_cell"
+      },
+      "next": { "start": "Find the row, column or box with just one empty cell, and tap that cell.", "after": { "cell:r5c5": "Now tap the one digit this column is missing." } },
+      "praise": "You found it! That column had just one empty cell, and 8 was missing.",
+      "wrong": [
+        { "match": { "action": "pad", "digits": [1, 2, 3, 4, 5, 6, 7, 9] }, "text": "Not {d}. {next}" },
+        { "match": { "action": "pad", "digits": [8] }, "text": "Pick the cell first. {next}" },
+        { "match": { "action": "cell", "cells": ["r5c5"] }, "text": "This cell is ready. {next}" },
+        { "match": { "action": "cell", "cells": ["r2c1", "r2c3", "r2c6", "r2c7", "r3c2", "r3c4", "r3c6", "r3c8", "r4c1", "r4c3", "r4c6", "r4c7", "r5c2", "r5c7", "r5c8", "r6c1", "r6c2", "r6c7", "r7c6", "r7c7", "r7c8", "r8c4", "r8c7", "r9c6", "r9c8"] }, "text": "Not that one. Its row, its column and its box each still have two or more empty cells. {next}" },
+        { "match": { "action": "cell", "cells": "other" }, "text": "That cell already holds a digit. {next}" },
+        { "match": { "action": "mode" }, "text": "Stay in Place mode. {next}" }
+      ],
+      "fallback": "{next}"
+    },
+    {
+      "board": "314.52698.6.43..575.7.9.1.4.3.14..727.26.3..1..1279.8.28936...5175.28.6364.51.8.9",
+      "start": { "selected": null, "mode": "place", "placed": { "r1c4": 7, "r6c9": 6, "r9c3": 3, "r5c5": 8 }, "crossed": {} },
+      "marked_cells": [],
+      "marked_controls": [],
+      "text": "Each digit you place fills a gap in its row, its column and its box. The digit you just placed left one of them with a single empty cell. Find that cell, then fill it.",
+      "goal": {
+        "order": "sequence",
+        "steps": [ { "action": "cell", "cell": "r4c6" }, { "action": "pad", "digit": 5 } ],
+        "technique": "last_empty_cell"
+      },
+      "next": { "start": "Find the row, column or box with just one empty cell, and tap that cell.", "after": { "cell:r4c6": "Now tap the one digit this box is missing." } },
+      "praise": "Great. One digit led to the next. Solving a Sudoku often goes just like that.",
+      "wrong": [
+        { "match": { "action": "pad", "digits": [1, 2, 3, 4, 6, 7, 8, 9] }, "text": "Not {d}. {next}" },
+        { "match": { "action": "pad", "digits": [5] }, "text": "Pick the cell first. {next}" },
+        { "match": { "action": "cell", "cells": ["r4c6"] }, "text": "This cell is ready. {next}" },
+        { "match": { "action": "cell", "cells": ["r2c1", "r2c3", "r2c6", "r2c7", "r3c2", "r3c4", "r3c6", "r3c8", "r4c1", "r4c3", "r4c7", "r5c2", "r5c7", "r5c8", "r6c1", "r6c2", "r6c7", "r7c6", "r7c7", "r7c8", "r8c4", "r8c7", "r9c6", "r9c8"] }, "text": "Not that one. Its row, its column and its box each still have two or more empty cells. {next}" },
+        { "match": { "action": "cell", "cells": "other" }, "text": "That cell already holds a digit. {next}" },
+        { "match": { "action": "mode" }, "text": "Stay in Place mode. {next}" }
+      ],
+      "fallback": "{next}"
+    }
+  ]
+}

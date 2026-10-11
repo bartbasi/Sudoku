@@ -22,7 +22,7 @@ To judge at real size, view the first two columns at 100 percent on a phone or w
 - The ring is laid out in a square "ring box" inset from the cell edge. Each row of slots runs edge to edge: the first and last digit touch the sides of the ring box and the rest are spaced evenly. Rows are spaced evenly from top to bottom.
 - Candidate size is the largest that fits with a gap of 0.14 of the font size between neighbors. It is measured from the real digit shapes of the font in use, so Inter gets its own fit.
 - Every digit is centered on its own visible shape, not on its line box.
-- Crossed by hand: an X through the digit. Crossed by Auto Cross: a single rising slash. Both span 80 to 84 percent of the slot, so marks on neighbors never touch. Restored by hand looks exactly like open.
+- Crossed by hand: an X through the digit. Crossed by Auto Cross: a single rising slash (Phase 1; Phase 2 replaced it with a falling slash drawn on top in blue, see DESIGN_SYSTEM.md section 2.5). Both span 80 to 84 percent of the slot, so marks on neighbors never touch. Restored by hand looks exactly like open.
 - The digit under a hand X is drawn on top of the X, with a 1 px knockout in the cell's color around its strokes. Drawn the other way round, the two crossing strokes of the X hid the digit at 720 px, worst with four crossed in a row. Now the digit reads clearly and the X still shows at its four tips and between the strokes. The single Auto Cross slash stays on top of its digit, which reads fine under one stroke, and keeps the two marks clearly different.
 - Between the cell edge and the ring box is a thin band that holds the selection frame and the hint marks, so they never cover a candidate.
 

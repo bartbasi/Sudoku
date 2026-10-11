@@ -1,0 +1,150 @@
+{
+  "format": 1,
+  "id": "lesson_04",
+  "number": 4,
+  "title": "Hidden single",
+  "subtitle": "The only spot for a digit",
+  "solution": "314752698968431257527896134836145972792683541451279386289364715175928463643517829",
+  "screens": [
+    {
+      "board": ".1.7...9.9...3...7.....6..483...5.7.7..6....1..1..93..2.9..4..517.9.8.6.6.35..8..",
+      "start": { "selected": null, "mode": "place", "placed": {}, "crossed": {} },
+      "marked_cells": ["r1c1", "r1c2", "r1c3", "r2c1", "r2c2", "r2c3", "r3c1", "r3c2", "r3c3", "r1c4", "r2c9", "r5c1", "r8c2"],
+      "marked_controls": [],
+      "text": "A hidden single is a digit that fits in only one cell of a row, column or box. Here is how to find one. The top left box needs a 7. Each marked 7 rules out its own row and its own column, so 7 cannot go there. Only one empty cell in the box is left. Tap it.",
+      "goal": {
+        "order": "any",
+        "steps": [ { "action": "cell", "cell": "r3c3" } ],
+        "technique": ""
+      },
+      "praise": "Yes. In this box, 7 fits in only one cell. That is a hidden single.",
+      "wrong": [
+        { "match": { "action": "cell", "cells": ["r1c1", "r1c3", "r2c2", "r2c3"] }, "text": "7 cannot go there. That row already has a 7. Find the empty cell in the box that no 7 rules out." },
+        { "match": { "action": "cell", "cells": ["r3c1", "r3c2"] }, "text": "7 cannot go there. That column already has a 7. Find the empty cell in the box that no 7 rules out." },
+        { "match": { "action": "cell", "cells": ["r1c2", "r2c1"] }, "text": "That cell already holds a digit. Find the empty cell in the box where 7 fits." },
+        { "match": { "action": "cell", "cells": ["r1c4", "r2c9", "r5c1", "r8c2"] }, "text": "That is one of the 7s. It rules out its own row and column. Find the empty cell in the box where 7 still fits." },
+        { "match": { "action": "cell", "cells": "other" }, "text": "That cell is outside the top left box. Find the empty cell in that box where 7 fits." },
+        { "match": { "action": "pad" }, "text": "First find the cell. Tap the empty cell in the top left box where 7 fits." },
+        { "match": { "action": "mode" }, "text": "Stay in Place mode. Tap the empty cell in the top left box where 7 fits." }
+      ],
+      "fallback": "Tap the empty cell in the top left box where 7 fits."
+    },
+    {
+      "board": ".1.7...9.9...3...7.....6..483...5.7.7..6....1..1..93..2.9..4..517.9.8.6.6.35..8..",
+      "start": { "selected": "r3c3", "mode": "place", "placed": {}, "crossed": { "r3c3": [1, 3, 4, 6, 9] } },
+      "marked_cells": ["r3c3"],
+      "marked_controls": [],
+      "text": "We crossed out every digit this cell's row, column and box already have. 2, 5, 7 and 8 are still open, so the ring alone cannot tell which one goes here. But 7 has no other place in this box. So this cell must be 7. Tap 7.",
+      "goal": {
+        "order": "any",
+        "steps": [ { "action": "pad", "digit": 7 } ],
+        "technique": "hidden_single"
+      },
+      "praise": "Well done. A hidden single can hide among other open digits, so look at one digit at a time.",
+      "wrong": [
+        { "match": { "action": "pad", "digits": [2, 5, 8], "crossed": false }, "text": "{d} is still open, but that only means nothing rules it out yet. 7 has no other place in this box. Tap 7." },
+        { "match": { "action": "pad", "digits": [1, 3, 4, 6, 9], "crossed": true }, "text": "{d} has an X, because this cell's row, column or box already has a {d}. Tap 7." },
+        { "match": { "action": "cell", "cells": ["r3c3"] }, "text": "This cell is ready. Tap 7 on the number pad." },
+        { "match": { "action": "cell", "cells": "other" }, "text": "Keep this cell selected. Tap 7 on the number pad." },
+        { "match": { "action": "mode" }, "text": "Stay in Place mode. Tap 7 on the number pad." }
+      ],
+      "fallback": "Tap 7 on the number pad."
+    },
+    {
+      "board": ".1.7...9.9...3...7.....6..483...5.7.7..6....1..1..93..2.9..4..517.9.8.6.6.35..8..",
+      "start": { "selected": null, "mode": "place", "placed": { "r3c3": 7 }, "crossed": {} },
+      "marked_cells": ["r7c1", "r7c2", "r7c3", "r7c4", "r7c5", "r7c6", "r7c7", "r7c8", "r7c9", "r5c4", "r8c8", "r9c1"],
+      "marked_controls": [],
+      "text": "A hidden single works in a row too. The marked row needs a 6. Remember, a 6 rules out its own row, column and box. The marked 6s rule out every empty cell in this row but one. Tap that cell, then tap 6.",
+      "goal": {
+        "order": "sequence",
+        "steps": [ { "action": "cell", "cell": "r7c5" }, { "action": "pad", "digit": 6 } ],
+        "technique": "hidden_single"
+      },
+      "next": { "start": "Find the empty cell in the marked row where 6 fits, tap it, then tap 6.", "after": { "cell:r7c5": "Now tap 6." } },
+      "praise": "Right. In this row, 6 fits in only one cell.",
+      "wrong": [
+        { "match": { "action": "cell", "cells": ["r7c2", "r7c7", "r7c8"] }, "text": "6 cannot go there. Its box already has a 6. {next}" },
+        { "match": { "action": "cell", "cells": ["r7c4"] }, "text": "6 cannot go there. Its column already has a 6. {next}" },
+        { "match": { "action": "cell", "cells": ["r5c4", "r8c8", "r9c1"] }, "text": "That is one of the 6s. It rules out cells in its own row, column and box. {next}" },
+        { "match": { "action": "cell", "cells": ["r7c1", "r7c3", "r7c6", "r7c9"] }, "text": "That cell already holds a digit. {next}" },
+        { "match": { "action": "cell", "cells": ["r7c5"] }, "text": "This cell is ready. {next}" },
+        { "match": { "action": "cell", "cells": "other" }, "text": "That cell is not in the marked row. {next}" },
+        { "match": { "action": "pad", "digits": [6] }, "text": "Pick the cell first. {next}" },
+        { "match": { "action": "pad", "digits": [1, 2, 3, 4, 5, 7, 8, 9] }, "text": "We are looking for 6 in this row. {next}" },
+        { "match": { "action": "mode" }, "text": "Stay in Place mode. {next}" }
+      ],
+      "fallback": "{next}"
+    },
+    {
+      "board": ".1.7...9.9...3...7.....6..483...5.7.7..6....1..1..93..2.9..4..517.9.8.6.6.35..8..",
+      "start": { "selected": null, "mode": "place", "placed": { "r3c3": 7, "r7c5": 6 }, "crossed": {} },
+      "marked_cells": ["r1c6", "r2c6", "r3c6", "r4c6", "r5c6", "r6c6", "r7c6", "r8c6", "r9c6"],
+      "marked_controls": [],
+      "text": "And in a column. The marked column needs a 3. Look for the 3s on the board. They rule out every empty cell in this column but one. Tap that cell, then tap 3.",
+      "goal": {
+        "order": "sequence",
+        "steps": [ { "action": "cell", "cell": "r5c6" }, { "action": "pad", "digit": 3 } ],
+        "technique": "hidden_single"
+      },
+      "next": { "start": "Find the empty cell in the marked column where 3 fits, tap it, then tap 3.", "after": { "cell:r5c6": "Now tap 3." } },
+      "praise": "Yes. In this column, 3 fits in only one cell.",
+      "wrong": [
+        { "match": { "action": "cell", "cells": ["r1c6"] }, "text": "3 cannot go there. Its box already has a 3. {next}" },
+        { "match": { "action": "cell", "cells": ["r2c6", "r9c6"] }, "text": "3 cannot go there. Its row already has a 3. {next}" },
+        { "match": { "action": "cell", "cells": ["r3c6", "r4c6", "r6c6", "r7c6", "r8c6"] }, "text": "That cell already holds a digit. {next}" },
+        { "match": { "action": "cell", "cells": ["r5c6"] }, "text": "This cell is ready. {next}" },
+        { "match": { "action": "cell", "cells": "other" }, "text": "That cell is not in the marked column. {next}" },
+        { "match": { "action": "pad", "digits": [3] }, "text": "Pick the cell first. {next}" },
+        { "match": { "action": "pad", "digits": [1, 2, 4, 5, 6, 7, 8, 9] }, "text": "We are looking for 3 in this column. {next}" },
+        { "match": { "action": "mode" }, "text": "Stay in Place mode. {next}" }
+      ],
+      "fallback": "{next}"
+    },
+    {
+      "board": ".1.7...9.9...3...7.....6..483...5.7.7..6....1..1..93..2.9..4..517.9.8.6.6.35..8..",
+      "start": { "selected": null, "mode": "place", "placed": { "r3c3": 7, "r7c5": 6, "r5c6": 3 }, "crossed": {} },
+      "marked_cells": ["r4c6"],
+      "marked_controls": [],
+      "text": "Here is a tip. Tap a digit on the board, and every copy of that digit lights up. Then you can see at a glance which rows, columns and boxes already have it. Tap the marked 5.",
+      "goal": {
+        "order": "any",
+        "steps": [ { "action": "cell", "cell": "r4c6" } ],
+        "technique": ""
+      },
+      "praise": "See all the 5s light up? Use this trick whenever you hunt for a hidden single.",
+      "wrong": [
+        { "match": { "action": "cell", "cells": ["r7c9", "r9c4"] }, "text": "That is a 5 too, and it would work the same way. For now, tap the marked 5." },
+        { "match": { "action": "cell", "cells": "other" }, "text": "Tap the marked 5 in the middle of the board." },
+        { "match": { "action": "pad" }, "text": "Tap the 5 on the board itself, not on the number pad." },
+        { "match": { "action": "mode" }, "text": "Stay in Place mode. Tap the marked 5." }
+      ],
+      "fallback": "Tap the marked 5 in the middle of the board."
+    },
+    {
+      "board": ".1.7...9.9...3...7.....6..483...5.7.7..6....1..1..93..2.9..4..517.9.8.6.6.35..8..",
+      "start": { "selected": "r4c6", "mode": "place", "placed": { "r3c3": 7, "r7c5": 6, "r5c6": 3 }, "crossed": {} },
+      "marked_cells": [],
+      "marked_controls": [],
+      "text": "Your turn. Look at the 5s. One box has only one empty cell left where 5 can go. Find that cell, tap it, then tap 5.",
+      "goal": {
+        "order": "sequence",
+        "steps": [ { "action": "cell", "cell": "r8c3" }, { "action": "pad", "digit": 5 } ],
+        "technique": "hidden_single"
+      },
+      "next": { "start": "Find the box where 5 fits in just one empty cell, tap that cell, then tap 5.", "after": { "cell:r8c3": "Now tap 5." } },
+      "praise": "You found a hidden single on your own. With this and the last empty cell, you can solve every Beginner puzzle.",
+      "wrong": [
+        { "match": { "action": "cell", "cells": ["r7c2", "r9c2"] }, "text": "Right box! But that cell's row already has a 5. {next}" },
+        { "match": { "action": "cell", "cells": ["r4c6", "r7c9", "r9c4"] }, "text": "That is one of the 5s. Each 5 rules out its own row, column and box. {next}" },
+        { "match": { "action": "cell", "cells": ["r8c3"] }, "text": "This cell is ready. {next}" },
+        { "match": { "action": "cell", "cells": ["r1c2", "r1c4", "r1c8", "r2c1", "r2c5", "r2c9", "r3c3", "r3c6", "r3c9", "r4c1", "r4c2", "r4c8", "r5c1", "r5c4", "r5c6", "r5c9", "r6c3", "r6c6", "r6c7", "r7c1", "r7c3", "r7c5", "r7c6", "r8c1", "r8c2", "r8c4", "r8c6", "r8c8", "r9c1", "r9c3", "r9c7"] }, "text": "That cell already holds a digit. {next}" },
+        { "match": { "action": "cell", "cells": "other" }, "text": "Not that one. That cell's box already has a 5, or it has more than one spot for 5. {next}" },
+        { "match": { "action": "pad", "digits": [5] }, "text": "Pick the cell first. {next}" },
+        { "match": { "action": "pad", "digits": [1, 2, 3, 4, 6, 7, 8, 9] }, "text": "We are looking for 5. {next}" },
+        { "match": { "action": "mode" }, "text": "Stay in Place mode. {next}" }
+      ],
+      "fallback": "{next}"
+    }
+  ]
+}

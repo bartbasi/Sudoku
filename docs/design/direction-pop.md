@@ -1,6 +1,6 @@
 # Direction 3: Pop
 
-Owner: senior-graphic-designer. Final for Hard Stop 1, 2026-10-11.
+Owner: senior-graphic-designer. Final for Hard Stop 1, 2026-10-11. Bart chose Pop at Hard Stop 1. This page is the Phase 1 record; the final values, layouts and the Phase 2 fixes are in [../DESIGN_SYSTEM.md](../DESIGN_SYSTEM.md), which wins wherever the two differ.
 
 ## Screenshots
 
@@ -80,7 +80,7 @@ Weaknesses:
 
 ## Full token table
 
-Generated from `tools/design/directions/palettes.gd`, the source of truth.
+The Phase 1 values, as captured in the screenshots above. Since Phase 2, `tools/design/directions/palettes.gd` holds the final skins and derives Pop's prototype colors from them; the final values are in DESIGN_SYSTEM.md section 1.
 
 | Token | Light | Dark |
 | --- | --- | --- |

@@ -1,0 +1,141 @@
+{
+  "format": 1,
+  "id": "lesson_05",
+  "number": 5,
+  "title": "Naked single",
+  "subtitle": "The last digit in the ring",
+  "solution": "314752698968431257527896134836145972792683541451279386289364715175928463643517829",
+  "screens": [
+    {
+      "board": ".1.7..6.89...3.25.5.7..6...83...5...7..6...414.1.7...6..93..7.51.5..8.6..4..1.82.",
+      "start": { "selected": null, "mode": "place", "placed": {}, "crossed": {} },
+      "marked_cells": ["r4c7"],
+      "marked_controls": [],
+      "text": "In lesson 4, a digit had only one cell left. Now it is the other way round: a cell has only one digit left, because its row, column and box rule out all the others. That is called a naked single: the last digit sits alone in the ring, plain to see. Tap the marked cell.",
+      "goal": {
+        "order": "any",
+        "steps": [ { "action": "cell", "cell": "r4c7" } ],
+        "technique": ""
+      },
+      "praise": "Good. Let's find out which digit this cell can be.",
+      "wrong": [
+        { "match": { "action": "cell", "cells": "other" }, "text": "That is a different cell. Tap the marked cell." },
+        { "match": { "action": "pad" }, "text": "First pick a cell. Tap the marked cell." },
+        { "match": { "action": "mode" }, "text": "We will use that next. First, tap the marked cell." }
+      ],
+      "fallback": "Tap the marked cell."
+    },
+    {
+      "board": ".1.7..6.89...3.25.5.7..6...83...5...7..6...414.1.7...6..93..7.51.5..8.6..4..1.82.",
+      "start": { "selected": "r4c7", "mode": "place", "placed": {}, "crossed": {} },
+      "marked_cells": [],
+      "marked_controls": ["mode"],
+      "text": "To mark the ring, you need Cross Out mode. Tap the mode switch.",
+      "goal": {
+        "order": "any",
+        "steps": [ { "action": "mode" } ],
+        "technique": ""
+      },
+      "praise": "Good. You are in Cross Out mode.",
+      "wrong": [
+        { "match": { "action": "pad" }, "text": "In Place mode, that would put a big digit in the cell. Tap the mode switch first." },
+        { "match": { "action": "cell", "cells": ["r4c7"] }, "text": "This cell is ready. Now tap the mode switch." },
+        { "match": { "action": "cell", "cells": "other" }, "text": "Keep this cell selected. Tap the mode switch." }
+      ],
+      "fallback": "Tap the mode switch to choose Cross Out."
+    },
+    {
+      "board": ".1.7..6.89...3.25.5.7..6...83...5...7..6...414.1.7...6..93..7.51.5..8.6..4..1.82.",
+      "start": { "selected": "r4c7", "mode": "cross_out", "placed": {}, "crossed": {} },
+      "marked_cells": ["r4c1", "r4c2", "r4c6"],
+      "marked_controls": [],
+      "text": "First the row. A row holds each digit only once, so this cell cannot be any digit the row already has. Cross out each of them. The marked cells show where they are.",
+      "goal": {
+        "order": "any",
+        "steps": [ { "action": "pad", "digit": 3 }, { "action": "pad", "digit": 5 }, { "action": "pad", "digit": 8 } ],
+        "technique": ""
+      },
+      "next": { "start": "Cross out each digit this row has.", "after": {} },
+      "praise": "Good. 3, 5 and 8 are crossed out.",
+      "wrong": [
+        { "match": { "action": "pad", "digits": [2, 6, 7] }, "text": "Yes, this column has a {d}. We get to the column next. {next}" },
+        { "match": { "action": "pad", "digits": [1, 4] }, "text": "Yes, this box has a {d}. We get to the box soon. {next}" },
+        { "match": { "action": "pad", "digits": [9] }, "text": "There is no 9 in this row, column or box. Keep 9 open. {next}" },
+        { "match": { "action": "pad", "digits": [3, 5, 8], "crossed": true }, "text": "{d} already has an X. Tapping it again would bring it back. {next}" },
+        { "match": { "action": "cell", "cells": ["r4c7"] }, "text": "The small digits are too small to tap. Use the number pad. {next}" },
+        { "match": { "action": "cell", "cells": "other" }, "text": "Keep this cell selected. Use the number pad. {next}" },
+        { "match": { "action": "mode" }, "text": "Stay in Cross Out mode for now. {next}" }
+      ],
+      "fallback": "{next}"
+    },
+    {
+      "board": ".1.7..6.89...3.25.5.7..6...83...5...7..6...414.1.7...6..93..7.51.5..8.6..4..1.82.",
+      "start": { "selected": "r4c7", "mode": "cross_out", "placed": {}, "crossed": { "r4c7": [3, 5, 8] } },
+      "marked_cells": ["r1c7", "r2c7", "r7c7", "r9c7"],
+      "marked_controls": [],
+      "text": "Now the column. Cross out each digit this column has that is still open in the ring.",
+      "goal": {
+        "order": "any",
+        "steps": [ { "action": "pad", "digit": 2 }, { "action": "pad", "digit": 6 }, { "action": "pad", "digit": 7 } ],
+        "technique": ""
+      },
+      "next": { "start": "Cross out each digit this column has that is still open.", "after": {} },
+      "praise": "Nice. The column has an 8 too, and 8 already had its X from the row.",
+      "wrong": [
+        { "match": { "action": "pad", "digits": [8], "crossed": true }, "text": "This column has an 8 too, but 8 already has an X. Tapping it again would bring it back. {next}" },
+        { "match": { "action": "pad", "digits": [2, 3, 5, 6, 7], "crossed": true }, "text": "{d} already has an X. Tapping it again would bring it back. {next}" },
+        { "match": { "action": "pad", "digits": [1, 4] }, "text": "Yes, this box has a {d}. We get to the box next. {next}" },
+        { "match": { "action": "pad", "digits": [9] }, "text": "There is no 9 in this row, column or box. Keep 9 open. {next}" },
+        { "match": { "action": "cell", "cells": ["r4c7"] }, "text": "The small digits are too small to tap. Use the number pad. {next}" },
+        { "match": { "action": "cell", "cells": "other" }, "text": "Keep this cell selected. Use the number pad. {next}" },
+        { "match": { "action": "mode" }, "text": "Stay in Cross Out mode for now. {next}" }
+      ],
+      "fallback": "{next}"
+    },
+    {
+      "board": ".1.7..6.89...3.25.5.7..6...83...5...7..6...414.1.7...6..93..7.51.5..8.6..4..1.82.",
+      "start": { "selected": "r4c7", "mode": "cross_out", "placed": {}, "crossed": { "r4c7": [2, 3, 5, 6, 7, 8] } },
+      "marked_cells": ["r5c8", "r5c9", "r6c9"],
+      "marked_controls": [],
+      "text": "Last, the box. Cross out each digit this box has that is still open in the ring.",
+      "goal": {
+        "order": "any",
+        "steps": [ { "action": "pad", "digit": 1 }, { "action": "pad", "digit": 4 } ],
+        "technique": ""
+      },
+      "next": { "start": "Cross out each digit this box has that is still open.", "after": {} },
+      "praise": "Look: only 9 is still open. Every other digit is ruled out. This cell is a naked single.",
+      "wrong": [
+        { "match": { "action": "pad", "digits": [6], "crossed": true }, "text": "This box has a 6 too, but 6 already has an X. Tapping it again would bring it back. {next}" },
+        { "match": { "action": "pad", "digits": [1, 2, 3, 4, 5, 7, 8], "crossed": true }, "text": "{d} already has an X. Tapping it again would bring it back. {next}" },
+        { "match": { "action": "pad", "digits": [9] }, "text": "There is no 9 in this row, column or box. Keep 9 open. {next}" },
+        { "match": { "action": "cell", "cells": ["r4c7"] }, "text": "The small digits are too small to tap. Use the number pad. {next}" },
+        { "match": { "action": "cell", "cells": "other" }, "text": "Keep this cell selected. Use the number pad. {next}" },
+        { "match": { "action": "mode" }, "text": "Stay in Cross Out mode for now. {next}" }
+      ],
+      "fallback": "{next}"
+    },
+    {
+      "board": ".1.7..6.89...3.25.5.7..6...83...5...7..6...414.1.7...6..93..7.51.5..8.6..4..1.82.",
+      "start": { "selected": "r4c7", "mode": "cross_out", "placed": {}, "crossed": { "r4c7": [1, 2, 3, 4, 5, 6, 7, 8] } },
+      "marked_cells": [],
+      "marked_controls": ["mode"],
+      "text": "When only one digit is left, that digit goes in the cell. Switch back to Place mode, then place the one digit still open in the ring.",
+      "goal": {
+        "order": "sequence",
+        "steps": [ { "action": "mode" }, { "action": "pad", "digit": 9 } ],
+        "technique": "naked_single"
+      },
+      "next": { "start": "Switch to Place mode, then place the one digit still open.", "after": { "mode": "Now place the one digit still open." } },
+      "praise": "You solved a naked single! Now you know every step you need for Easy puzzles.",
+      "wrong": [
+        { "match": { "action": "pad", "digits": [9], "crossed": false }, "text": "In Cross Out mode, that would cross out 9. Switch to Place mode first." },
+        { "match": { "action": "pad", "digits": [1, 2, 3, 4, 5, 6, 7, 8], "crossed": true }, "text": "{d} has an X, so this cell cannot be {d}. {next}" },
+        { "match": { "action": "mode" }, "text": "Stay in Place mode. {next}" },
+        { "match": { "action": "cell", "cells": ["r4c7"] }, "text": "This cell is ready. {next}" },
+        { "match": { "action": "cell", "cells": "other" }, "text": "Keep this cell selected. {next}" }
+      ],
+      "fallback": "{next}"
+    }
+  ]
+}

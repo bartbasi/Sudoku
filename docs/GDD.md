@@ -1,19 +1,23 @@
-# bartssudoku: Game Design Document
+# Sudoku: Game Design Document
 
-Owner: lead-game-designer. Draft for Hard Stop 1, 2026-10-11. docs/BRIEF.md wins wherever this document disagrees with it.
+Owner: lead-game-designer. Approved by Bart at Hard Stop 1, 2026-10-11. Where this document disagrees with docs/BRIEF.md, the brief wins, unless Bart decided otherwise (CLAUDE.md, "Decisions from Bart after the brief").
+
+Change log: 2026-10-11, Phase 2: updated for Bart's Hard Stop 1 decisions (his answers to the three questions, the New best rule in 12.1 with AT-67, a hand-crossed digit drawn on top of its X, ring layout A, the Pop light and Pop dark skins, the screen sizes in AT-66), and corrected the example scores in section 13 and AT-53 to match the score formula. Later in Phase 2: added the Settings line for Auto Cross (5.2), and the rule that taps after a lesson step's answer are ignored until Next (15.4, AT-63). 2026-10-12, Phase 3: updated for Bart's Hard Stop 2 decisions: a givens floor for Beginner and Easy (11.4, AT-68) and the hint highlight of candidates to cross (2.3, 10.2, AT-69).
 
 ## 1. Summary for Bart
 
 Each line is one decision. The number in brackets is the section with the reason and worked examples.
 
-### Three recommendations for you to pick
+### Three recommendations, decided
 
-- **Mistakes.** I recommend showing conflicts only: when two equal digits share a row, column or box, both are marked. It never reveals the solution and costs no points. [6]
-  - Instead: no checking until the board is full (purest, but a full wrong board gives no clue where the error is), or checking each digit against the solution (kindest to beginners, but it rewards guessing and gives answers away).
-- **Score.** I recommend level points minus hint costs during play, plus a time bonus at completion. The HUD score never ticks down with time. [9]
-  - Instead: a score that counts down with time (more pressure, and a slow player can run out of points for hints), or level points only (simplest, but time stops mattering).
-- **Hints.** I recommend a hint that never fills anything in. If a placed digit is wrong, it points to it. Otherwise it marks the next logical step, explains it in one or two sentences and names its lesson. Cost is one fifth of the level's points, so five hints use up any puzzle's points. [10]
-  - Instead: fill in one correct digit (quick, but teaches nothing), or a flat cost (simpler, but nearly free on Expert and scarce on Beginner, where hints matter most).
+Bart approved all three at Hard Stop 1 on 2026-10-11.
+
+- **Mistakes. Decided:** show conflicts only. When two equal digits share a row, column or box, both are marked. It never reveals the solution and costs no points. [6]
+  - Not chosen: no checking until the board is full (purest, but a full wrong board gives no clue where the error is), or checking each digit against the solution (kindest to beginners, but it rewards guessing and gives answers away).
+- **Score. Decided:** level points minus hint costs during play, plus a time bonus at completion. The HUD score never ticks down with time. [9]
+  - Not chosen: a score that counts down with time (more pressure, and a slow player can run out of points for hints), or level points only (simplest, but time stops mattering).
+- **Hints. Decided:** a hint never fills anything in. If a placed digit is wrong, it points to it. Otherwise it marks the next logical step, explains it in one or two sentences and names its lesson. Cost is one fifth of the level's points, so five hints use up any puzzle's points. [10]
+  - Not chosen: fill in one correct digit (quick, but teaches nothing), or a flat cost (simpler, but nearly free on Expert and scarce on Beginner, where hints matter most).
 
 ### Decisions
 
@@ -25,7 +29,7 @@ Board and input
 - Switching modes keeps the selected cell and is not an undo step. [3]
 
 Candidate ring and Auto Cross
-- Each candidate is open, crossed by hand, restored by hand, or crossed by Auto Cross. Restored by hand looks like open. [4]
+- Each candidate is open, crossed by hand, restored by hand, or crossed by Auto Cross. Restored by hand looks like open. A digit crossed by hand is drawn on top of its X, so it stays readable. [4]
 - Any candidate can be crossed, all nine included. The game never judges the ring. [4]
 - Erasing a digit brings the ring back with every hand mark exactly as the player left it. With Auto Cross on, its own marks match the board as it is now. [4, 5]
 - Auto Cross does not change the score. [5]
@@ -38,19 +42,24 @@ Play
 - The timer runs only while the board is on screen. The pause menu hides the board. Coming back from the background opens the pause menu. [8]
 - Points: Beginner 100, Easy 200, Medium 400, Hard 700, Expert 1000. Hint cost: 20, 40, 80, 140, 200. [9, 10]
 - Five levels: Beginner, Easy, Medium, Hard, Expert, all open from the start. [11]
+- Beginner puzzles have at least 36 givens and Easy at least 32, so they look gentler. Givens still never decide the level. No symmetric givens in v1. [11]
+- A hint that crosses candidates also highlights, in each target cell, the candidates to cross that still show open. [10]
 - Beginner and Easy need only last empty cell, hidden single and naked single, which is what the lesson plan teaches. [11]
-- No lessons for Medium and harder techniques in v1. Hints explain those techniques. [11]
-- Completion locks the board and shows level, time, and the score with its parts. [12]
+- No lessons for Medium and harder techniques in v1, as Bart confirmed: v1 has lessons 1 to 5. Hints explain those techniques. [11]
+- Completion locks the board and shows level, time, and the score with its parts, plus a New best label when the result beats the level's previous best. [12]
 - Stats are exactly the brief's list. [13]
 - Starting a puzzle while one is in progress asks once for confirmation. First launch offers lesson 1 once. [15]
-- In lessons Auto Cross is off and there is no timer, score or hint. Any tap that is not the step's answer, selecting another cell included, changes nothing and gets a short explanation. [15]
+- In lessons Auto Cross is off and there is no timer, score or hint. Any tap that is not the step's answer, selecting another cell included, changes nothing and gets a short explanation. Once the answer is complete, other taps are ignored until Next. [15]
 
-### Questions for you
+### Bart's answers to the Hard Stop 1 questions
 
-1. Reset Stats keeps lesson progress, so "lessons completed" survives a reset. Should it reset too? [13]
-2. I read "erasing brings the ring back exactly as the player left it" as: every hand mark exactly as left, and, only when Auto Cross is on, Auto Cross marks updated to the board as it is now. Is that right? [5, example AC-8]
-3. Addition, needs your approval: the completion screen marks a new best time or best score. [12]
-4. Heads up: Expert puzzles (Swordfish, XYZ-Wing) may be slow to generate. The Phase 2 timing will show it. If so, the choice is a pre-built bank or fewer levels.
+1. Reset Stats keeps lesson progress, so "lessons completed" survives a reset. [13]
+2. The erase reading is confirmed: erasing a digit brings back every hand mark exactly as the player left it, and, only when Auto Cross is on, the Auto Cross marks update to match the board as it is now. [4, 5, example AC-8]
+3. The "New best time" and "New best score" labels are approved and are now a rule. A label shows only when the result strictly beats the level's previous best. A tie and a level's first completion show none. [12.1, AT-67]
+
+### Heads up
+
+Expert puzzles (Swordfish, XYZ-Wing) may be slow to generate. Phase 2 timing is measuring it now, and the result goes to Bart at Hard Stop 2. If they are slow, the choice is a pre-built bank or fewer levels.
 
 ## Terms
 
@@ -89,6 +98,7 @@ Described by meaning. The senior graphic designer decides the look.
 | Conflict | Holds a digit that another cell in one of its groups also holds | Every such cell, givens included (section 6) |
 | Hint target | Where the hint says to place a digit or cross candidates | Section 10 |
 | Hint reason | The cells that make the pattern behind the hint | Section 10 |
+| Hint cross | A candidate the hint says to cross that still shows open | Ring slots of hint target cells (section 10.2) |
 
 A cell can be in several states at once. Selected, conflict and the two hint states must stay recognizable in every combination, and never by color alone.
 
@@ -153,18 +163,18 @@ The click plays when the player places or replaces a digit and when the player c
 
 ### 4.1 Layout
 
-Nine slots around the inside edge of the cell, center open. Each digit sits in the same slot in every cell. The senior graphic designer proposes layouts and Bart picks one.
+Nine slots around the inside edge of the cell, center open. Each digit sits in the same slot in every cell. Bart picked layout A, reading rows, at Hard Stop 1: 1, 2, 3 and 4 across the top, 5 on the left and 6 on the right, 7, 8 and 9 across the bottom. The senior graphic designer owns the exact slot positions.
 
 ### 4.2 Candidate states
 
 | State | Looks like | Set by |
 | --- | --- | --- |
 | Open | The digit, no X | Start of the puzzle, or Auto Cross reopening a slot it crossed |
-| Crossed by hand | The digit with the hand X | The player, in Cross Out mode |
+| Crossed by hand | The digit on top of the hand X, with a thin outline | The player, in Cross Out mode |
 | Restored by hand | Exactly like open | The player, in Cross Out mode |
 | Crossed by Auto Cross | The digit with the Auto Cross X | Auto Cross (section 5) |
 
-A crossed digit stays visible under its X.
+A crossed digit always stays visible and readable. A digit crossed by hand is drawn on top of its X with a thin outline, so the digit reads clearly and the X still shows around it. Bart approved this at Hard Stop 1, and it replaces the brief's "X drawn over it". How the Auto Cross X differs from the hand X is in section 5.2. The senior graphic designer owns the exact drawing of both.
 
 ### 4.3 Rules
 
@@ -212,6 +222,10 @@ Decision: an Auto Cross X looks different from a hand X. The difference must not
 - Example: after AC-1 below, X shows 1 and 9 with the hand X and 2, 3 and 4 with the Auto Cross X.
 
 Decision: Auto Cross changes are part of the undo step of the action that caused them. Turning Auto Cross on or off is not an undo step. See 5.4.
+
+Decision: on the Settings screen, the line under the Auto Cross switch reads exactly: "Crosses out ring digits the board rules out. Your marks stay."
+- Reason: it says what rules 1 and 2 of 5.1 do, and promises rule 3, so a player can turn it on mid-puzzle without worrying about their own work. "Ring" and "rule out" are words the lessons teach.
+- Example: in AC-1 the player turns it on with 1 and 9 crossed by hand and 6 restored by hand in X. All three stay exactly as they were.
 
 ### 5.3 Worked examples
 
@@ -265,7 +279,7 @@ Examples, each starting from Position B:
 
 ## 6. Mistakes
 
-Decision (recommendation): show conflicts only.
+Decision (approved by Bart at Hard Stop 1): show conflicts only.
 
 ### 6.1 What the player sees
 
@@ -280,7 +294,7 @@ Decision (recommendation): show conflicts only.
 | Option | For | Against |
 | --- | --- | --- |
 | No checking until full | Purest. The player owns every step. | A full wrong board gives no clue where the error is. One early slip can waste a long puzzle. |
-| Conflicts only (recommended) | Catches typos and clashes the player could have seen. Never reveals the solution. Fits a game about ruling things out. | A wrong digit that clashes with nothing can stay hidden for a long time. |
+| Conflicts only (chosen) | Catches typos and clashes the player could have seen. Never reveals the solution. Fits a game about ruling things out. | A wrong digit that clashes with nothing can stay hidden for a long time. |
 | Check against the solution | Kindest to beginners | Invites trying digits until one is not marked. Gives answers away for free. Needs a penalty to stay fair. |
 
 ### 6.3 A full board that is wrong
@@ -338,7 +352,7 @@ Decision: the pause menu covers the board.
 
 ## 9. Score
 
-Decision (recommendation): the score is the level's points minus hint costs, shown live in the HUD, plus a time bonus added at completion.
+Decision (approved by Bart at Hard Stop 1): the score is the level's points minus hint costs, shown live in the HUD, plus a time bonus added at completion.
 
 ### 9.1 Numbers
 
@@ -379,7 +393,7 @@ The par times are a first guess. Phase 4 play should tune them.
 
 ## 10. Hints
 
-Decision (recommendation): a hint never changes the board. It points out a wrong digit if there is one; otherwise it shows the next logical step.
+Decision (approved by Bart at Hard Stop 1): a hint never changes the board. It points out a wrong digit if there is one; otherwise it shows the next logical step.
 
 ### 10.1 What a hint finds
 
@@ -401,6 +415,15 @@ The solver reads the ring only for the "already done" check in step 2. Wrong cro
 - It stays on screen until the player closes it, places, replaces or erases a digit, or uses undo. Crossing and restoring do not close it, so the player can carry out an elimination.
 - While a hint is on screen the Hint button is disabled. A hint that was closed and asked for again costs again.
 - A hint on screen is saved with the puzzle and shows again on resume, with no new charge.
+
+Candidates to cross (Bart, Hard Stop 2):
+- When the step crosses candidates, the board also highlights, in each target cell, every candidate the step says to cross that still shows open (open or restored by hand). For a hidden pair or triple these are the other digits in the target cells.
+- A candidate the step crosses that is already crossed, by hand or by Auto Cross, is drawn as usual.
+- The highlight follows the ring while the hint is on screen: crossing a highlighted candidate removes its highlight, and restoring it brings the highlight back.
+- A placement step, a wrong digit hint and the fallback highlight no candidate.
+- The highlight goes away when the hint closes, and shows again with the hint on resume.
+- The senior graphic designer decides the look.
+- Example: a Pointing hint says to cross 7 in row 5 outside box 4, that is r5c4 to r5c9. r5c5 and r5c7 hold other digits. The 7 is open in r5c4, r5c6 and r5c8, and the player crossed it by hand in r5c9. The targets are r5c4, r5c6 and r5c8, and the 7 is highlighted in each. r5c9 shows its hand X as usual. The player crosses 7 in r5c4: that highlight goes, the hint stays, and 7 stays highlighted in r5c6 and r5c8.
 
 In the texts below, {group} is "row", "column" or "box", and the reason or target cells show which one.
 
@@ -474,7 +497,7 @@ Decision: hidden single is a Beginner technique and naked single an Easy one.
 - Reason: a hidden single is found by scanning one box for one digit, with no notes. It is the classic first technique. A naked single needs every digit checked for one cell, which is where the candidate ring earns its place, so it marks the step up to Easy.
 - Example: see techniques 2 and 3 below.
 
-Decision: no lessons for Medium and harder techniques in v1.
+Decision: no lessons for Medium and harder techniques in v1. Bart confirmed this at Hard Stop 1: v1 ships lessons 1 to 5 only, and the Medium lessons that docs/LESSONS.md section 5 suggests are not in v1.
 - Reason: lessons are for beginners, the brief requires only the techniques of the two easiest levels, and the hint explains each harder technique in place when the player meets it. Lessons for the Medium techniques are a good candidate for a later version.
 - Example: a Medium player who asks for a hint on a pointing step sees "In this box, 7 can only go in one row. So cross 7 out in the rest of that row." with the technique name Pointing and no lesson title.
 
@@ -540,19 +563,60 @@ In order from easiest. "Candidate" here means the solver's candidate. Every exam
     - Why it works: whatever the pivot is, the pivot or one of the wings is z.
     - Example: pivot r5c5 (2, 5, 7), wings r5c4 (2, 5) and r2c5 (5, 7). Only r4c5 and r6c5 see all three. Remove 5 from both.
 
+### 11.4 Number of givens
+
+Decision (Bart, Hard Stop 2): a generated Beginner puzzle has at least 36 givens and a generated Easy puzzle at least 32. Medium, Hard and Expert have no floor.
+- Reason: more digits make the two easiest levels look gentler, without changing what the player needs to know.
+- How: the generator stops removing givens once the puzzle is down to its level's floor. Everything else stays: the puzzle has exactly one solution and grades at exactly its level (11.1, 11.2), so a Beginner puzzle still needs a hidden single and an Easy puzzle still needs a naked single. An attempt that misses its level is dropped and the next one starts, as before.
+- The number of givens is still never part of grading. The floor only limits how far removal goes.
+- No symmetric pattern of givens in v1.
+- Lesson boards are hand made (docs/LESSONS.md) and have no floor.
+- Why these numbers: today every level averages about 25 givens (docs/GENERATION_TIMING.md). 36 and 32 give clear steps of about 4 and 7 givens above the harder levels. With 45 empty cells, last empty cell alone almost never finishes a board, so nearly every Beginner attempt still needs a hidden single and Beginner keeps its hit rate of about 100%. More givens leave more hidden singles, so fewer Easy attempts need a naked single and Easy's hit rate (46% today) will fall. At about 25 ms per attempt on the laptop, even 1 hit in 10 means about a quarter second per puzzle, well inside the Beginner to Hard waits Bart accepted.
+- Example: a Beginner attempt removes givens in random order until 36 are left and stops. The solver finishes it with last empty cells and hidden singles, using at least one hidden single, so it is kept. An Easy attempt stops at 32 givens; if the solver finishes it without ever needing a naked single, it grades Beginner, so it is dropped.
+
 ## 12. Completion
 
 - The puzzle completes the moment a placement or replacement leaves every cell filled with no conflict.
-- At that moment, in this order: the timer stops; the board locks (no input, Undo and Hint disabled, any hint closes); the final score is computed (section 9); stats update and are saved (section 13); the saved puzzle and its undo history are deleted; the completion screen shows.
-- The completion screen shows the level, the final time, the final score with its parts (points after hints, time bonus, total) and the number of hints used. Buttons: Play again (a new puzzle at the same level, with no dialog, since nothing is in progress) and Menu.
-- Addition, needs Bart's approval: a "New best time" or "New best score" label when the result beats the level's previous best.
-- Example: the Hard example in 9.3 shows "Hard, 22:30, points 420, time bonus 175, score 595, 2 hints".
+- At that moment, in this order: the timer stops; the board locks (no input, Undo and Hint disabled, any hint closes); the final score is computed (section 9); the New best labels are decided (12.1); stats update and are saved (section 13); the saved puzzle and its undo history are deleted; the completion screen shows.
+- The completion screen shows the level, the final time, the final score with its parts (points after hints, time bonus, total), the number of hints used, and any New best label (12.1). Buttons: Play again (a new puzzle at the same level, with no dialog, since nothing is in progress) and Menu.
+- Example: the Hard example in 9.3 shows "Hard, 22:30, points 420, time bonus 175, score 595, 2 hints", plus any label 12.1 gives it.
+
+### 12.1 New best labels
+
+Rule, approved by Bart at Hard Stop 1:
+- "New best time" shows when the final time t, in whole seconds, is lower than the level's best time.
+- "New best score" shows when the final score F is higher than the level's best score.
+- The best time and best score here are the level's stats as they stood just before this completion updated them (section 13). The labels read only these two stats, which the game already keeps. They add no stat and no saved data.
+- Each label is checked on its own, so a result shows neither, one or both. Each label shows with the value it names. The senior graphic designer decides the look.
+
+Decision: a tie is not a new best. A final time equal to the level's best time shows no "New best time", and a final score equal to its best score shows no "New best score".
+- Reason: Bart's rule says the result must beat the previous best. A tie leaves the best unchanged, so a label always matches a change the player can see on the stats screen.
+- Example: rows 3 and 6 of the table below.
+
+Decision: the first completion of a level shows no label. That includes the first completion after Reset Stats, because Reset Stats clears the bests.
+- Reason: with no previous best there is nothing to beat. A label on every first try would carry no news and would soon mean nothing. The stats screen still shows the result as the level's best.
+- Example: row 1 of the table below.
+
+Example: Easy (points 200, par 720 s, hint cost 40), starting with no Easy completions. Each row is one completed Easy puzzle, in order. Rows 1 and 2 are the stats example of section 13.
+
+| # | Time | Hints | Score, S + T = F | Best time and best score before | Labels |
+| --- | --- | --- | --- | --- | --- |
+| 1 | 5:00 (300 s) | 1 | 160 + 116 = 276 | None yet | None: first completion |
+| 2 | 6:41 (401 s) | 2 | 120 + 88 = 208 | 5:00, 276 | None |
+| 3 | 5:00 (300 s) | 0 | 200 + 116 = 316 | 5:00, 276 | New best score. The time ties, so no New best time. |
+| 4 | 4:50 (290 s) | 3 | 80 + 119 = 199 | 5:00, 316 | New best time |
+| 5 | 4:00 (240 s) | 0 | 200 + 133 = 333 | 4:50, 316 | New best time and New best score |
+| 6 | 4:01 (241 s) | 0 | 200 + 133 = 333 | 4:00, 333 | None: the score ties and the time is slower |
+
+After row 6, if the player resets stats, the next Easy completion shows no label, whatever its time and score.
+
+This is acceptance test AT-67.
 
 ## 13. Stats
 
-Decision: the stats are exactly the brief's list, with no additions.
+Decision: the stats are exactly the brief's list, with no additions. The New best labels on the completion screen (12.1) only read the best time and best score kept here.
 - Reason: the brief's list answers "how am I doing" per level without clutter.
-- Example: after the two Easy completions in the table below, the Easy row reads: started 2, completed 2, best time 5:00, average time 5:51, best score 210.
+- Example: after the two Easy completions of the average example below, the Easy row reads: started 2, completed 2, best time 5:00, average time 5:51, best score 276.
 
 ### 13.1 Definitions
 
@@ -563,7 +627,7 @@ Decision: the stats are exactly the brief's list, with no additions.
 | Best time (per level) | Lowest final time among completed puzzles of this level | Shown as "-" until the first completion |
 | Average time (per level) | Sum of the final times of completed puzzles divided by Completed, rounded to the nearest second, halves rounded up | Shown as "-" until the first completion |
 | Best score (per level) | Highest final score among completed puzzles of this level. 0 is a valid best. | Shown as "-" until the first completion |
-| Lessons completed (overall) | Number of different lessons finished at least once, shown as "N of M" where M is the number of lessons | 0 of M |
+| Lessons completed (overall) | Number of different lessons finished at least once, shown as "N of M" where M is the number of lessons, 5 in v1 | 0 of M |
 
 Stored per level: started, completed, best time, total time of completed puzzles, best score. Times show as m:ss, or h:mm:ss from one hour. All stats stay on the device.
 
@@ -573,21 +637,21 @@ Stored per level: started, completed, best time, total time of completed puzzles
 | --- | --- |
 | A new puzzle's board first appears | Started +1 for its level |
 | A puzzle is resumed | Nothing |
-| A puzzle is completed | Completed +1; total time + t; best time and best score updated if beaten |
+| A puzzle is completed | Completed +1; total time + t; best time and best score updated if beaten. The New best labels are decided first, from the bests as they were (12.1). |
 | A puzzle is abandoned | Nothing. It already counted as started. |
 | A lesson is finished for the first time | Lessons completed +1 |
-| Reset Stats, after confirmation | Every level's started, completed, best time, total time and best score cleared. If a puzzle is in progress, its level's Started becomes 1, so Completed never exceeds Started. Lesson progress is kept (question 1 for Bart). |
+| Reset Stats, after confirmation | Every level's started, completed, best time, total time and best score cleared. If a puzzle is in progress, its level's Started becomes 1, so Completed never exceeds Started. Lesson progress is kept (Bart, Hard Stop 1). The next completion at each level counts as a first completion and shows no New best label (12.1). |
 
 Reset Stats is a button in Settings. It asks "Reset all stats? This cannot be undone." with Cancel and Reset. Cancel changes nothing.
 
-Average example: Easy completions in 300 s (score 210) and 401 s (score 180). Total 701 s, divided by 2 is 350.5 s, rounded up to 351 s, shown as 5:51.
+Average example: Easy completions in 300 s with 1 hint (score 160 + 116 = 276) and 401 s with 2 hints (score 120 + 88 = 208). Total 701 s, divided by 2 is 350.5 s, rounded up to 351 s, shown as 5:51.
 
 ## 14. Persistence
 
 | What | Contents | Saved | Deleted |
 | --- | --- | --- | --- |
 | Puzzle in progress | Puzzle ID (reproduces the givens and the solution) and level; every placed digit; the state of every candidate of every non-given cell (the four states of 4.2); timer; score and hints bought; mode; selected cell; undo history; the hint on screen, if any | When the board first appears; after every board change and undo; after a mode switch, a hint bought or closed, and an Auto Cross change; when the app pauses, goes to the background or leaves the puzzle screen | At completion or abandon |
-| Settings | Sound (default on), skin (default light), Auto Cross (default off) | When changed | Never |
+| Settings | Sound (default on), skin (one of the two built-in skins, Pop light or Pop dark; default Pop light), Auto Cross (default off) | When changed | Never |
 | Stats | Section 13 | At puzzle start, completion and Reset Stats | Cleared by Reset Stats |
 | Lesson progress | Which lessons were finished | When a lesson is finished the first time | Never |
 | First launch | Whether the lesson 1 offer was answered | When answered | Never |
@@ -624,8 +688,10 @@ LESSONS.md holds the lesson content. These rules apply to every lesson:
 - Lessons use the same board, selection, Place and Cross Out modes and Erase as puzzles.
 - Auto Cross is always off in lessons, whatever the setting, because lessons teach crossing by hand.
 - No timer, score, hints or puzzle stats in lessons. A puzzle in progress stays saved and untouched, and its timer does not run.
-- Every tap that is not part of the step's answer, as LESSONS.md defines it, is a wrong tap. That includes selecting a different cell. A wrong tap changes nothing (board, ring, selection and mode stay as they were), the lesson's short explanation shows, and the player tries again. The player cannot fail.
+- Until the step's answer is complete, every tap that is not part of it, as LESSONS.md defines it, is a wrong tap. That includes selecting a different cell. A wrong tap changes nothing (board, ring, selection and mode stay as they were), the lesson's short explanation shows, and the player tries again. The player cannot fail.
 - Reason: lessons are scripted around one cell, so this keeps the player on the taught cell and makes every tap teach.
+- Once the step's answer is complete, the praise line and Next show. Every other tap on the board, the pad and the controls is ignored, with no text, until the player taps Next.
+- Reason: a wrong tap text is written for the step in progress. After the answer it would be out of date, for example "Pick the cell first" once the digit is already placed.
 - A lesson counts as finished when the player completes its last step. Leaving early does not count.
 - Example: in the candidate ring lesson, on Bart's example, the player in Cross Out mode taps 5. 5 stays open, a short note explains that nothing in the row, column or box holds a 5, and the step waits for the right taps.
 
@@ -633,7 +699,7 @@ LESSONS.md holds the lesson content. These rules apply to every lesson:
 
 How to read them:
 - Core: a unit test on the stated position, in tests/core or tests/puzzles. App: checked by hand in the running game.
-- Unless a test says otherwise: settings at their defaults (sound on, light skin, Auto Cross off) and a new Beginner puzzle.
+- Unless a test says otherwise: settings at their defaults (sound on, Pop light skin, Auto Cross off) and a new Beginner puzzle.
 - E, F, G and H are empty cells the tester picks. Position B, X, Y and Z are defined in sections 4.4 and 5.3. AC-n and U-n are the examples in section 5.
 
 ### Board and input
@@ -772,8 +838,8 @@ How to read them:
 - Expected: every open d in E's peers is crossed by Auto Cross, including in the cell whose answer is d. After the erase they reopen, except where another d still rules them out. The solution is never read.
 
 **AT-32 Auto Cross X and hand X look different** (App)
-- Steps: show a hand X and an Auto Cross X on the same board, in the light and the dark skin, at the smallest board size. Run the contrast script.
-- Expected: the two can be told apart without color. Both pass 3:1. Restored by hand looks exactly like open.
+- Steps: on one board, show candidates crossed by hand, candidates crossed by Auto Cross, and one cell with all nine crossed by hand. Do it in Pop light and in Pop dark, with the board at its size on a 360 dp wide screen (as AT-66). Run the contrast script.
+- Expected: the two Xs can be told apart without color. Both pass 3:1. Every digit crossed by hand is drawn on top of its X with a thin outline and reads clearly, in the cell with all nine crossed too. Every digit crossed by Auto Cross stays visible. Restored by hand looks exactly like open.
 
 **AT-33 Auto Cross does not change the score** (Core)
 - Steps: compute the final score for the same level, time and hints with Auto Cross on, off, and switched during play.
@@ -849,6 +915,12 @@ How to read them:
 - Steps: buy a hint. Kill the app. Reopen and tap Continue.
 - Expected: the same hint is on screen and the score was charged once.
 
+**AT-69 Hint highlights the candidates to cross** (Core, App)
+- Steps (Core): take the Medium position from AT-43, where the first step is an elimination. Cross by hand one of the candidates that step removes. Ask for a hint. Then ask for a hint on a position whose next step is a placement, and on one with a wrong digit.
+- Expected (Core): the elimination hint lists every candidate the step crosses in Hint.eliminations, and the board draw state's hint_crosses equals that list. Its targets are only the cells where at least one of those candidates still shows open. The placement hint and the wrong digit hint have empty eliminations.
+- Steps (App): start a Medium puzzle with Auto Cross on. Place digits by hand until a hint names Pointing, Claiming or Naked pair (place the digit of any placement hint and close it). Note the highlighted candidates. Cross one of them, then restore it. Close the hint.
+- Expected (App): in each target cell, exactly the open candidates the hint text says to cross are highlighted, and nothing else on the ring is. Crossing one removes its highlight and keeps the hint; restoring it brings the highlight back. Closing the hint removes every highlight. A placement hint highlights no candidate.
+
 ### Levels
 
 **AT-49 Grading** (Core)
@@ -858,6 +930,10 @@ How to read them:
 **AT-50 Techniques** (Core)
 - Steps: for each of the 13 techniques in 11.3, build a board containing its example pattern. Also build boards without each pattern.
 - Expected: the solver reports the technique with the stated conclusion where the pattern is, and never reports it where it is not.
+
+**AT-68 Givens floor** (Core)
+- Steps: generate 200 Beginner and 200 Easy puzzles from seeds 1 to 200. Count the givens in each.
+- Expected: every Beginner puzzle has at least 36 givens and every Easy puzzle at least 32. Each one still passes AT-49: exactly one solution, and it grades at its level (a Beginner puzzle uses at least one hidden single, an Easy puzzle at least one naked single).
 
 ### Completion and stats
 
@@ -870,9 +946,9 @@ How to read them:
 - Expected: Started is 1 higher right after the start, and does not change on any resume.
 
 **AT-53 Stats on completion** (Core, App)
-- Steps (Core): record two Easy completions, 300 s with score 210 and 401 s with score 180.
+- Steps (Core): record two Easy completions, 300 s with score 276 and 401 s with score 208.
 - Steps (App): complete a puzzle and check its level's stats.
-- Expected (Core): completed 2, best time 5:00, average time 5:51, best score 210. Expected (App): Completed +1, and best time, average time and best score match the result.
+- Expected (Core): completed 2, best time 5:00, average time 5:51, best score 276. Expected (App): Completed +1, and best time, average time and best score match the result.
 
 **AT-54 Abandon** (App)
 - Steps: start a Medium puzzle and play a little. New puzzle, choose Easy, tap Start new.
@@ -893,8 +969,8 @@ How to read them:
 - Expected: every digit, every candidate with its exact state and look, the score, the mode and the selected cell are as they were. The timer is within one second of its value when the app went to the background. Undo works back to the start of the puzzle. After the force-stop variant, the last action is there.
 
 **AT-58 Settings persist** (App)
-- Steps: turn sound off, pick the dark skin, turn Auto Cross on. Kill the app and reopen.
-- Expected: all three settings are as set.
+- Steps: fresh install. Open Settings and look at the skin picker. Turn sound off, pick Pop dark, turn Auto Cross on. Kill the app and reopen.
+- Expected: the skin picker offers exactly two skins, Pop light and Pop dark, with Pop light selected on the fresh install. After reopening, all three settings are as set and the game shows Pop dark.
 
 **AT-59 Stats and lesson progress persist** (App)
 - Steps: after AT-53 and AT-56, kill the app and reopen.
@@ -917,6 +993,8 @@ How to read them:
 **AT-63 Lesson wrong answers** (App)
 - Steps: in a lesson step, do each of these wrong taps in turn: select a different cell; with the taught cell selected, tap a wrong digit; in a Cross Out step, cross a candidate that should stay open; tap the mode toggle when switching is not part of the answer. Then do the right taps.
 - Expected: each wrong tap changes nothing: the board, the ring, the selection and the mode stay as they were. The lesson's short explanation shows and the step stays. Selecting another cell leaves the taught cell selected. There is no way to fail. The right taps move the lesson on, and finishing the last step's answer counts the lesson as finished.
+- Steps, part 2: complete a step's answer, and before tapping Next, tap a different cell, a digit, the mode toggle, Erase and Undo.
+- Expected, part 2: the praise line and Next stay. Nothing changes on the board, the ring, the selection or the mode, and no explanation shows. Tapping Next moves on.
 
 **AT-64 Lessons and the puzzle in progress** (App)
 - Steps: Auto Cross on and a puzzle in progress at 2:00. Open a lesson that has empty cells next to digits and spend a minute in it. Leave and tap Continue.
@@ -927,5 +1005,13 @@ How to read them:
 - Expected: the screen stays portrait. Nothing moves or changes, and the timer is unaffected.
 
 **AT-66 Tiny and huge screens** (App)
-- Steps: run at 320 by 568 dp and at 1024 by 1366 dp in portrait, with safe area insets for a notch and a gesture bar. Play a few moves and open every screen.
-- Expected: the whole board, the HUD and the pad show without scrolling. Cells are square. Nothing overlaps, is cut off, or sits under the notch or gesture bar. Input works. The contrast script passes at the smallest board size.
+- Steps: run in portrait at three sizes, each with safe area insets for a notch and a gesture bar: 320 by 568 dp; 360 dp wide on a screen tall enough that the width sets the board's size (for example 360 by 800 dp); and 1024 by 1366 dp. At each size play a few moves and open every screen. At 360 dp wide, also run the contrast script and measure the candidate digits.
+- Expected: at all three sizes the whole board, the HUD and the pad show without scrolling. Cells are square. Nothing overlaps, is cut off, or sits under the notch or gesture bar. Input works. 320 by 568 dp is the smallest screen the game must fit and work on; candidate size and contrast are not judged there. Readability, meaning candidate size and contrast, is judged at 360 dp wide: the contrast script passes, and the candidate digits are no smaller than the minimum in docs/DESIGN_SYSTEM.md.
+
+### Completion labels
+
+**AT-67 New best labels** (Core, App)
+- Steps (Core): start with no Easy stats. Record the six Easy completions of the table in 12.1, in order, and note the labels each one gets. Then Reset Stats and record one more Easy completion: 6:41 (401 s), 2 hints, score 208.
+- Steps (App): start with no Beginner completions (fresh install, or after Reset Stats). Complete a Beginner puzzle using one hint. Complete a second Beginner puzzle faster than the first, using no hints. Complete a third Beginner puzzle more slowly than the second, using one hint.
+- Expected (Core): the labels are, in order: none; none; New best score only; New best time only; both; none. Before the reset the Easy row shows best time 4:00 and best score 333. The completion after the reset gets no label.
+- Expected (App): the first completion screen shows no label. The second shows both "New best time" and "New best score", because it is faster and its score is at least 20 higher (no hint cost, and a time bonus at least as large). The third shows no label. The Beginner stats then show the second puzzle's time and score as the bests.

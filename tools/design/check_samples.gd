@@ -1,7 +1,9 @@
 extends SceneTree
 ## Checks the Phase 1 sample content, the candidate ring layouts and the
 ## board geometry, and prints the candidate sizes quoted in
-## docs/design/ring-layouts.md.
+## docs/design/ring-layouts.md. Since Phase 2 it also runs the play and lesson
+## layout rules of docs/DESIGN_SYSTEM.md section 4 (layout_model.gd) on the
+## screens we design for, and prints the sizes that section quotes.
 ##
 ##   timeout 300 godot --headless --path . --script res://tools/design/check_samples.gd
 ##
@@ -12,6 +14,11 @@ const RingLayouts := preload("res://tools/design/directions/ring_layouts.gd")
 const SampleState := preload("res://tools/design/directions/sample_state.gd")
 const Fonts := preload("res://tools/design/directions/fonts.gd")
 const Device := preload("res://tools/design/directions/device.gd")
+const LayoutModel := preload("res://tools/design/layout_model.gd")
+
+## The candidate floor in DESIGN_SYSTEM.md section 3, checked on the judged
+## screen (360 dp wide, board width-bound). check_contrast.gd checks it too.
+const CANDIDATE_FLOOR_DP: float = 11.0
 
 ## GDD 9.1: level points and hint cost.
 const POINTS: Dictionary[String, int] = {"Beginner": 100, "Easy": 200, "Medium": 400, "Hard": 700, "Expert": 1000}
@@ -38,6 +45,7 @@ func _run() -> int:
 	_check_layouts()
 	_check_geometry()
 	_print_sizes()
+	_check_final_layout()
 	print("")
 	if _failures.is_empty():
 		print("All sample, layout and geometry checks passed.")
@@ -398,6 +406,33 @@ func _check_geometry() -> void:
 			var ring: Rect2 = RingLayouts.ring_box(direction, board, index)
 			_expect(board.encloses(cell), "%s: cell %d leaves the board" % [direction, index])
 			_expect(cell.encloses(ring), "%s: ring box %d leaves its cell" % [direction, index])
+
+
+# Final layout (DESIGN_SYSTEM.md section 4)
+
+func _check_final_layout() -> void:
+	var skin: GameSkin = Palettes.skin("pop_light")
+	print("")
+	print("Final layout, play and lesson screens (dp; candidates in dp at density 2 and 3)")
+	for screen: LayoutModel.Screen in LayoutModel.screens():
+		for kind: String in ["play", "lesson"]:
+			var layout: LayoutModel.Layout = LayoutModel.play(screen, skin) if kind == "play" else LayoutModel.lesson(screen, skin)
+			var px2: int = LayoutModel.candidate_px(layout.board, 2.0, skin)
+			var px3: int = LayoutModel.candidate_px(layout.board, 3.0, skin)
+			var dp2: float = float(px2) / 2.0
+			var dp3: float = float(px3) / 3.0
+			print("  %-34s %-6s board %5.1f (%s), cell %4.1f, candidates %4.1f / %4.1f, info zone %5.1f, hint panel %5.1f, keys %4.1f x %4.1f, right column %5.1f, gap %4.1f, spare %5.1f" % [
+				screen.label, kind, layout.board, "width" if layout.board_width_bound else "height", layout.cell(), dp2, dp3,
+				layout.info_zone, layout.hint_panel, layout.key_w, layout.key_h, layout.action_w, layout.gap, layout.spare])
+			if kind == "lesson":
+				print("  %-34s        lesson text %d dp, title %s, %s" % ["", int(LayoutModel.lesson_text_size),
+					"shown" if LayoutModel.lesson_title_shown else "hidden",
+					"text scrolls in the card" if LayoutModel.lesson_scrolls else "all text shows"])
+			for problem: String in layout.problems:
+				_failures.append("%s %s: %s" % [screen.label, kind, problem])
+			if screen.judged and kind == "play":
+				_expect(layout.board_width_bound, "%s: the board must be width-bound on the judged screen" % screen.label)
+				_expect(minf(dp2, dp3) >= CANDIDATE_FLOOR_DP, "%s: candidates %.2f dp, below the %.1f dp floor" % [screen.label, minf(dp2, dp3), CANDIDATE_FLOOR_DP])
 
 
 # Sizes for the ring layout doc
