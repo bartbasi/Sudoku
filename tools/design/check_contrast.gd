@@ -14,7 +14,9 @@ extends SceneTree
 ## under an X 3:1, so it stays readable; outlines, markers, box lines and
 ## chart marks 3:1 (WCAG non-text contrast); disabled button text 3:1 (WCAG
 ## exempts it, we still want it legible); cell lines 1.2:1 (quiet structure,
-## the box lines carry the grouping).
+## the box lines carry the grouping). Marks that touch on the board (the
+## selection frame, hint marks, box and outer lines) must also differ in color
+## (TOLD_APART), and a soft shadow must fit inside the screen margin.
 ##
 ## Contrast ratios do not depend on size, so one check covers every board
 ## size. The size checks below cover the smallest board.
@@ -73,6 +75,23 @@ const RULES: Array = [
 	["mode_toggle_text", ["mode_toggle_bg"], 4.5, "text"],
 	["mode_toggle_active_text", ["mode_toggle_active_bg"], 4.5, "text"],
 ]
+# The contrast ratio is symmetric, so each pair also covers the reverse
+# drawing order: Pebble's pad badge draws pad_key_cross_bg on a
+# pad_key_cross_mark disc, which the pad_key_cross_mark rule above covers.
+
+## Marks that touch or overlap on the board must differ in color as well as
+## shape, or they fuse into one shape: the selection frame's dashes sit on box
+## and outer lines, the hint brackets and ticks sit against the frame, and the
+## ticks touch box and outer lines. [token, other tokens, what it is]
+const TOLD_APART: Array = [
+	["selected_outline", ["line_box", "line_outer"], "selection frame on a box line"],
+	["hint_target_marker", ["selected_outline", "line_box", "line_outer"], "hint target mark"],
+	["hint_reason_marker", ["selected_outline", "line_box", "line_outer"], "hint reason mark"],
+]
+## Smallest distance between two such colors, as the length of their RGB
+## difference with channels from 0 to 1. Contrast ratio alone cannot judge
+## this, because two hues of equal lightness are easy to tell apart.
+const MIN_COLOR_DISTANCE: float = 0.3
 
 ## Tokens that may be translucent or are decoration only.
 const UNCHECKED: Array[String] = ["shadow", "celebrate_1", "celebrate_2", "celebrate_3", "board_bg", "pad_bg"]
@@ -118,6 +137,17 @@ func _run() -> int:
 					if not ok:
 						failed += 1
 					print("  %s  %5.2f  >= %.1f  %-24s on %-20s (%s)" % ["PASS" if ok else "FAIL", ratio, target, fg_name, bg_name, kind])
+			for rule: Array in TOLD_APART:
+				var name_a: String = rule[0]
+				var others: Array = rule[1]
+				var what: String = rule[2]
+				for name_b: String in others:
+					var distance: float = color_distance(colors.get(name_a), colors.get(name_b))
+					var apart: bool = distance >= MIN_COLOR_DISTANCE
+					total += 1
+					if not apart:
+						failed += 1
+					print("  %s  %5.2f  >= %.1f  %-24s vs %-20s (%s, color distance)" % ["PASS" if apart else "FAIL", distance, MIN_COLOR_DISTANCE, name_a, name_b, what])
 			print("")
 
 	print("Size checks at the smallest board (%d dp phone, %d px wide)" % [int(Device.SMALLEST_PHONE_DP_WIDTH), int(Device.SMALLEST_PHONE_PX_WIDTH)])
@@ -181,6 +211,10 @@ func _check_sizes(direction: String) -> PackedStringArray:
 		problems.append("cell separation is %.2f px, below %.1f px" % [line_px, MIN_CELL_LINE_PX])
 	if box_separation < MIN_BOX_TO_CELL_WEIGHT * cell_separation:
 		problems.append("box separation %.1f is not %.1f times the cell separation %.1f" % [box_separation, MIN_BOX_TO_CELL_WEIGHT, cell_separation])
+	# A soft shadow spreads shadow_blur around its shape; it must not reach
+	# past the screen margin, where the screen edge would cut it off.
+	if shape.shadow_blur > 0.0 and shape.shadow_blur + absf(shape.shadow_offset.x) > shape.screen_margin:
+		problems.append("soft shadow spreads %.0f units sideways, past the %.0f unit screen margin" % [shape.shadow_blur + absf(shape.shadow_offset.x), shape.screen_margin])
 	return problems
 
 
@@ -189,6 +223,11 @@ static func contrast(a: Color, b: Color) -> float:
 	var la: float = luminance(a)
 	var lb: float = luminance(b)
 	return (maxf(la, lb) + 0.05) / (minf(la, lb) + 0.05)
+
+
+## Length of the RGB difference of two colors, channels from 0 to 1.
+static func color_distance(a: Color, b: Color) -> float:
+	return Vector3(a.r - b.r, a.g - b.g, a.b - b.b).length()
 
 
 ## WCAG 2 relative luminance of an sRGB color.

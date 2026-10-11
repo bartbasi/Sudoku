@@ -157,6 +157,19 @@ static func draw_centered(canvas: CanvasItem, font: Font, font_size: int, text: 
 	canvas.draw_string(font, origin, text, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size, color)
 
 
+## Like draw_centered(), with an outline drawn first: outline_size pixels
+## around every stroke, in outline_color. The board draws a crossed candidate
+## with it on top of its mark, with outline_color set to the cell's
+## background, so the mark stops just short of the digit's strokes and both
+## stay readable.
+static func draw_centered_outlined(canvas: CanvasItem, font: Font, font_size: int, text: String, center: Vector2, color: Color, outline_size: int, outline_color: Color) -> void:
+	var box: Rect2 = ink_box(font, font_size, text)
+	var origin: Vector2 = center - box.get_center()
+	if outline_size > 0:
+		canvas.draw_string_outline(font, origin, text, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size, outline_size, outline_color)
+	canvas.draw_string(font, origin, text, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size, color)
+
+
 ## Size of the widest and the tallest ink box among the digits 1 to 9.
 ## The ring layouts use it to fit and space candidates.
 static func digit_cell(font: Font, font_size: int) -> Vector2:

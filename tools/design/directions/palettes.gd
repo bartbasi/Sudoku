@@ -162,8 +162,18 @@ class Shape extends RefCounted:
 	var tick_len: float ## Hint reason tick, as a share of the cell side.
 	var conflict_bar_w: float ## Weight of the bar under a conflict digit.
 	var conflict_bar_len: float ## Length of that bar, as a share of the cell side.
+	var conflict_bar_y: float ## Center of that bar, as a share of the cell side from the cell's top edge.
 	var x_stroke_w: float ## Stroke of the hand X and the Auto Cross slash.
 	var x_size: float ## The hand X and the Auto Cross slash span this share of the slot box, centered, so neighbors never touch.
+	## Candidates crossed by hand: the X is drawn first, then the digit on top
+	## with an outline in the cell's background color, so the X stops just short
+	## of the digit's strokes and the digit stays readable. This is the outline
+	## size passed to draw_string_outline(), in design units: draw it at
+	## maxi(1, roundi(crossed_halo_w * board scale)) pixels
+	## (Fonts.draw_centered_outlined). The Auto Cross slash is a single stroke
+	## and stays on top of its digit.
+	var crossed_halo_w: float
+	var round_caps: bool ## Round ends on the X, the slash, dashes, ticks, brackets and the conflict bar; square ends when false.
 	var screen_margin: float ## Left and right screen margin.
 	var space: float ## Base spacing step between blocks.
 	var button_radius: float ## 999 means fully round (pill or circle).
@@ -359,8 +369,11 @@ const _SHAPES: Dictionary = {
 		"tick_len": 0.22,
 		"conflict_bar_w": 6.0,
 		"conflict_bar_len": 0.4,
+		"conflict_bar_y": 0.84,
 		"x_stroke_w": 3.0,
 		"x_size": 0.8,
+		"crossed_halo_w": 1.0,
+		"round_caps": false,
 		"screen_margin": 24.0,
 		"space": 24.0,
 		"button_radius": 0.0,
@@ -392,8 +405,11 @@ const _SHAPES: Dictionary = {
 		"tick_len": 0.22,
 		"conflict_bar_w": 6.0,
 		"conflict_bar_len": 0.4,
+		"conflict_bar_y": 0.84,
 		"x_stroke_w": 4.0,
 		"x_size": 0.84,
+		"crossed_halo_w": 1.0,
+		"round_caps": true,
 		"screen_margin": 16.0,
 		"space": 24.0,
 		"button_radius": 999.0,
@@ -401,8 +417,10 @@ const _SHAPES: Dictionary = {
 		"chip_radius": 999.0,
 		"card_radius": 32.0,
 		"outline_w": 0.0,
-		"shadow_offset": Vector2(0.0, 8.0),
-		"shadow_blur": 24.0,
+		# The soft shadow spreads shadow_blur around the shape, so it must not
+		# be wider than screen_margin, or it is cut off at the screen edge.
+		"shadow_offset": Vector2(0.0, 6.0),
+		"shadow_blur": 16.0,
 	},
 	"pop": {
 		"style": STYLE_LINES,
@@ -425,8 +443,11 @@ const _SHAPES: Dictionary = {
 		"tick_len": 0.22,
 		"conflict_bar_w": 7.0,
 		"conflict_bar_len": 0.4,
+		"conflict_bar_y": 0.84,
 		"x_stroke_w": 4.0,
 		"x_size": 0.8,
+		"crossed_halo_w": 1.0,
+		"round_caps": false,
 		"screen_margin": 24.0,
 		"space": 20.0,
 		"button_radius": 14.0,
@@ -740,9 +761,11 @@ const _COLORS: Dictionary = {
 			"line_cell": "#4A4A4A",
 			"line_box": "#111111",
 			"line_outer": "#111111",
-			"selected_outline": "#111111",
-			"hint_target_marker": "#111111",
-			"hint_reason_marker": "#111111",
+			# Not ink: the frame's dashes sit on box lines, and the hint marks
+			# touch the frame and the box lines, so each needs its own color.
+			"selected_outline": "#1A40D9",
+			"hint_target_marker": "#087A38",
+			"hint_reason_marker": "#087A38",
 			"conflict_marker": "#B8002A",
 			"hud_bg": "#FFFFFF",
 			"hud_text": "#111111",

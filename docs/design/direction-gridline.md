@@ -1,6 +1,18 @@
 # Direction 1: Gridline
 
-Owner: senior-graphic-designer. Phase 1 draft, 2026-10-11. Screenshots are added in step 2: `gridline-play.png`, `gridline-lesson.png`, `gridline-stats.png`, `gridline-complete.png`, `gridline-play-dark.png`, `gridline-states.png`, `gridline-states-dark.png`.
+Owner: senior-graphic-designer. Final for Hard Stop 1, 2026-10-11.
+
+## Screenshots
+
+All at 1080 by 2400 (one design unit is one pixel), ring layout A, Godot's default font.
+
+- Play, Cross Out mode: [gridline-play.png](gridline-play.png). Dark: [gridline-play-dark.png](gridline-play-dark.png). Place mode: [gridline-play-place.png](gridline-play-place.png).
+- Lesson step: [gridline-lesson.png](gridline-lesson.png)
+- Stats: [gridline-stats.png](gridline-stats.png)
+- Puzzle complete: [gridline-complete.png](gridline-complete.png)
+- Every board state at true size: [gridline-states.png](gridline-states.png), dark: [gridline-states-dark.png](gridline-states-dark.png)
+- Ring close-ups (all three directions): [ring-layouts.md](ring-layouts.md)
+- Font comparison: shown on Pop, the team's top-ranked direction, in [font-comparison.md](font-comparison.md).
 
 ## Concept
 
@@ -14,7 +26,7 @@ Paper `#F6F5F1`, white board `#FFFFFF`, ink `#111111`, ultramarine `#2A3BD9` (he
 
 - Square cells on a uniform pitch. Cell lines 2 units in pale gray, box lines 6 units in ink, outer line 8 units in ink. No radius anywhere.
 - Given digits: ink, bold. Placed digits: ultramarine, regular weight. They differ in weight as well as color.
-- Candidates: medium weight, dark gray. Crossed by hand: the digit turns mid gray under a vermilion X with square ends (3 units). Crossed by Auto Cross: a single rising slash in gray. An X is the player's; a slash is the game's.
+- Candidates: medium weight, dark gray. Crossed by hand: a vermilion X with square ends (3 units), and the digit in mid gray drawn on top of it with a 1 px knockout in the cell color, so the digit stays readable at 720 px while the X shows around it. Crossed by Auto Cross: a single rising slash in gray over the digit. An X is the player's; a slash is the game's.
 - Selected: pale ultramarine fill and a 5 unit ultramarine frame on the cell edge. Place mode draws the frame solid; Cross Out mode draws it dashed.
 - Peers (row, column, box): a cool gray tint. Same digit: pale yellow.
 - Conflict: pale vermilion fill, the digit in dark vermilion, and a heavy vermilion bar under the digit.
@@ -26,20 +38,18 @@ Godot's default font throughout. Timer 150 units bold with tight spacing. Labels
 
 ## Play screen layout
 
-- A full-bleed ultramarine header band from the top edge down to about 440 units: the level tag (white box, ultramarine capitals) and the Hint button (vermilion, "HINT 80") and a square Pause button on the first row; the timer in huge white numerals on the left and SCORE 320 on the right below it.
+- A full-bleed ultramarine header band from the top edge down to about 490 units: the level tag (white box, ultramarine capitals), the Hint button (vermilion, "HINT 80") and a square Pause button on the first row; the timer in huge white numerals on the left and SCORE 320 on the right below it.
 - The board right under the band, 24 unit margins.
-- Controls anchored to the bottom: a full-width two-segment bar, PLACE | CROSS OUT, with the active segment in solid ink; one row of nine tall keys; a row with Undo and Erase as outlined text buttons with icons.
-- Cross Out mode: the keys invert to ink with white digits and a small vermilion slash in each key's corner.
+- Controls anchored to the bottom: a full-width two-segment bar, PLACE | CROSS OUT, with the active segment in solid ink; one row of nine keys about 200 units tall; a row with Undo and Erase as outlined text buttons with icons.
+- Cross Out mode: the keys invert to ink with white digits and a small vermilion slash in each key's corner. Place mode: white keys, no slash.
 
 How it differs from the other two: the only one with a header band and a single row of nine keys. All information is typographic, left aligned, set in rows like a timetable. No shadows, no rounding, no stickers.
 
-Trade-off: nine keys in one row are about 109 units wide each, which is 36 dp on a 360 dp phone, under Android's 48 dp touch target. They are tall (at least 190 units) to make up for it, and the order 1 to 9 left to right is the easiest to hit without looking. Pebble's and Pop's keys meet 48 dp.
-
 ## Other screens
 
-- Lesson: the band holds "LESSON 2 OF 5" and the title; STEP 5 OF 8 as a label; the board; the step text on white with a heavy ink rule on its left; the mode bar and keys in Cross Out mode. No timer, score or hint.
-- Stats: a ruled table, one row per level (LEVEL, STARTED, DONE, BEST, AVERAGE, BEST SCORE) with every other row tinted, "-" where a level has no completion; LESSONS COMPLETED 4 OF 5 as a big number with a five-segment bar.
-- Complete: a tall band with SOLVED in display type and the level tag; below, a receipt: time, points after hints, time bonus, a rule, score in display size, hints used; PLAY AGAIN (vermilion) and MENU (outlined). A printer's color bar of small squares in ultramarine, vermilion and yellow is the only decoration.
+- Lesson: the band holds "LESSON 2 OF 5", the title and a close button; STEP 5 OF 8 as a label; the board; the step text on white with a heavy ink rule on its left; the mode bar, keys, Undo and Erase in Cross Out mode. No timer, score or hint.
+- Stats: a ruled table, one row per level (LEVEL, STARTED, DONE, BEST, AVERAGE, BEST SCORE) with every other row tinted, "-" where a level has no completion; LESSONS COMPLETED with a big 4 of 5 and a five-segment bar.
+- Complete: a tall ultramarine field with the level tag at the top and SOLVED in display type at its foot, like a poster; below, a printer's color bar of small squares and a receipt: time, points after hints, time bonus, a rule, the score in display size, hints used; PLAY AGAIN (vermilion) and MENU (outlined).
 
 ## Motion idea
 
@@ -47,7 +57,24 @@ Precise and quick, never bouncy. 120 ms ease-out moves. The selection frame snap
 
 ## Dark version
 
-Near-black paper and board, light gray box rules, deep ultramarine band, light ultramarine placed digits and selection, vermilion X. Same shapes and layout.
+Near-black paper and board, light gray box rules, deep ultramarine band, light ultramarine placed digits and selection, vermilion X, and pad keys that invert to light gray in Cross Out mode. Same shapes and layout.
+
+## Strengths and weaknesses
+
+Strengths:
+
+- The cleanest board of the three. White cells, pale cell lines and ink box lines give the strongest box structure, and the board is the largest (1032 units), so candidates are the largest too: 37 unit font, digits 9.7 dp tall on a 360 dp phone.
+- Keys run 1 to 9 left to right, the easiest order to hit without looking.
+- The cheapest to draw: a full board redraw takes 7 to 11 ms on this laptop.
+- Calm and timeless. The poster band gives it a clear identity without decoration.
+
+Weaknesses:
+
+- Each key is about 109 units wide: 36 dp on a 360 dp phone, below Android's 48 dp touch target. The keys are about 200 units (66 dp) tall to make up for it, about the size of keyboard keys, but it is the one place a direction misses the 48 dp rule.
+- The plainest of the three. It may feel more like a tool than a game.
+- On a 20:9 phone about 240 units of empty paper sit between the board and the controls. Shorter phones close the gap; Phase 2 decides how leftover height is shared.
+- The completion screen's big blue field is deliberate but may read as empty.
+- In dark mode the light blue selection frame sits close to the light gray box lines (the smallest color distance of any touching pair, 0.40). It passes, but it is the first thing to watch on a real phone.
 
 ## Full token table
 

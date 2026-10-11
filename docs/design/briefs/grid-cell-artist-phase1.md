@@ -100,7 +100,7 @@ Path: `res://tools/design/directions/board/ring_closeup.tscn`
 
 Path: `res://tools/design/directions/board/state_sheet.tscn`
 
-- Root: `Control`. Properties: `direction: String`, `dark: bool`, `ring_layout: int`. The capture tool sets its size to 1080 by 2640.
+- Root: `Control`. Properties: `direction: String`, `dark: bool`, `ring_layout: int`. The capture tool sets its size to 1080 by 2720 (2640 until the step 2 review).
 - Content: on the direction's `app_bg`, for each entry of `SampleState.state_sheet()` (two of them): its title (`ROLE_LABEL`, `text`), its notes (`ROLE_BODY` at 30 units, `text_muted`), one hint line "Hint: {technique}. {text} {lesson}" (lesson only when not empty), then that board at the direction's `board_size`, centered across the width. Text at `screen_margin`.
 - It shows every state and the hard combinations: selected in both modes, hint target and reason, conflict on a given and on placed digits, same digit, hand X next to Auto Cross marks, and selected plus conflict plus hint target on one cell.
 
