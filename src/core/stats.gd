@@ -3,6 +3,11 @@ extends RefCounted
 ## Per level stats (GDD 13) and the New best rule (GDD 12.1).
 ## Stored per level: started, completed, best time, total time, best score.
 ## A best is -1 until the level's first completion.
+##
+## Stats also remembers the id of the last puzzle it counted, so the same
+## puzzle is never counted twice. That lets the app write stats first and
+## delete the saved puzzle second: if the app dies in between, the saved
+## puzzle comes back one digit short, and finishing it again changes nothing.
 
 const DataCheck := preload("res://src/core/data_check.gd")
 
@@ -14,6 +19,7 @@ var _completed: PackedInt64Array = PackedInt64Array()
 var _best_time: PackedInt64Array = PackedInt64Array()
 var _total_time: PackedInt64Array = PackedInt64Array()
 var _best_score: PackedInt64Array = PackedInt64Array()
+var _last_completed_id: String = ""
 
 
 func _init() -> void:
@@ -56,12 +62,31 @@ func record_start(level: int) -> void:
 		_started[level] += 1
 
 
+## The id of the last puzzle record_completion() counted, or "" if none.
+func last_completed_id() -> String:
+	return _last_completed_id
+
+
+## True if puzzle_id is the last puzzle counted, so record_completion() with
+## it would change nothing. False for "".
+func has_completed(puzzle_id: String) -> bool:
+	return not puzzle_id.is_empty() and puzzle_id == _last_completed_id
+
+
 ## Records a completion and returns the NEW_BEST_* bits, decided from the
 ## bests as they were before this completion. A tie gives no bit, and so does
 ## a level's first completion. A negative time or score counts as 0.
-func record_completion(level: int, seconds: int, score: int) -> int:
-	if not Levels.is_valid(level):
+##
+## puzzle_id is optional. If it is the last puzzle counted (has_completed),
+## nothing changes and the result is 0. Otherwise the completion counts and
+## a valid id (DataCheck.is_puzzle_id) becomes the last completed id. Without
+## an id, or with an invalid one, the completion always counts and the last
+## completed id stays as it was.
+func record_completion(level: int, seconds: int, score: int, puzzle_id: String = "") -> int:
+	if not Levels.is_valid(level) or has_completed(puzzle_id):
 		return 0
+	if DataCheck.is_puzzle_id(puzzle_id):
+		_last_completed_id = puzzle_id
 	var t: int = maxi(seconds, 0)
 	var f: int = maxi(score, 0)
 	var bits: int = 0
@@ -82,7 +107,9 @@ func record_completion(level: int, seconds: int, score: int) -> int:
 
 
 ## Clears every level. The level of a puzzle in progress keeps Started at 1
-## (GDD 13.2). Lesson progress is not part of Stats, so it is kept.
+## (GDD 13.2). Lesson progress is not part of Stats, so it is kept. The last
+## completed id is kept too: it guards against counting a puzzle twice, and
+## is not a stat the player sees.
 func reset(in_progress_level: int) -> void:
 	for level: int in Levels.COUNT:
 		_clear_level(level)
@@ -100,7 +127,7 @@ func to_dict() -> Dictionary:
 			"total_time": _total_time[level],
 			"best_score": _best_score[level],
 		})
-	return {"levels": levels}
+	return {"levels": levels, "last_completed": _last_completed_id}
 
 
 ## Never null. Needs a "levels" list of exactly five entries; otherwise all
@@ -108,10 +135,15 @@ func to_dict() -> Dictionary:
 ## not add up (completed above started, a best without a completion, a total
 ## below best time times completed, a best score above twice the level's
 ## points) takes the defaults; the other levels load as saved.
+## "last_completed" is optional (older files lack it): "" or a valid puzzle
+## id, otherwise "".
 static func from_dict(data: Variant) -> Stats:
 	var stats: Stats = Stats.new()
 	if typeof(data) != TYPE_DICTIONARY:
 		return stats
+	var last_value: Variant = (data as Dictionary).get("last_completed")
+	if DataCheck.is_puzzle_id(last_value):
+		stats._last_completed_id = last_value
 	var levels_value: Variant = (data as Dictionary).get("levels")
 	if typeof(levels_value) != TYPE_ARRAY:
 		return stats

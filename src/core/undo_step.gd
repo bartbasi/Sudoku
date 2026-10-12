@@ -5,6 +5,10 @@ extends RefCounted
 ##
 ## Cross and restore steps keep old_digit and new_digit at 0 (the cell is
 ## empty) and hold exactly one mark change, the player's own.
+##
+## Once GameSession records a step, nothing changes it again. Undo only
+## reads and pops it, and GameSession.snapshot_to_dict() relies on this to
+## read steps on a worker thread. Keep it that way.
 
 const DataCheck := preload("res://src/core/data_check.gd")
 

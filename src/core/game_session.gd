@@ -19,7 +19,7 @@ enum Mode { PLACE = 0, CROSS_OUT = 1 }
 
 ## Upper bound for a saved timer: about 31 years.
 const MAX_ELAPSED := 1.0e9
-const MAX_PUZZLE_ID_LENGTH := 32
+const MAX_PUZZLE_ID_LENGTH := DataCheck.MAX_PUZZLE_ID_LENGTH
 
 signal board_changed(cells: PackedInt32Array)
 signal selection_changed(cell: int)
@@ -287,6 +287,8 @@ func same_digit_cells() -> PackedInt32Array:
 
 ## Everything in GDD 14 for a puzzle in progress, undo history and the hint
 ## on screen included. The score is stored as hints_bought.
+## For a large history on the main thread, use save_snapshot() and
+## snapshot_to_dict() instead.
 func to_dict() -> Dictionary:
 	var steps: Array = []
 	for step: UndoStep in _undo:
@@ -306,6 +308,46 @@ func to_dict() -> Dictionary:
 	}
 
 
+## to_dict() with "undo" holding a shallow copy of the UndoStep objects
+## instead of their dictionaries. Cheap enough for the main thread at any
+## history length: the rest of to_dict() is small and fixed in size.
+## Pass the result to snapshot_to_dict(), on any thread, to get to_dict().
+func save_snapshot() -> Dictionary:
+	return {
+		"puzzle_id": puzzle_id,
+		"level": level,
+		"solution": DataCheck.ints_to_text(solution),
+		"board": board.to_dict() if board != null else null,
+		"mode": mode,
+		"selected": selected,
+		"auto_cross": auto_cross,
+		"elapsed": elapsed,
+		"hints_bought": hints_bought,
+		"hint": hint.to_dict() if hint != null else null,
+		"undo": _undo.duplicate(),
+	}
+
+
+## Turns a save_snapshot() into exactly what to_dict() returned at that
+## moment. Safe on a worker thread while the session keeps playing: the
+## snapshot owns its own list, and a recorded UndoStep is never changed
+## (undo only pops it, and Auto Cross reruns record their changes in new
+## steps or nowhere). Returns a new dictionary; the snapshot is not changed.
+## Steps that are already dictionaries are kept as they are.
+static func snapshot_to_dict(snapshot: Dictionary) -> Dictionary:
+	var out: Dictionary = snapshot.duplicate()
+	var steps: Array = []
+	var items: Variant = snapshot.get("undo")
+	if typeof(items) == TYPE_ARRAY:
+		for item: Variant in items as Array:
+			if item is UndoStep:
+				steps.append((item as UndoStep).to_dict())
+			else:
+				steps.append(item)
+	out["undo"] = steps
+	return out
+
+
 ## A puzzle in progress, or null if anything is missing or invalid. Checks
 ## types and ranges, that the solution is complete and agrees with the
 ## givens, that the board is not already solved, that no undo step touches a
@@ -315,7 +357,7 @@ static func from_dict(data: Variant) -> GameSession:
 		return null
 	var dict: Dictionary = data
 	var id_value: Variant = dict.get("puzzle_id")
-	if not _is_puzzle_id(id_value):
+	if not DataCheck.is_puzzle_id(id_value):
 		return null
 	var level_value: Variant = dict.get("level")
 	if not DataCheck.int_in(level_value, 0, Levels.COUNT - 1):
@@ -472,21 +514,6 @@ static func _solution_fits(grid: PackedInt32Array, givens: PackedInt32Array) -> 
 		return false
 	for cell: int in Sudoku.CELLS:
 		if givens[cell] != 0 and givens[cell] != grid[cell]:
-			return false
-	return true
-
-
-## A puzzle id is 1 to 32 characters of ASCII digits and dots, like "1.0.42".
-## The puzzles area checks the exact form; core only bounds it.
-static func _is_puzzle_id(value: Variant) -> bool:
-	if typeof(value) != TYPE_STRING:
-		return false
-	var text: String = value
-	if text.is_empty() or text.length() > MAX_PUZZLE_ID_LENGTH:
-		return false
-	for i: int in text.length():
-		var code: int = text.unicode_at(i)
-		if code != 46 and (code < 48 or code > 57):
 			return false
 	return true
 

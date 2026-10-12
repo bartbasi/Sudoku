@@ -222,6 +222,9 @@ func peer_cells() -> PackedInt32Array         # of the selected cell
 func same_digit_cells() -> PackedInt32Array   # GDD 2.3, empty unless the selected cell holds a digit
 func to_dict() -> Dictionary                  # everything in GDD 14, including undo history and the hint on screen
 static func from_dict(data: Variant) -> GameSession   # null if anything is invalid
+func save_snapshot() -> Dictionary            # to_dict() with "undo" holding a shallow copy of the steps; cheap, main thread
+static func snapshot_to_dict(snapshot: Dictionary) -> Dictionary   # equals to_dict() at snapshot time; safe on a worker
+                                              # thread, because recorded undo steps are never changed
 ```
 
 Signal order: an action that changes the board emits `board_changed` first, then `completed` or `full_board_conflict`. `set_auto_cross` emits `board_changed` with every cell whose marks it changed, so the board redraws at once (GDD 5.1). `hints_bought` stays between 0 and 5, so the score can never go below zero.
@@ -248,9 +251,12 @@ func best_time(level: int) -> int                    # -1 until the first comple
 func average_time(level: int) -> int                 # -1 until the first completion, rounded half up
 func best_score(level: int) -> int                   # -1 until the first completion
 func record_start(level: int) -> void
-func record_completion(level: int, seconds: int, score: int) -> int   # bitmask of NEW_BEST_* per GDD 12.1, computed from
+func record_completion(level: int, seconds: int, score: int, puzzle_id: String = "") -> int
+                                                                      # bitmask of NEW_BEST_* per GDD 12.1, computed from
                                                                       # the bests before this completion; ties and a level's
                                                                       # first completion give no bit
+func has_completed(puzzle_id: String) -> bool       # true if it is the last completed id counted; a repeat of that id
+func last_completed_id() -> String                   # is not counted again (saved as "last_completed"; reset keeps it)
 func reset(in_progress_level: int) -> void           # -1 when no puzzle is in progress
 func to_dict() -> Dictionary
 static func from_dict(data: Variant) -> Stats        # defaults if invalid; never null

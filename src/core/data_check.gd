@@ -7,6 +7,7 @@ extends RefCounted
 ## a float with no fraction, inside the range a float holds exactly.
 
 const MAX_EXACT := 9007199254740991  # 2^53 - 1
+const MAX_PUZZLE_ID_LENGTH := 32
 
 
 static func is_int(value: Variant) -> bool:
@@ -92,3 +93,18 @@ static func int_list(value: Variant, low: int, high: int, max_size: int) -> Vari
 			return null
 		out[i] = int(items[i])
 	return out
+
+
+## A puzzle id is 1 to 32 characters of ASCII digits and dots, like "1.0.42".
+## The puzzles area checks the exact form; core only bounds it.
+static func is_puzzle_id(value: Variant) -> bool:
+	if typeof(value) != TYPE_STRING:
+		return false
+	var text: String = value
+	if text.is_empty() or text.length() > MAX_PUZZLE_ID_LENGTH:
+		return false
+	for i: int in text.length():
+		var code: int = text.unicode_at(i)
+		if code != 46 and (code < 48 or code > 57):
+			return false
+	return true
