@@ -3,7 +3,8 @@ extends Control
 ## The pause menu (GDD 8, DESIGN_SYSTEM.md 7.8): a full screen PAGE overlay
 ## that covers everything, the board included. Centered in the safe area:
 ## PAUSED, the level sticker and the paused time, then Resume, Settings and
-## Menu. The play screen opens it and handles the buttons.
+## Menu. Side by side (4.11) the first three take the left half and the
+## buttons the right half. The play screen opens it and handles the buttons.
 ## Owner: ui-systems-dev.
 
 signal resume_pressed()
@@ -15,6 +16,9 @@ var level_box: CenterContainer = null
 var resume_button: Button = null
 var settings_button: Button = null
 var menu_button: Button = null
+## PAUSED, the level and the time first, the buttons second: centered in one
+## column when stacked, two halves side by side (DESIGN_SYSTEM.md 4.11).
+var halves: HalvesBox = null
 
 var _column: ScreenColumn = null
 var _skin: GameSkin = null
@@ -35,33 +39,41 @@ func setup(skin: GameSkin) -> void:
 	_column.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_column.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	add_child(_column)
-	var stack: VBoxContainer = UiKit.vbox(skin.space_m)
-	stack.alignment = BoxContainer.ALIGNMENT_CENTER
-	_column.add_child(stack)
+	halves = HalvesBox.new()
+	halves.name = "Halves"
+	halves.skin = skin
+	halves.stacked_mode = HalvesBox.Stacked.CENTER
+	halves.stacked_gap = skin.space_xl
+	halves.side_gap = skin.space_xl
+	_column.add_child(halves)
+	var info: VBoxContainer = UiKit.vbox(skin.space_m)
+	info.name = "Info"
+	info.alignment = BoxContainer.ALIGNMENT_CENTER
+	halves.add_child(info)
 	var title: Label = UiKit.label(ThemeFactory.DISPLAY, "Paused")
 	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	stack.add_child(title)
+	info.add_child(title)
 	level_box = CenterContainer.new()
 	level_box.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	stack.add_child(level_box)
+	info.add_child(level_box)
 	time_label = UiKit.label(ThemeFactory.VALUE, "")
 	time_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	stack.add_child(time_label)
-	var gap: Control = Control.new()
-	gap.custom_minimum_size.y = skin.space_xl - skin.space_m
-	stack.add_child(gap)
+	info.add_child(time_label)
+	var buttons: VBoxContainer = UiKit.vbox(skin.space_m)
+	buttons.name = "Buttons"
+	halves.add_child(UiKit.with_shadow_room(buttons, skin))
 	resume_button = UiKit.button(ThemeFactory.BUTTON_PRIMARY, "Resume", Layout.BUTTON_TALL, Icons.PLAY)
 	resume_button.name = "Resume"
 	resume_button.pressed.connect(_emit_if_open.bind(resume_pressed))
-	stack.add_child(resume_button)
+	buttons.add_child(resume_button)
 	settings_button = UiKit.button(ThemeFactory.BUTTON_SECONDARY, "Settings", Layout.BUTTON_TALL, Icons.SETTINGS)
 	settings_button.name = "Settings"
 	settings_button.pressed.connect(_emit_if_open.bind(settings_pressed))
-	stack.add_child(settings_button)
+	buttons.add_child(settings_button)
 	menu_button = UiKit.button(ThemeFactory.BUTTON_SECONDARY, "Menu", Layout.BUTTON_TALL)
 	menu_button.name = "Menu"
 	menu_button.pressed.connect(_emit_if_open.bind(menu_pressed))
-	stack.add_child(menu_button)
+	buttons.add_child(menu_button)
 	visible = false
 
 

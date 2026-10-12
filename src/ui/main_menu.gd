@@ -1,7 +1,9 @@
 extends UiScreen
 ## The main menu (DESIGN_SYSTEM.md 7.1, GDD 15.1): the SUDOKU wordmark, the
 ## hero, then Continue (only with a puzzle in progress, with its level and
-## time), New puzzle, Lessons, and Stats and Settings side by side.
+## time), New puzzle, Lessons, and Stats and Settings side by side. Side by
+## side (4.11) the wordmark and hero take the left half and the buttons the
+## right half, centered.
 ## Owner: ui-systems-dev.
 
 const WORDMARK: String = "Sudoku"
@@ -15,21 +17,20 @@ var new_button: Button = null
 var lessons_button: Button = null
 var stats_button: Button = null
 var settings_button: Button = null
+## Wordmark and hero first, the buttons second: one column when stacked, two
+## halves side by side (DESIGN_SYSTEM.md 4.11).
+var halves: HalvesBox = null
 
 
 func build() -> void:
 	var s: GameSkin = skin()
-	var stack: VBoxContainer = UiKit.vbox(0.0)
-	column.add_child(stack)
-	stack.add_child(wordmark(s))
-	var hero: HeroIcon = HeroIcon.new()
-	hero.name = "Hero"
-	hero.gap = s.space_xl
-	stack.add_child(hero)
+	halves = halves_box(s)
+	column.add_child(halves)
+	halves.add_child(brand(s))
 
 	var buttons: VBoxContainer = UiKit.vbox(s.space_m)
 	buttons.name = "Buttons"
-	stack.add_child(buttons)
+	halves.add_child(UiKit.with_shadow_room(buttons, s))
 	continue_button = _continue_button()
 	buttons.add_child(continue_button)
 	new_button = UiKit.button(ThemeFactory.BUTTON_SECONDARY, "New puzzle", Layout.BUTTON_TALL)
@@ -40,22 +41,18 @@ func build() -> void:
 	lessons_button.name = "Lessons"
 	lessons_button.pressed.connect(func() -> void: app.goto(AppService.LESSONS))
 	buttons.add_child(lessons_button)
-	var halves: HBoxContainer = UiKit.hbox(s.space_m)
-	buttons.add_child(halves)
+	var pair: HBoxContainer = UiKit.hbox(s.space_m)
+	buttons.add_child(pair)
 	stats_button = UiKit.button(ThemeFactory.BUTTON_SECONDARY, "Stats", Layout.BUTTON_TALL)
 	stats_button.name = "Stats"
 	stats_button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	stats_button.pressed.connect(func() -> void: app.goto(AppService.STATS))
-	halves.add_child(stats_button)
+	pair.add_child(stats_button)
 	settings_button = UiKit.button(ThemeFactory.BUTTON_SECONDARY, "Settings", Layout.BUTTON_TALL)
 	settings_button.name = "Settings"
 	settings_button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	settings_button.pressed.connect(func() -> void: app.goto(AppService.SETTINGS))
-	halves.add_child(settings_button)
-	# Room for the buttons' hard shadow under the last row.
-	var shadow_room: Control = Control.new()
-	shadow_room.custom_minimum_size.y = s.shadow_offset
-	buttons.add_child(shadow_room)
+	pair.add_child(settings_button)
 	refresh()
 
 
@@ -72,6 +69,30 @@ func refresh() -> void:
 	if has_puzzle:
 		var line: String = "%s, %s" % [Levels.name_of(app.session.level), UiKit.format_time(app.session.elapsed_seconds())]
 		UiKit.set_text(continue_caption, line)
+
+
+## The two halves box of the main menu and the first launch offer: stacked,
+## the first part (wordmark and hero) takes the height the second leaves.
+static func halves_box(s: GameSkin) -> HalvesBox:
+	var box: HalvesBox = HalvesBox.new()
+	box.name = "Halves"
+	box.skin = s
+	box.stacked_mode = HalvesBox.Stacked.FILL_FIRST
+	box.side_gap = s.space_xl
+	return box
+
+
+## The wordmark at the top and the hero under it, filling the height left
+## (7.1). Also used by the first launch offer.
+static func brand(s: GameSkin) -> VBoxContainer:
+	var stack: VBoxContainer = UiKit.vbox(0.0)
+	stack.name = "Brand"
+	stack.add_child(wordmark(s))
+	var hero: HeroIcon = HeroIcon.new()
+	hero.name = "Hero"
+	hero.gap = s.space_xl
+	stack.add_child(hero)
+	return stack
 
 
 ## The SUDOKU sticker, centered (7.1). Also used by the first launch offer.

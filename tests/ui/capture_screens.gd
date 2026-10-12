@@ -4,21 +4,32 @@ extends SceneTree
 ##
 ##   timeout 300 godot --path . --script res://tests/ui/capture_screens.gd
 ##   timeout 300 godot --path . --script res://tests/ui/capture_screens.gd -- 320x568
+##   timeout 300 godot --path . --script res://tests/ui/capture_screens.gd -- windows
 ##
 ## Writes build/ui/<size>-<skin>-<screen>.png. Saves go to
 ## user://ui_capture/, which is wiped first, so real saves are untouched.
+## "windows" captures the main menu, play, pause and completion on the
+## DESIGN_SYSTEM.md 4.11 windows in WINDOW_SIZES, then the too small layer
+## at TOO_SMALL_SIZE, resizing one window as a fold or a split screen would.
 
 const OUT_DIR: String = "res://build/ui/"
 const SAVE_DIR: String = "user://ui_capture"
 
+## The 4.11 windows of the "windows" run (no insets on desktop).
+const WINDOW_SIZES: Array[Vector2i] = [Vector2i(344, 882), Vector2i(690, 829), Vector2i(345, 829), Vector2i(690, 400)]
+const TOO_SMALL_SIZE: Vector2i = Vector2i(344, 430)
+
 var _size: Vector2i = Vector2i(360, 800)
+var _windows: bool = false
 var _app: AppService = null
 var _skins: Node = null
 
 
 func _initialize() -> void:
 	var args: PackedStringArray = OS.get_cmdline_user_args()
-	if args.size() > 0 and args[0].contains("x"):
+	if args.size() > 0 and args[0] == "windows":
+		_windows = true
+	elif args.size() > 0 and args[0].contains("x"):
 		var parts: PackedStringArray = args[0].split("x")
 		_size = Vector2i(parts[0].to_int(), parts[1].to_int())
 	_run.call_deferred()
@@ -53,6 +64,9 @@ func _run() -> void:
 	var host: Control = (load("res://scenes/ui/main.tscn") as PackedScene).instantiate() as Control
 	root.add_child(host)
 	await _settle()
+	if _windows:
+		await _run_windows()
+		return
 	await _shot("light", "first_launch")
 
 	_app.answer_first_launch()
@@ -132,6 +146,64 @@ func _run() -> void:
 	_app.abandon_puzzle()
 	_wipe(SAVE_DIR)
 	quit(0)
+
+
+## The 4.11 windows: one Medium puzzle in progress, then for each window the
+## main menu, play, pause and completion; last the too small layer over the
+## play screen, which opens the pause menu under it.
+func _run_windows() -> void:
+	_app.answer_first_launch()
+	_app.start_new_puzzle(Levels.MEDIUM)
+	_app.session.add_time(380.0)
+	var cells: PackedInt32Array = PackedInt32Array()
+	for cell: int in Sudoku.CELLS:
+		if _app.session.board.digits[cell] == 0:
+			cells.append(cell)
+	_app.session.select(cells[3])
+	_app.session.press_digit(_app.session.solution[cells[3]])
+	_app.session.set_mode(GameSession.Mode.CROSS_OUT)
+	_app.session.select(cells[0])
+	_app.session.press_digit(1)
+	_app.session.press_digit(5)
+	var result: CompletionResult = CompletionResult.new()
+	result.level = Levels.HARD
+	result.seconds = 1350
+	result.points_after_hints = 420
+	result.time_bonus = 175
+	result.final_score = 595
+	result.hints_used = 2
+	result.new_best = Stats.NEW_BEST_TIME | Stats.NEW_BEST_SCORE
+	for window: Vector2i in WINDOW_SIZES:
+		_resize(window)
+		_app.goto(AppService.MAIN_MENU)
+		await _shot("light", "main_menu")
+		_app.goto(AppService.PLAY)
+		await _shot("light", "play")
+		var play: Control = _app.current_screen_node()
+		play.call(&"show_pause")
+		await _shot("light", "pause")
+		play.call(&"resume")
+		_app.goto(AppService.COMPLETION, result)
+		await _shot("light", "completion")
+	_resize(WINDOW_SIZES[0])
+	_app.goto(AppService.PLAY)
+	await _settle()
+	_resize(TOO_SMALL_SIZE)
+	await _shot("light", "too_small")
+	_resize(WINDOW_SIZES[0])
+	await _shot("light", "too_small_left")
+	_app.abandon_puzzle()
+	_wipe(SAVE_DIR)
+	quit(0)
+
+
+## Gives the window a new size, as a fold or a split screen divider would.
+## App hears size_changed and re-checks the arrangement.
+func _resize(window: Vector2i) -> void:
+	_size = window
+	DisplayServer.window_set_size(window)
+	root.size = window
+	root.content_scale_size = window
 
 
 ## Making a puzzle (DESIGN_SYSTEM.md 7.14) over the level select, after

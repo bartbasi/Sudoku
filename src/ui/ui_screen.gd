@@ -15,6 +15,9 @@ var payload: Variant = null
 var page: Panel = null
 ## The safe content column (DESIGN_SYSTEM.md 4.5).
 var column: ScreenColumn = null
+## Tests set this to give the screen a safe rect (in the screen's own
+## coordinates) without a device. Ignored while it has no area.
+var safe_rect_override: Rect2 = Rect2()
 
 
 func open(new_payload: Variant) -> void:

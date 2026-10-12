@@ -4,7 +4,8 @@ extends UiScreen
 ## hints, time bonus, final score, hints used, and NEW BEST TIME or NEW BEST
 ## SCORE when the result says so. Play again starts a new puzzle at the same
 ## level with no dialog; Menu and Back go to the main menu. The buttons work
-## from the first frame.
+## from the first frame. Side by side (4.11) the starburst takes the left
+## half and the receipt and buttons the right half.
 ## Owner: ui-systems-dev.
 
 var result: CompletionResult = null
@@ -17,6 +18,13 @@ var new_best_time: Control = null
 var new_best_score: Control = null
 var play_again_button: Button = null
 var menu_button: Button = null
+## The starburst, SOLVED! and the level first; the receipt and the buttons
+## second (DESIGN_SYSTEM.md 4.11).
+var halves: HalvesBox = null
+## Holds the receipt. Side by side it scrolls when the receipt does not fit
+## above the buttons; stacked it is as tall as the receipt.
+var receipt_scroll: ScrollContainer = null
+var _receipt_room: MarginContainer = null
 
 
 func open(new_payload: Variant) -> void:
@@ -28,8 +36,17 @@ func build() -> void:
 	if result == null:
 		result = CompletionResult.new()
 	var s: GameSkin = skin()
+	halves = HalvesBox.new()
+	halves.name = "Halves"
+	halves.skin = s
+	halves.stacked_mode = HalvesBox.Stacked.FILL_FIRST
+	halves.stacked_gap = s.space_m
+	halves.side_gap = s.space_xl
+	halves.arranged.connect(_on_arranged)
+	column.add_child(halves)
 	var stack: VBoxContainer = UiKit.vbox(s.space_m)
-	column.add_child(stack)
+	stack.name = "Celebrate"
+	halves.add_child(stack)
 
 	var burst: Starburst = Starburst.new()
 	burst.name = "Starburst"
@@ -47,9 +64,22 @@ func build() -> void:
 	level_box.add_child(UiKit.sticker(ThemeFactory.STICKER, ThemeFactory.STICKER_LABEL, Levels.name_of(result.level), s.sticker_tilt))
 	stack.add_child(level_box)
 
+	var results: VBoxContainer = UiKit.vbox(s.space_m)
+	results.name = "Results"
+	halves.add_child(results)
+	receipt_scroll = ScrollContainer.new()
+	receipt_scroll.name = "ReceiptScroll"
+	receipt_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	results.add_child(receipt_scroll)
+	_receipt_room = MarginContainer.new()
+	_receipt_room.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_receipt_room.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	receipt_scroll.add_child(_receipt_room)
+	_on_arranged(false)
+
 	var receipt: PanelContainer = UiKit.panel(ThemeFactory.CARD)
 	receipt.name = "Receipt"
-	stack.add_child(receipt)
+	_receipt_room.add_child(receipt)
 	var rows: VBoxContainer = UiKit.vbox(s.space_s)
 	receipt.add_child(rows)
 	time_value = _line(rows, ThemeFactory.CAPTION, "Time", ThemeFactory.VALUE, UiKit.format_time(result.seconds))
@@ -64,7 +94,8 @@ func build() -> void:
 	hints_value = _line(rows, ThemeFactory.CAPTION, "Hints used", ThemeFactory.VALUE, str(result.hints_used))
 
 	var buttons: HBoxContainer = UiKit.hbox(s.space_m)
-	stack.add_child(buttons)
+	buttons.name = "Buttons"
+	results.add_child(UiKit.with_shadow_room(buttons, s))
 	play_again_button = UiKit.button(ThemeFactory.BUTTON_PRIMARY, "Play again", Layout.BUTTON_TALL)
 	play_again_button.name = "PlayAgain"
 	play_again_button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -75,10 +106,23 @@ func build() -> void:
 	menu_button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	menu_button.pressed.connect(_on_menu)
 	buttons.add_child(menu_button)
-	var shadow_room: Control = Control.new()
-	shadow_room.custom_minimum_size.y = s.shadow_offset
-	stack.add_child(shadow_room)
 	_animate(solved)
+
+
+## Stacked, the receipt keeps its size and nothing scrolls (7.9). Side by
+## side the receipt scrolls in the space above the buttons, which stay
+## pinned at the bottom of the right half; it keeps room for its shadow
+## inside the clipped scroll area.
+func _on_arranged(side: bool) -> void:
+	var s: GameSkin = skin()
+	receipt_scroll.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_AUTO if side else ScrollContainer.SCROLL_MODE_DISABLED
+	receipt_scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL if side else Control.SIZE_FILL
+	receipt_scroll.clip_contents = side
+	var room: int = roundi(s.shadow_offset) if side else 0
+	_receipt_room.add_theme_constant_override(&"margin_right", room)
+	_receipt_room.add_theme_constant_override(&"margin_bottom", room)
+	_receipt_room.add_theme_constant_override(&"margin_left", 0)
+	_receipt_room.add_theme_constant_override(&"margin_top", 0)
 
 
 ## Back goes to the main menu: there is nothing under this screen.

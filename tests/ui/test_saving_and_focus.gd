@@ -1,8 +1,10 @@
 extends "res://tests/unit_test.gd"
 ## Phase 6 fixes in App and the hint panel: saves gathered to one per frame
 ## and written on a worker (QA M1), flushed at once on the lifecycle events
-## and before a delete; the saved puzzle deleted before the stats at
-## completion (security Low 5); a puzzle made while focus was lost opens
+## and before a delete; at completion the stats (with the puzzle's id) are
+## written before the saved puzzle is deleted, and a puzzle that comes back
+## after a kill in between counts nothing (security Low 5, Phase 6 order);
+## a puzzle made while focus was lost opens
 ## paused (QA L1); no empty technique tag (QA L3).
 
 const Fx := preload("res://tests/save/save_fixtures.gd")
@@ -178,26 +180,68 @@ func test_abandon_with_a_save_on_the_worker_leaves_no_file() -> void:
 
 # Completion (security Low 5) --------------------------------------------------------
 
-func test_completion_deletes_the_puzzle_before_it_writes_the_stats() -> void:
+func test_completion_writes_the_stats_then_deletes_the_puzzle() -> void:
 	var dir: String = Fx.fresh_dir("saving_complete")
 	var app: AppService = _app_with_puzzle(dir)
-	# A folder where the stats temp file goes makes the stats write fail, as
-	# a kill right after the delete would.
-	DirAccess.make_dir_recursive_absolute(app.path_of(AppService.STATS_FILE) + SaveStore.TEMP_SUFFIX)
-	var stats_before: String = FileAccess.get_file_as_string(app.path_of(AppService.STATS_FILE))
+	var id: String = app.session.puzzle_id
 	Fx.solve(app.session)
 	assert_true(app.session.is_completed)
 	assert_true(app.on_puzzle_completed() != null)
-	assert_false(FileAccess.file_exists(app.path_of(AppService.PUZZLE_FILE)), "the puzzle is gone even though the stats did not save")
-	assert_eq(FileAccess.get_file_as_string(app.path_of(AppService.STATS_FILE)), stats_before, "stats as before")
+	assert_false(FileAccess.file_exists(app.path_of(AppService.PUZZLE_FILE)), "the puzzle is gone")
+	var stats: Stats = Stats.from_dict(SaveStore.read(app.path_of(AppService.STATS_FILE), SaveStore.MAX_BYTES_OTHER))
+	assert_eq(stats.completed_count(Levels.BEGINNER), 1, "the completion is on disk")
+	assert_eq(stats.last_completed_id(), id, "with the puzzle's id")
+	_free(app, dir)
+
+
+func test_a_kill_between_the_stats_and_the_delete_never_counts_twice() -> void:
+	var dir: String = Fx.fresh_dir("saving_complete_kill")
+	var app: AppService = _app_with_puzzle(dir)
+	app.use_thread = false
+	var session: GameSession = app.session
+	# Play to one digit short and save, as the last save before completion.
+	var empties: PackedInt32Array = Fx.empty_cells(session)
+	session.set_mode(GameSession.Mode.PLACE)
+	for i: int in range(1, empties.size()):
+		session.select(empties[i])
+		session.press_digit(session.solution[empties[i]])
+	app.save_session()
+	var one_short: String = FileAccess.get_file_as_string(app.path_of(AppService.PUZZLE_FILE))
+	session.select(empties[0])
+	session.press_digit(session.solution[empties[0]])
+	assert_true(session.is_completed)
+	var first: CompletionResult = app.on_puzzle_completed()
+	assert_eq(app.stats.completed_count(Levels.BEGINNER), 1)
+	# The app died before the delete: the one short save is still there.
+	Fx.write_text(app.path_of(AppService.PUZZLE_FILE), one_short)
+
 	var again: AppService = AppService.new()
 	again.save_dir = dir
 	again.use_thread = false
 	again.load_all()
-	assert_eq(again.session, null, "nothing to finish a second time")
-	assert_eq(again.stats.completed_count(Levels.BEGINNER), 0, "at worst a completion is lost, never counted twice")
+	assert_true(again.has_puzzle_in_progress(), "the puzzle comes back one digit short")
+	assert_eq(again.stats.completed_count(Levels.BEGINNER), 1, "counted once so far")
+	var back: GameSession = again.session
+	back.set_mode(GameSession.Mode.PLACE)
+	back.select(empties[0])
+	back.press_digit(back.solution[empties[0]])
+	assert_true(back.is_completed)
+	var repeat: CompletionResult = again.on_puzzle_completed()
+	assert_true(repeat != null, "the completion screen still has a result to show")
+	assert_eq(repeat.new_best, 0, "no New best label for a repeat")
+	assert_eq(again.stats.completed_count(Levels.BEGINNER), 1, "a repeat of the same id records nothing")
+	assert_eq(again.stats.started(Levels.BEGINNER), 1, "Started unchanged")
+	assert_eq(again.stats.best_time(Levels.BEGINNER), app.stats.best_time(Levels.BEGINNER), "best time unchanged")
+	assert_false(FileAccess.file_exists(again.path_of(AppService.PUZZLE_FILE)), "and the save is gone now")
+	var third: AppService = AppService.new()
+	third.save_dir = dir
+	third.use_thread = false
+	third.load_all()
+	assert_eq(third.session, null, "nothing comes back a second time")
+	assert_eq(third.stats.completed_count(Levels.BEGINNER), 1, "still once on disk")
+	assert_true(first != null)
+	third.free()
 	again.free()
-	DirAccess.remove_absolute(app.path_of(AppService.STATS_FILE) + SaveStore.TEMP_SUFFIX)
 	_free(app, dir)
 
 

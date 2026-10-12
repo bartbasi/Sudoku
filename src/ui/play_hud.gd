@@ -1,8 +1,10 @@
 class_name PlayHud
 extends HBoxContainer
 ## The play screen's header row (DESIGN_SYSTEM.md 7.5): Hint at the left,
-## time and score centered, Pause at the right. Hint is visibly disabled
-## whenever the session cannot sell a hint (GDD 10.4).
+## time and score centered, Pause at the right. Side by side (GDD 2.4,
+## DESIGN_SYSTEM.md 4.11) the row is mirrored: Pause at the left, next to the
+## board, then time and score, and Hint at the far end, away from the board.
+## Hint is visibly disabled whenever the session cannot sell a hint (GDD 10.4).
 ## Owner: ui-systems-dev.
 
 signal hint_pressed()
@@ -20,6 +22,9 @@ var pause_touch: Control = null
 var pause_button: Button = null
 
 var _session: GameSession = null
+var _mirrored: bool = false
+var _guard_left: Control = null
+var _guard_right: Control = null
 var _shown_seconds: int = -1
 var _shown_score: int = -1
 
@@ -45,6 +50,7 @@ func setup(skin: GameSkin) -> void:
 	guard_left.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	guard_left.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(guard_left)
+	_guard_left = guard_left
 
 	var time_block: PanelContainer = _block(ThemeFactory.HUD_TIME, ThemeFactory.HUD_CAPTION, "Time", ThemeFactory.HUD_VALUE, Layout.TIME_MIN_W)
 	time_block.name = "Time"
@@ -60,6 +66,7 @@ func setup(skin: GameSkin) -> void:
 	guard_right.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	guard_right.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(guard_right)
+	_guard_right = guard_right
 
 	var pause: Control = UiKit.icon_button(Icons.PAUSE)
 	pause.name = "Pause"
@@ -68,6 +75,23 @@ func setup(skin: GameSkin) -> void:
 	pause_button = pause.get(&"button") as Button
 	pause_button.pressed.connect(func() -> void: pause_pressed.emit())
 	add_child(pause)
+
+
+## Mirrored when side by side: Pause, time, score, Hint from left to right.
+## Otherwise Hint, time, score, Pause.
+func set_mirrored(on: bool) -> void:
+	if on == _mirrored:
+		return
+	_mirrored = on
+	var order: Array[Control] = [hint_touch, _guard_left, get_node(^"Time") as Control, score_block, _guard_right, pause_touch]
+	if on:
+		order = [pause_touch, _guard_left, get_node(^"Time") as Control, score_block, _guard_right, hint_touch]
+	for index: int in order.size():
+		move_child(order[index], index)
+
+
+func is_mirrored() -> bool:
+	return _mirrored
 
 
 func bind(session: GameSession) -> void:

@@ -24,28 +24,25 @@ var zone: ZoneBox = null
 ## Set at completion: what the completion screen will show.
 var completion: CompletionResult = null
 
-var _header: VBoxContainer = null
-
 
 func build() -> void:
 	var s: GameSkin = skin()
 	session = app.session if app != null else null
 
-	_header = UiKit.vbox(0.0)
-	column.add_child(_header)
+	play_area = PlayAreaScene.instantiate() as PlayArea
+	play_area.name = "PlayArea"
+	if not is_inside_tree() or get_node_or_null(^"/root/Skins") == null:
+		play_area.skin = s
+	play_area.header_height = Layout.HEADER_ROW
+	add_child(play_area)
+	play_area.resized.connect(_place_band_items)
+
 	hud = PlayHud.new()
 	hud.name = "Hud"
 	hud.setup(s)
 	hud.hint_pressed.connect(buy_hint)
 	hud.pause_pressed.connect(show_pause)
-	_header.add_child(hud)
-
-	play_area = PlayAreaScene.instantiate() as PlayArea
-	play_area.name = "PlayArea"
-	if not is_inside_tree() or get_node_or_null(^"/root/Skins") == null:
-		play_area.skin = s
-	add_child(play_area)
-	play_area.resized.connect(_place_band_items)
+	add_child(hud)
 
 	level_sticker = UiKit.sticker(ThemeFactory.STICKER, ThemeFactory.STICKER_LABEL, "", s.sticker_tilt)
 	level_sticker.name = "LevelSticker"
@@ -143,6 +140,11 @@ func show_pause() -> void:
 		app.save_session()
 
 
+## True while the pause menu is open.
+func is_paused() -> bool:
+	return pause_menu != null and pause_menu.is_open()
+
+
 func resume() -> void:
 	if not pause_menu.is_open():
 		return
@@ -223,30 +225,43 @@ func _on_score_changed(_score: int) -> void:
 	hud.refresh()
 
 
-## PlayArea takes the whole safe rect below the header row; the header row
-## sits page_margin below the safe top, in the content column.
+## PlayArea takes the whole safe rect and lays out the arrangement of
+## DESIGN_SYSTEM.md 4.11 in it (page_margin inside); the HUD, the level
+## sticker and the panels follow its rects. It runs again on every resize,
+## and nothing about the puzzle changes with it (GDD 2.4).
+func relayout() -> void:
+	_layout()
+
+
 func _layout() -> void:
-	if column == null:
+	if play_area == null:
 		return
 	var safe: Rect2 = UiKit.safe_rect_local(self)
-	var header_bottom: float = column.column_rect().position.y + _header.get_combined_minimum_size().y
-	play_area.position = Vector2(safe.position.x, header_bottom)
-	play_area.size = Vector2(safe.size.x, maxf(0.0, safe.end.y - header_bottom))
+	play_area.position = safe.position
+	play_area.size = safe.size
+	# Setting the same size again sends no resize, so place the rest here too.
 	_place_band_items()
 
 
-## The level sticker sits in the band, space_s above the board's left end.
-## The hint panel and the full board message cover the info zone: the
-## header row and the band, down to space_s above the board.
+## The HUD sits in PlayArea's header row, mirrored when side by side. The
+## level sticker sits in the band, space_s above the board's left end
+## (stacked) or the pad's left end (side by side). The hint panel and the
+## full board message cover the info zone: the header row and the band, down
+## to space_s above the board or the pad, never a cell.
 func _place_band_items() -> void:
-	if play_area == null or column == null:
+	if play_area == null:
 		return
 	var s: GameSkin = skin()
-	var band: Rect2 = get_global_transform().affine_inverse() * play_area.band_rect_global()
+	var to_local: Transform2D = get_global_transform().affine_inverse()
+	var header: Rect2 = to_local * play_area.header_rect_global()
+	hud.set_mirrored(play_area.arrangement() == Layout.Arrangement.SIDE)
+	hud.position = header.position
+	hud.size = header.size
+	var band: Rect2 = to_local * play_area.band_rect_global()
 	var sticker_size: Vector2 = level_sticker.get_combined_minimum_size()
 	level_sticker.size = sticker_size
 	level_sticker.position = Vector2(band.position.x + s.space_s, band.end.y - s.space_s - sticker_size.y)
-	var top: float = column.column_rect().position.y
-	zone.position = Vector2(band.position.x, top)
-	zone.size = Vector2(band.size.x, maxf(0.0, band.end.y - s.space_s - top))
+	var info: Rect2 = to_local * play_area.info_zone_rect_global()
+	zone.position = info.position
+	zone.size = info.size
 	hint_panel.max_height = zone.size.y

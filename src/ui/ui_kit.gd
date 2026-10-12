@@ -109,6 +109,21 @@ static func hbox(separation: float) -> HBoxContainer:
 	return node
 
 
+## content with room for its hard shadow under it (the skin's
+## shadow_offset), with no separation between: a VBox, centered vertically
+## when it is given more height than it needs.
+static func with_shadow_room(content: Control, s: GameSkin) -> VBoxContainer:
+	var block: VBoxContainer = vbox(0.0)
+	block.alignment = BoxContainer.ALIGNMENT_CENTER
+	block.add_child(content)
+	var room: Control = Control.new()
+	room.name = "ShadowRoom"
+	room.custom_minimum_size.y = s.shadow_offset
+	room.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	block.add_child(room)
+	return block
+
+
 ## The title row of every screen but play (DESIGN_SYSTEM.md 4.9): a back
 ## button at the left and the title beside it, Layout.HEADER_ROW tall.
 static func title_row(title: String, gap: float, on_back: Callable) -> HBoxContainer:
@@ -145,8 +160,14 @@ static func stat_time(value: int) -> String:
 	return "-" if value < 0 else format_time(value)
 
 
-## The safe area (ScreenMetrics) in node's own coordinates.
+## The safe area (ScreenMetrics) in node's own coordinates. Inside a screen
+## with a safe_rect_override, that rect instead.
 static func safe_rect_local(node: Control) -> Rect2:
+	var screen: UiScreen = screen_of(node)
+	if screen != null and screen.safe_rect_override.has_area():
+		var offset: Vector2 = node.get_global_rect().position - screen.get_global_rect().position
+		var local: Rect2 = Rect2(screen.safe_rect_override.position - offset, screen.safe_rect_override.size)
+		return local.intersection(Rect2(Vector2.ZERO, node.size)) if node.size != Vector2.ZERO else local
 	var viewport: Viewport = node.get_viewport()
 	if viewport == null:
 		return Rect2(Vector2.ZERO, node.size)
@@ -172,6 +193,34 @@ static func screen_slide(node: Node) -> Vector2:
 			return (at as UiScreen).position
 		at = at.get_parent()
 	return Vector2.ZERO
+
+
+## The UiScreen that holds node (node itself if it is one), or null.
+static func screen_of(node: Node) -> UiScreen:
+	var at: Node = node
+	while at != null:
+		if at is UiScreen:
+			return at as UiScreen
+		at = at.get_parent()
+	return null
+
+
+## The content box of the window node is in (DESIGN_SYSTEM.md 4.11): the
+## safe area inset by page_margin on every side, in the coordinates of node's
+## screen (or of node, outside any screen). Never negative.
+static func content_box(node: Control, skin: GameSkin) -> Rect2:
+	var whole: Control = screen_of(node)
+	if whole == null:
+		whole = node
+	var box: Rect2 = safe_rect_local(whole).grow(-skin.page_margin)
+	box.size = box.size.max(Vector2.ZERO)
+	return box
+
+
+## The window's arrangement (Layout.Arrangement) for node, by the shared
+## rule of DESIGN_SYSTEM.md 4.11, so every screen agrees with the play screen.
+static func arrangement_of(node: Control, skin: GameSkin) -> int:
+	return Layout.arrangement(content_box(node, skin), skin)
 
 
 ## The skin in use for a node inside a screen: its UiScreen's skin, or Pop

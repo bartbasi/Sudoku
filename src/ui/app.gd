@@ -81,6 +81,9 @@ var _writer: SaveWriter = SaveWriter.new()
 var _save_queued: bool = false
 ## Focus was lost while a puzzle was being made: it opens paused (GDD 8).
 var _pause_on_arrival: bool = false
+## The window is too small to play (GDD 8.1): the too small layer shows.
+var _too_small: bool = false
+var _layer: TooSmallLayer = null
 
 
 func _ready() -> void:
@@ -97,6 +100,7 @@ func _ready() -> void:
 	var window: Window = get_tree().root
 	window.size_changed.connect(_on_window_resized)
 	_apply_dp_scale()
+	check_window()
 
 
 func _exit_tree() -> void:
@@ -185,10 +189,11 @@ func save_session() -> void:
 
 
 ## A board change, mode switch or hint (GDD 14). With use_thread on, saves
-## are gathered to one per frame: at the end of the frame the session is
-## turned into data here, and the worker writes it, so a tap never waits for
-## the disk. A placement that closes a hint saves once. Without use_thread
-## the save is written at once.
+## are gathered to one per frame: at the end of the frame the session takes
+## a cheap snapshot here (GameSession.save_snapshot), and the worker turns it
+## into data (snapshot_to_dict) and writes it, so a tap never waits for the
+## undo history or the disk. A placement that closes a hint saves once.
+## Without use_thread the save is written at once.
 func request_session_save() -> void:
 	if not use_thread:
 		save_session()
@@ -204,7 +209,7 @@ func _queued_session_save() -> void:
 		return
 	_save_queued = false
 	if has_puzzle_in_progress():
-		_writer.queue(path_of(PUZZLE_FILE), session.to_dict(), SaveStore.MAX_BYTES_PUZZLE)
+		_writer.queue(path_of(PUZZLE_FILE), session.save_snapshot(), SaveStore.MAX_BYTES_PUZZLE, GameSession.snapshot_to_dict)
 
 
 ## True while a save of the puzzle waits for the end of the frame or for the
@@ -286,13 +291,14 @@ func abandon_puzzle() -> void:
 
 
 ## Call once the session has completed. In GDD 12 order: records the stats
-## (the New best bits come from the bests before this completion), deletes
-## the saved puzzle, saves the stats, drops the session, and returns what
-## the completion screen shows. Null if there is no completed session.
+## with the puzzle's id (the New best bits come from the bests before this
+## completion), writes the stats, deletes the saved puzzle, drops the
+## session, and returns what the completion screen shows. Null if there is
+## no completed session.
 ##
-## The saved puzzle goes before the stats are written: if the app dies in
-## between, the completion is not counted, but the puzzle cannot come back
-## one digit short and be counted twice (security review Low 5).
+## Stats remember the last puzzle id they counted, so the stats can go
+## first: if the app dies before the delete, the puzzle comes back one digit
+## short, and finishing it again counts nothing (security review Low 5).
 func on_puzzle_completed() -> CompletionResult:
 	if session == null or not session.is_completed:
 		return null
@@ -303,10 +309,10 @@ func on_puzzle_completed() -> CompletionResult:
 	result.time_bonus = session.time_bonus()
 	result.final_score = session.final_score()
 	result.hints_used = session.hints_bought
-	result.new_best = stats.record_completion(result.level, result.seconds, result.final_score)
+	result.new_best = stats.record_completion(result.level, result.seconds, result.final_score, session.puzzle_id)
+	_save_stats()
 	_save_queued = false
 	_writer.remove(path_of(PUZZLE_FILE))
-	_save_stats()
 	_set_session(null)
 	stats_changed.emit()
 	session_changed.emit(null)
@@ -336,7 +342,9 @@ func _finish_generation(puzzle: Puzzle) -> void:
 	generation_finished.emit(created)
 	if _host != null:
 		goto(PLAY)
-		if _pause_on_arrival:
+		# Focus lost or the window too small while it was made: it opens
+		# paused, with the timer at 0:00 (GDD 8 and 8.1).
+		if _pause_on_arrival or _too_small:
 			_pause_play_screen()
 	_pause_on_arrival = false
 	_leave_overlay(leaving)
@@ -481,6 +489,8 @@ func _apply_theme() -> void:
 func attach_host(host: Control) -> void:
 	_host = host
 	goto(MAIN_MENU if settings.first_launch_answered else FIRST_LAUNCH)
+	if _too_small:
+		_show_layer()
 
 
 func current_screen() -> StringName:
@@ -540,6 +550,10 @@ func go_back() -> void:
 	if is_generating() or _stack.is_empty():
 		return
 	var top: Control = _stack.back()
+	# Under the too small message, Back in the pause menu does nothing: it
+	# would start the clock on a board nobody can see (GDD 8.1).
+	if _too_small and current_screen() == PLAY and top.has_method(&"is_paused") and bool(top.call(&"is_paused")):
+		return
 	if top.has_method(&"handle_back") and bool(top.call(&"handle_back")):
 		return
 	if _stack.size() > 1:
@@ -648,6 +662,7 @@ func _show_overlay(level: int) -> void:
 	_overlay.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	_host.add_child(_overlay)
 	_overlay.call(&"ensure_built")
+	_keep_layer_on_top()
 
 
 ## The play screen is in (or the puzzle failed): the overlay stays on top
@@ -657,18 +672,93 @@ func _leave_overlay(leaving: Control) -> void:
 		return
 	if _host != null and leaving.get_parent() == _host:
 		_host.move_child(leaving, -1)
+	_keep_layer_on_top()
 	leaving.call(&"leave")
 
 
 func _keep_overlay_on_top() -> void:
 	if _overlay != null and _host != null:
 		_host.move_child(_overlay, -1)
+	_keep_layer_on_top()
 
 
 # Screen size ----------------------------------------------------------------------
 
 func _on_window_resized() -> void:
 	_apply_dp_scale()
+	check_window()
+
+
+## Re-checks the window's arrangement (DESIGN_SYSTEM.md 4.11) against the
+## device safe area. App calls it at startup and on every size_changed.
+func check_window() -> void:
+	if is_inside_tree():
+		apply_window(ScreenMetrics.safe_rect(get_tree().root))
+
+
+## Shows or removes the too small layer for a window whose safe area is
+## safe (in dp). Only the arrangement is decided here; each screen lays
+## itself out from its own rect. Never saved (GDD 8.1).
+func apply_window(safe: Rect2) -> void:
+	var s: GameSkin = current_skin()
+	var content: Rect2 = safe.grow(-s.page_margin)
+	content.size = content.size.max(Vector2.ZERO)
+	_set_too_small(Layout.arrangement(content, s) == Layout.Arrangement.TOO_SMALL)
+
+
+## True while the window is too small and the too small layer shows.
+func is_too_small() -> bool:
+	return _too_small
+
+
+## The too small layer node, or null while it does not show.
+func too_small_layer() -> TooSmallLayer:
+	return _layer
+
+
+## Entering: the layer goes over every screen; on the play screen the pause
+## menu opens under it (the timer stops) and the puzzle is saved, as on a
+## focus loss (GDD 8.1). A puzzle being made opens paused. Leaving: the layer
+## goes and the screen underneath shows as it was left.
+func _set_too_small(on: bool) -> void:
+	if on == _too_small:
+		return
+	_too_small = on
+	if on:
+		_show_layer()
+		if current_screen() == PLAY:
+			_pause_play_screen()
+			save_session()
+	else:
+		_hide_layer()
+
+
+func _show_layer() -> void:
+	if _host == null or _layer != null:
+		return
+	_layer = TooSmallLayer.new()
+	_layer.name = "TooSmall"
+	_layer.skin = current_skin()
+	_host.add_child(_layer)
+	_layer.ensure_built()
+	_layer.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	_keep_layer_on_top()
+
+
+func _hide_layer() -> void:
+	if _layer == null:
+		return
+	if is_instance_valid(_layer):
+		if _layer.get_parent() != null:
+			_layer.get_parent().remove_child(_layer)
+		# Removed from the tree, so free it now: no frame may come to do it.
+		_layer.free()
+	_layer = null
+
+
+func _keep_layer_on_top() -> void:
+	if _layer != null and _host != null and _layer.get_parent() == _host:
+		_host.move_child(_layer, -1)
 
 
 ## One canvas unit is one dp (ARCHITECTURE section 2).
