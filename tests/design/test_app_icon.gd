@@ -1,10 +1,10 @@
 extends "res://tests/unit_test.gd"
-## The placeholder app icon script loads with its five functions, every layer
-## draws at every size we render, the adaptive foreground and monochrome
-## layers stay inside the Android safe zone, the foreground is the white
-## square with a 3 by 3 box and a lemon center cell, the monochrome layer is
-## one color with the cells cut out, and the same rect always gives the same
-## shapes.
+## The app icon, Ring (DESIGN_SYSTEM.md section 9): the script loads with its
+## five functions, every layer draws at every size we render, the adaptive
+## foreground and monochrome layers stay inside the Android safe zone, the
+## layers use only the section 9.3 colors, the ring is layout A with the 3
+## and the 8 crossed, the monochrome layer is one opaque color, and the same
+## rect always gives the same parts.
 
 const ICON_PATH: String = "res://src/design/app_icon.gd"
 const AppIcon := preload("res://src/design/app_icon.gd")
@@ -18,6 +18,8 @@ const DRAW_FUNCTIONS: Array[String] = ["draw_full", "draw_background", "draw_for
 const SAFE_RADIUS_SHARE: float = 33.0 / 108.0
 const TOLERANCE_PX: float = 0.5
 const SIDES: Array[float] = [48.0, 108.0, 432.0, 512.0]
+## Reading order of the open ring: layout A with the center open.
+const READING_ORDER: Array[int] = [1, 2, 3, 4, 5, 6, 7, 8, 9]
 
 
 func test_script_loads_with_all_functions() -> void:
@@ -40,9 +42,10 @@ func test_every_layer_draws_at_every_size() -> void:
 	canvas.free()
 	for side: float in SIDES:
 		var rect: Rect2 = Rect2(0.0, 0.0, side, side)
-		assert_true(AppIcon._background_fills(rect).size() > 0, "side %d: background has shapes" % side)
-		assert_true(AppIcon._foreground_fills(rect).size() > 0, "side %d: foreground has shapes" % side)
-		assert_true(AppIcon._monochrome_fills(rect).size() > 0, "side %d: monochrome has shapes" % side)
+		assert_true(AppIcon._full_parts(rect).size() > 0, "side %d: full icon has parts" % side)
+		assert_true(AppIcon._background_parts(rect).size() > 0, "side %d: background has parts" % side)
+		assert_true(AppIcon._art_parts(rect, false).size() > 0, "side %d: foreground has parts" % side)
+		assert_true(AppIcon._art_parts(rect, true).size() > 0, "side %d: monochrome has parts" % side)
 
 
 func test_foreground_inside_safe_zone() -> void:
@@ -54,80 +57,126 @@ func test_foreground_inside_safe_zone_when_rect_is_offset() -> void:
 	_check_safe_zone(Rect2(37.0, 210.0, 108.0, 108.0))
 
 
-func test_foreground_is_a_centered_square() -> void:
+func test_outline_holds_the_sticker_and_the_x_ends() -> void:
 	for side: float in SIDES:
 		var rect: Rect2 = Rect2(0.0, 0.0, side, side)
+		var center: Vector2 = rect.get_center()
+		var radius: float = side * SAFE_RADIUS_SHARE
 		var points: PackedVector2Array = AppIcon.foreground_outline(rect)
-		var box: Rect2 = Rect2(points[0], Vector2.ZERO)
+		var farthest: float = 0.0
 		for point: Vector2 in points:
-			box = box.expand(point)
-		assert_true(absf(box.size.x - box.size.y) <= TOLERANCE_PX, "side %d: square, %.1f by %.1f" % [side, box.size.x, box.size.y])
-		assert_true(box.get_center().distance_to(rect.get_center()) <= TOLERANCE_PX, "side %d: centered" % side)
-		# Big enough to read on a launcher: at least 40 percent of the layer.
-		assert_true(box.size.x >= 0.4 * side, "side %d: %.0f px wide" % [side, box.size.x])
+			farthest = maxf(farthest, point.distance_to(center))
+		# Section 9.2: the shadow and the frame corners reach about 0.98 R.
+		assert_true(farthest >= 0.95 * radius, "side %d: farthest point %.3f R" % [side, farthest / radius])
+		for mono: bool in [false, true]:
+			for part: AppIcon.Part in AppIcon._art_parts(rect, mono):
+				if part.kind == AppIcon.Kind.LINE:
+					assert_true(points.has(part.a + (part.b - part.a).normalized().orthogonal() * part.width * 0.5), "side %d: X end in the outline" % side)
 
 
-func test_foreground_colors_and_lemon_center() -> void:
-	var rect: Rect2 = Rect2(0.0, 0.0, 432.0, 432.0)
-	var allowed: Array[Color] = [AppIcon.TILE, AppIcon.LINE, AppIcon.CENTER]
-	var lemon: int = 0
-	for fill: AppIcon.Fill in AppIcon._foreground_fills(rect):
-		assert_true(allowed.has(fill.color), "foreground color %s is white, near black or lemon" % fill.color.to_html())
-		if fill.color == AppIcon.CENTER:
-			lemon += 1
-			assert_true(Geometry2D.is_point_in_polygon(rect.get_center(), fill.points), "the lemon cell sits in the middle")
-	assert_eq(lemon, 1, "exactly one lemon cell")
-	assert_eq(AppIcon.BACKGROUND, Color("#1A40D9"), "background is Pop electric blue")
-	assert_eq(AppIcon.GRID, Color("#4362E0"), "grid lines as section 9")
-	assert_eq(AppIcon.CENTER, Color("#FFE45C"), "center cell is lemon")
-
-
-func test_box_lines_draw_a_3_by_3_box() -> void:
-	var rect: Rect2 = Rect2(0.0, 0.0, 432.0, 432.0)
-	var cells: Array[Rect2] = AppIcon._cells(rect)
-	assert_eq(cells.size(), 9, "nine cells")
-	var lines: Array[Rect2] = AppIcon._box_lines(rect)
-	assert_eq(lines.size(), 8, "four lines each way")
-	for cell: Rect2 in cells:
-		assert_true(cell.size.x > 0.0 and is_equal_approx(cell.size.x, cell.size.y), "cells are square")
-		for line: Rect2 in lines:
-			assert_false(line.grow(-0.01).intersects(cell.grow(-0.01)), "no line covers a cell")
-
-
-func test_monochrome_is_one_color_with_cells_cut_out() -> void:
+func test_parts_use_only_section_9_3_colors() -> void:
+	var background: Array[Color] = [Color("#1A40D9"), Color("#4362E0")]
+	var foreground: Array[Color] = [Color("#FFFFFF"), Color("#111111"), Color("#D1005A")]
 	for side: float in SIDES:
 		var rect: Rect2 = Rect2(0.0, 0.0, side, side)
-		var fills: Array[AppIcon.Fill] = AppIcon._monochrome_fills(rect)
-		var area: float = 0.0
-		var tile_clockwise: bool = Geometry2D.is_polygon_clockwise(AppIcon._tile_points(rect))
-		for fill: AppIcon.Fill in fills:
-			assert_eq(fill.color, AppIcon.MONOCHROME, "side %d: one color" % side)
-			assert_eq(fill.color.a, 1.0, "side %d: opaque" % side)
-			# A clip result can be a hole polygon, which would draw filled.
-			assert_eq(Geometry2D.is_polygon_clockwise(fill.points), tile_clockwise, "side %d: no hole polygons" % side)
-			area += absf(AppIcon._area(fill.points))
-		var cells: Array[Rect2] = AppIcon._cells(rect)
-		for cell: Rect2 in cells:
-			for fill: AppIcon.Fill in fills:
-				assert_false(Geometry2D.is_point_in_polygon(cell.get_center(), fill.points), "side %d: cell at %s is cut out" % [side, cell.position])
-		var expected: float = absf(AppIcon._area(AppIcon._tile_points(rect)))
-		for cell: Rect2 in cells:
-			expected -= cell.get_area()
-		assert_true(absf(area - expected) <= 0.01 * expected, "side %d: area %.1f, expected %.1f" % [side, area, expected])
+		for part: AppIcon.Part in AppIcon._background_parts(rect):
+			assert_true(background.has(part.color), "side %d: background color %s" % [side, part.color.to_html()])
+		for part: AppIcon.Part in AppIcon._art_parts(rect, false):
+			assert_true(foreground.has(part.color), "side %d: foreground color %s" % [side, part.color.to_html()])
+		var full: Array[Color] = background + foreground
+		for part: AppIcon.Part in AppIcon._full_parts(rect):
+			assert_true(full.has(part.color), "side %d: full icon color %s" % [side, part.color.to_html()])
+	assert_eq(AppIcon.BACKGROUND, Color("#1A40D9"), "background is button_primary_bg")
+	assert_eq(AppIcon.GRID, Color("#4362E0"), "grid lines as section 9.3")
+	assert_eq(AppIcon.FACE, Color("#FFFFFF"), "face is cell_bg")
+	assert_eq(AppIcon.INK, Color("#111111"), "outline, shadow and digits")
+	assert_eq(AppIcon.CROSS, Color("#D1005A"), "hand X is cross_mark_hand")
+	assert_eq(AppIcon.MONOCHROME, Color("#FFFFFF"), "monochrome is white")
 
 
-func test_same_rect_gives_same_shapes() -> void:
+func test_foreground_draw_order_and_crossed_digits() -> void:
+	var parts: Array[AppIcon.Part] = AppIcon._art_parts(Rect2(0.0, 0.0, 432.0, 432.0), false)
+	# Shadow, outline, face.
+	assert_eq(parts[0].kind, AppIcon.Kind.ROUNDED, "shadow first")
+	assert_eq(parts[0].color, AppIcon.INK, "shadow is ink")
+	assert_eq(parts[1].color, AppIcon.INK, "then the outline")
+	assert_eq(parts[2].color, AppIcon.FACE, "then the face")
+	assert_true(parts[0].rect.position.x > parts[1].rect.position.x and parts[0].rect.position.y > parts[1].rect.position.y, "shadow sits down and right")
+	var digits: Array[int] = []
+	for i: int in range(3, parts.size()):
+		var part: AppIcon.Part = parts[i]
+		if part.kind != AppIcon.Kind.DIGIT:
+			continue
+		digits.append(part.digit)
+		var crossed: bool = part.digit == 3 or part.digit == 8
+		assert_eq(part.color, AppIcon.INK, "digit %d is ink" % part.digit)
+		assert_eq(part.outline > 0, crossed, "digit %d outlined only when crossed" % part.digit)
+		if crossed:
+			# The two X strokes come right before their digit, through its center.
+			for back: int in [1, 2]:
+				var stroke: AppIcon.Part = parts[i - back]
+				assert_eq(stroke.kind, AppIcon.Kind.LINE, "digit %d has its X before it" % part.digit)
+				assert_eq(stroke.color, AppIcon.CROSS, "the X is magenta")
+				assert_true(((stroke.a + stroke.b) * 0.5).distance_to(part.a) < 0.01, "the X goes through digit %d" % part.digit)
+	assert_eq(digits, READING_ORDER, "nine candidates in reading order")
+
+
+func test_ring_is_layout_a() -> void:
+	var parts: Array[AppIcon.Part] = AppIcon._art_parts(Rect2(0.0, 0.0, 432.0, 432.0), false)
+	var at: Dictionary[int, Vector2] = {}
+	for part: AppIcon.Part in parts:
+		if part.kind == AppIcon.Kind.DIGIT:
+			at[part.digit] = part.a
+	# Rows 1 2 3 4 / 5 . 6 / 7 8 9.
+	for row: Array in [[1, 2, 3, 4], [5, 6], [7, 8, 9]]:
+		for digit: int in row:
+			assert_true(absf(at[digit].y - at[row[0]].y) < 0.01, "%d shares its row" % digit)
+	assert_true(at[1].y < at[5].y and at[5].y < at[7].y, "rows go down")
+	assert_true(absf(at[1].x - at[5].x) < 0.01 and absf(at[5].x - at[7].x) < 0.01, "left column")
+	assert_true(absf(at[4].x - at[6].x) < 0.01 and absf(at[6].x - at[9].x) < 0.01, "right column")
+	# The ring is centered on the face, whose center sits up and left of the
+	# layer center by half the shadow.
+	var face: Rect2 = parts[2].rect
+	assert_true(((at[1] + at[9]) * 0.5).distance_to(face.get_center()) < 0.01, "ring centered on the face")
+
+
+func test_monochrome_is_one_color_without_crossed_digits() -> void:
+	for side: float in SIDES:
+		var rect: Rect2 = Rect2(0.0, 0.0, side, side)
+		var digits: Array[int] = []
+		var lines: int = 0
+		var frames: int = 0
+		for part: AppIcon.Part in AppIcon._art_parts(rect, true):
+			assert_eq(part.color, AppIcon.MONOCHROME, "side %d: one color" % side)
+			assert_eq(part.color.a, 1.0, "side %d: opaque" % side)
+			assert_ne(part.kind, AppIcon.Kind.ROUNDED, "side %d: no filled shapes" % side)
+			match part.kind:
+				AppIcon.Kind.DIGIT:
+					digits.append(part.digit)
+					assert_eq(part.outline, 0, "side %d: no outlined digits" % side)
+				AppIcon.Kind.LINE:
+					lines += 1
+				AppIcon.Kind.FRAME:
+					frames += 1
+					assert_true(part.width >= 1.0, "side %d: frame at least 1 px" % side)
+		assert_eq(frames, 1, "side %d: one frame" % side)
+		assert_eq(lines, 4, "side %d: two X" % side)
+		assert_eq(digits, [1, 2, 4, 5, 6, 7, 9] as Array[int], "side %d: seven open digits" % side)
+
+
+func test_same_rect_gives_same_parts() -> void:
 	var rect: Rect2 = Rect2(3.0, 4.0, 216.0, 216.0)
-	assert_eq(_describe_fills(AppIcon._background_fills(rect)), _describe_fills(AppIcon._background_fills(rect)), "background")
-	assert_eq(_describe_fills(AppIcon._foreground_fills(rect)), _describe_fills(AppIcon._foreground_fills(rect)), "foreground")
-	assert_eq(_describe_fills(AppIcon._monochrome_fills(rect)), _describe_fills(AppIcon._monochrome_fills(rect)), "monochrome")
+	assert_eq(_describe_parts(AppIcon._full_parts(rect)), _describe_parts(AppIcon._full_parts(rect)), "full")
+	assert_eq(_describe_parts(AppIcon._background_parts(rect)), _describe_parts(AppIcon._background_parts(rect)), "background")
+	assert_eq(_describe_parts(AppIcon._art_parts(rect, false)), _describe_parts(AppIcon._art_parts(rect, false)), "foreground")
+	assert_eq(_describe_parts(AppIcon._art_parts(rect, true)), _describe_parts(AppIcon._art_parts(rect, true)), "monochrome")
 	assert_eq(AppIcon.foreground_outline(rect), AppIcon.foreground_outline(rect), "outline")
 
 
-func _describe_fills(fills: Array[AppIcon.Fill]) -> String:
+func _describe_parts(parts: Array[AppIcon.Part]) -> String:
 	var text: String = ""
-	for fill: AppIcon.Fill in fills:
-		text += var_to_str(fill.points) + fill.color.to_html() + ";"
+	for part: AppIcon.Part in parts:
+		text += var_to_str([part.kind, part.color, part.rect, part.radius, part.detail, part.a, part.b, part.width, part.digit, part.font_size, part.outline]) + ";"
 	return text
 
 
