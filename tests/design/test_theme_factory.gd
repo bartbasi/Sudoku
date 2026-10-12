@@ -306,3 +306,43 @@ func test_press_does_not_change_size() -> void:
 	assert_eq(copy.get_minimum_size(), raised, "half pressed keeps the size")
 	assert_eq(copy.face, box.face, "duplicate keeps the look")
 	assert_eq(copy.face_rect(Rect2(0, 0, 10, 10)).position, Vector2(box.shadow_offset, box.shadow_offset) * 0.5, "face moves with press")
+
+
+func test_pad_line_boxes_are_trimmed_as_section_3_5() -> void:
+	var digit: FontVariation = ThemeFactory.role_font(ThemeFactory.ROLE_PAD_DIGIT)
+	assert_eq(digit.spacing_top, -6, "pad_digit trimmed 6 dp at the top")
+	assert_eq(digit.spacing_bottom, -6, "pad_digit trimmed 6 dp at the bottom")
+	var caption: FontVariation = ThemeFactory.role_font(ThemeFactory.ROLE_PAD_CAPTION)
+	assert_eq(caption.spacing_top, -2, "pad_caption trimmed 2 dp at the top")
+	assert_eq(caption.spacing_bottom, -2, "pad_caption trimmed 2 dp at the bottom")
+	for role: StringName in ThemeFactory.ROLES:
+		if role in [ThemeFactory.ROLE_PAD_DIGIT, ThemeFactory.ROLE_PAD_CAPTION]:
+			continue
+		var font: FontVariation = ThemeFactory.role_font(role)
+		assert_eq(font.spacing_top, 0, "%s is not trimmed at the top" % role)
+		assert_eq(font.spacing_bottom, 0, "%s is not trimmed at the bottom" % role)
+	var size: int = ThemeFactory.role_size(ThemeFactory.ROLE_PAD_DIGIT)
+	assert_true(is_equal_approx(digit.get_height(size), ThemeDB.fallback_font.get_height(size) - 12.0), "the digit line box is 12 dp shorter")
+	assert_eq(ThemeFactory.role_line_spacing(ThemeFactory.ROLE_PAD_DIGIT), roundi(float(size) - digit.get_height(size)), "line spacing measured on the trimmed font")
+
+
+func test_pad_buttons_use_the_roles_and_padding_of_section_3_5() -> void:
+	assert_eq(ThemeFactory.VARIATION_ROLES[ThemeFactory.MODE_BUTTON], ThemeFactory.ROLE_MODE, "mode buttons use the mode role")
+	assert_eq(ThemeFactory.VARIATION_ROLES[ThemeFactory.PAD_ACTION], ThemeFactory.ROLE_PAD_CAPTION, "Undo and Erase use the pad_caption role")
+	var mode: FontVariation = ThemeFactory.role_font(ThemeFactory.ROLE_MODE)
+	assert_true(is_equal_approx(mode.variation_transform.x.x, 0.88), "mode width 0.88")
+	assert_eq(mode.spacing_glyph, -1, "mode spacing: no tracking, -0.92 for width")
+	for skin: GameSkin in _skins():
+		var theme: Theme = ThemeFactory.build(skin)
+		var o: float = skin.outline_w
+		var xs: float = skin.space_xs
+		var mode_box: PopBox = theme.get_stylebox(&"normal", ThemeFactory.MODE_BUTTON) as PopBox
+		assert_eq(Vector4(mode_box.pad_left, mode_box.pad_top, mode_box.pad_right, mode_box.pad_bottom), Vector4(xs + o, xs + o, xs + o, xs + o), "mode padding space_xs in %s" % skin.id)
+		assert_eq(theme.get_constant(&"h_separation", ThemeFactory.MODE_BUTTON), roundi(skin.space_s), "mode gap space_s")
+		assert_eq(theme.get_font(&"font", ThemeFactory.MODE_BUTTON), mode as Font, "mode font")
+		var action: PopBox = theme.get_stylebox(&"normal", ThemeFactory.PAD_ACTION) as PopBox
+		var y: float = ThemeFactory.PAD_ACTION_PAD_Y + o
+		assert_eq(Vector4(action.pad_left, action.pad_top, action.pad_right, action.pad_bottom), Vector4(xs + o, y, xs + o, y), "Undo and Erase padding in %s" % skin.id)
+		assert_eq(theme.get_constant(&"icon_max_width", ThemeFactory.PAD_ACTION), 20, "Undo and Erase icon at most 20")
+		assert_eq(theme.get_font(&"font", ThemeFactory.PAD_ACTION), ThemeFactory.role_font(ThemeFactory.ROLE_PAD_CAPTION) as Font, "pad_caption font")
+		assert_eq(theme.get_font(&"font", ThemeFactory.HUD_CAPTION), ThemeFactory.role_font(ThemeFactory.ROLE_CAPTION) as Font, "HUD captions keep the untrimmed caption")

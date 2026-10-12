@@ -7,6 +7,22 @@ const DesignDoc := preload("res://tests/design/design_doc.gd")
 const PopBox := preload("res://src/design/pop_box.gd")
 const STEP: float = 0.004
 
+## Counts every error Godot logs, of any kind.
+class ErrorCounter extends Logger:
+	var _count: int = 0
+	var _mutex: Mutex = Mutex.new()
+
+	func _log_error(_function: String, _file: String, _line: int, _code: String, _rationale: String, _editor_notify: bool, _error_type: int, _script_backtraces: Array[ScriptBacktrace]) -> void:
+		_mutex.lock()
+		_count += 1
+		_mutex.unlock()
+
+	func count() -> int:
+		_mutex.lock()
+		var value: int = _count
+		_mutex.unlock()
+		return value
+
 var _nodes: Array[Node] = []
 
 
@@ -188,3 +204,38 @@ func test_a_new_appear_finishes_a_running_disappear() -> void:
 	assert_true(dialog.visible, "and the new one shows the dialog")
 	back.custom_step(1.0)
 	_clean()
+
+
+func test_tweens_outlive_a_freed_node_outside_the_tree_quietly() -> void:
+	var theme: Theme = ThemeFactory.build(_skin())
+	var counter: ErrorCounter = ErrorCounter.new()
+	OS.add_logger(counter)
+	var owner: Node = Node.new()
+	var effect: CellEffect = CellEffect.new()
+	effect.cell = 0
+	effect.kind = CellEffect.Kind.PLACE
+	var steps: Array[int] = [0]
+	var effect_tween: Tween = Motion.effect_tween(owner, effect, func() -> void: steps[0] += 1)
+	var button: Button = Button.new()
+	button.theme = theme
+	button.theme_type_variation = ThemeFactory.PAD_ACTION
+	var press: Tween = Motion.press(button)
+	var dialog: PanelContainer = PanelContainer.new()
+	var out: Tween = Motion.disappear(dialog)
+	effect_tween.custom_step(0.02)
+	press.custom_step(0.02)
+	out.custom_step(0.02)
+	var steps_before: int = steps[0]
+	owner.free()
+	button.free()
+	dialog.free()
+	effect_tween.custom_step(1.0)
+	press.custom_step(1.0)
+	out.custom_step(1.0)
+	OS.remove_logger(counter)
+	assert_eq(counter.count(), 0, "no error once the nodes are freed")
+	assert_true(is_equal_approx(effect.progress, 1.0), "the effect still ends")
+	assert_true(steps_before > 0, "on_step runs while the owner lives")
+	assert_eq(steps[0], steps_before, "on_step is not called once the owner is gone")
+	for tween: Tween in [effect_tween, press, out]:
+		assert_false(tween.is_running(), "the tween ends")

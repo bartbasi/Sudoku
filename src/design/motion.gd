@@ -135,13 +135,19 @@ static func press(node: CanvasItem) -> Tween:
 	var set_press: Callable = func(amount: float) -> void:
 		for copy: PopBox in copies.values():
 			copy.press = amount
+	# A weak reference: a node outside the tree gets a SceneTree tween that can
+	# outlive it, and a lambda that captures a freed node logs an error.
+	var control_ref: WeakRef = weakref(control)
 	var tween: Tween = _tween_for(control)
 	tween.tween_method(set_press, 0.0, 1.0, PRESS_DOWN).set_trans(trans(&"PRESS_DOWN")).set_ease(ease_of(&"PRESS_DOWN"))
 	tween.tween_method(set_press, 1.0, 0.0, PRESS_UP).set_trans(trans(&"PRESS_UP")).set_ease(ease_of(&"PRESS_UP"))
 	tween.finished.connect(func() -> void:
+		var target: Control = control_ref.get_ref() as Control
+		if target == null:
+			return
 		for style_name: StringName in copies:
-			if is_instance_valid(control) and control.get_theme_stylebox(style_name, _type_of(control)) == copies[style_name]:
-				control.remove_theme_stylebox_override(style_name))
+			if target.get_theme_stylebox(style_name, _type_of(target)) == copies[style_name]:
+				target.remove_theme_stylebox_override(style_name))
 	control.set_meta(_META_PRESS, tween)
 	return tween
 
@@ -179,11 +185,15 @@ static func disappear(node: CanvasItem) -> Tween:
 	if not _is_scrim(node):
 		_center_pivot(node)
 		tween.tween_property(node, ^"scale", Vector2(DIALOG_FROM_SCALE, DIALOG_FROM_SCALE), DIALOG_OUT).set_trans(trans(&"DIALOG_OUT")).set_ease(ease_of(&"DIALOG_OUT"))
+	var node_ref: WeakRef = weakref(node)
 	tween.chain().tween_callback(func() -> void:
-		node.visible = false
-		node.modulate.a = 1.0
-		if "scale" in node:
-			node.set(&"scale", Vector2.ONE))
+		var target: CanvasItem = node_ref.get_ref() as CanvasItem
+		if target == null:
+			return
+		target.visible = false
+		target.modulate.a = 1.0
+		if "scale" in target:
+			target.set(&"scale", Vector2.ONE))
 	node.set_meta(_META_SHOW, tween)
 	return tween
 
@@ -207,9 +217,13 @@ static func effect_tween(owner: Node, effect: CellEffect, on_step: Callable) -> 
 		var steps: int = effect.cell / 9 + effect.cell % 9
 		if steps > 0:
 			tween.tween_interval(COMPLETE_STAGGER * float(steps))
+	# Weak references to owner, so no lambda captures a node that may be freed
+	# while its SceneTree tween still runs. Once owner is gone, on_step is not
+	# called: it redraws owner's layer.
+	var owner_ref: WeakRef = weakref(owner)
 	var step: Callable = func(value: float) -> void:
 		effect.progress = value
-		if on_step.is_valid():
+		if owner_ref.get_ref() != null and on_step.is_valid():
 			on_step.call()
 	tween.tween_method(step, 0.0, 1.0, effect_duration(effect.kind)).set_trans(trans(curve)).set_ease(ease_of(curve))
 	running[effect.cell] = tween
@@ -218,8 +232,9 @@ static func effect_tween(owner: Node, effect: CellEffect, on_step: Callable) -> 
 	# own signal.
 	var mine: WeakRef = weakref(tween)
 	tween.finished.connect(func() -> void:
-		if is_instance_valid(owner) and owner.has_meta(_META_EFFECTS):
-			var now: Dictionary = owner.get_meta(_META_EFFECTS) as Dictionary
+		var target: Node = owner_ref.get_ref() as Node
+		if target != null and target.has_meta(_META_EFFECTS):
+			var now: Dictionary = target.get_meta(_META_EFFECTS) as Dictionary
 			if now.get(effect.cell, null) == mine.get_ref():
 				now.erase(effect.cell))
 	return tween

@@ -85,9 +85,11 @@ const ROLE_TITLE: StringName = &"title"
 const ROLE_HEADING: StringName = &"heading"
 const ROLE_VALUE: StringName = &"value"
 const ROLE_BUTTON: StringName = &"button"
+const ROLE_MODE: StringName = &"mode"
 const ROLE_BODY: StringName = &"body"
 const ROLE_BODY_SMALL: StringName = &"body_small"
 const ROLE_CAPTION: StringName = &"caption"
+const ROLE_PAD_CAPTION: StringName = &"pad_caption"
 const ROLE_PAD_DIGIT: StringName = &"pad_digit"
 
 ## Weights (section 3.1) as variation_embolden on the built-in font.
@@ -103,11 +105,17 @@ const ROLES: Dictionary[StringName, Array] = {
 	ROLE_HEADING: [16, HEAVY, true, 0.25, 1.0, 1.2],
 	ROLE_VALUE: [20, HEAVY, false, 0.0, 0.86, 1.0],
 	ROLE_BUTTON: [14, HEAVY, true, 0.5, 1.0, 1.2],
+	ROLE_MODE: [14, HEAVY, true, 0.0, 0.88, 1.2],
 	ROLE_BODY: [14, SEMIBOLD, false, 0.0, 1.0, 1.3],
 	ROLE_BODY_SMALL: [13, SEMIBOLD, false, 0.0, 1.0, 1.3],
 	ROLE_CAPTION: [10, HEAVY, true, 0.75, 1.0, 1.2],
+	ROLE_PAD_CAPTION: [10, HEAVY, true, 0.75, 1.0, 1.2],
 	ROLE_PAD_DIGIT: [26, HEAVY, false, 0.0, 1.0, 1.0],
 }
+
+## Roles whose line box is trimmed by this many dp at the top and at the
+## bottom, so the label fits its pad face (section 3.5).
+const ROLE_TRIMS: Dictionary[StringName, int] = {ROLE_PAD_DIGIT: 6, ROLE_PAD_CAPTION: 2}
 
 ## The role each text-bearing variation sets its text in.
 const VARIATION_ROLES: Dictionary[StringName, StringName] = {
@@ -118,7 +126,7 @@ const VARIATION_ROLES: Dictionary[StringName, StringName] = {
 	CELEBRATE_DISPLAY: ROLE_DISPLAY, HINT_TAG_LABEL: ROLE_CAPTION,
 	BUTTON_PRIMARY: ROLE_BUTTON, BUTTON_SECONDARY: ROLE_BUTTON, BUTTON_DANGER: ROLE_BUTTON,
 	HINT_BUTTON: ROLE_CAPTION, ICON_BUTTON: ROLE_BUTTON, PAD_KEY_PLACE: ROLE_PAD_DIGIT,
-	PAD_KEY_CROSS: ROLE_PAD_DIGIT, PAD_ACTION: ROLE_CAPTION, MODE_BUTTON: ROLE_BUTTON,
+	PAD_KEY_CROSS: ROLE_PAD_DIGIT, PAD_ACTION: ROLE_PAD_CAPTION, MODE_BUTTON: ROLE_MODE,
 	LIST_BUTTON: ROLE_HEADING, SKIN_OPTION: ROLE_HEADING, SWITCH: ROLE_HEADING,
 	STAT_BAR: ROLE_CAPTION,
 }
@@ -130,6 +138,7 @@ const CONDENSE_PULL: float = 0.55
 ## Fixed shapes from section 5.
 const ICON_BUTTON_FACE: float = 40.0
 const HINT_TAG_PAD_Y: float = 2.0
+const PAD_ACTION_PAD_Y: float = 2.0
 const STRIPE_NEAR: float = 0.2
 const STRIPE_FAR: float = 0.4
 const STAT_BAR_H: float = 16.0
@@ -168,6 +177,9 @@ static func role_font(role: StringName) -> FontVariation:
 	font.spacing_glyph = roundi(float(spec[3]) - CONDENSE_PULL * size * (1.0 - width))
 	if width < 1.0:
 		font.variation_transform = Transform2D(Vector2(width, 0.0), Vector2(0.0, 1.0), Vector2.ZERO)
+	if ROLE_TRIMS.has(role):
+		font.spacing_top = -ROLE_TRIMS[role]
+		font.spacing_bottom = -ROLE_TRIMS[role]
 	_fonts[role] = font
 	return font
 
@@ -180,10 +192,11 @@ static func role_caps(role: StringName) -> bool:
 	return bool(ROLES[role][2])
 
 
-## Extra space between lines so a line is the role's line height.
+## Extra space between lines so a line is the role's line height. Measured
+## on the role's own font, so a trimmed line box counts as trimmed.
 static func role_line_spacing(role: StringName) -> int:
 	var size: int = role_size(role)
-	return roundi(float(ROLES[role][5]) * float(size) - ThemeDB.fallback_font.get_height(size))
+	return roundi(float(ROLES[role][5]) * float(size) - role_font(role).get_height(size))
 
 
 ## text as a control with this variation shows it: in capitals for the roles
@@ -332,10 +345,10 @@ static func _add_buttons(theme: Theme, skin: GameSkin) -> void:
 		box.stripe_far = STRIPE_FAR
 		box.refresh()
 
-	_button(theme, PAD_ACTION, skin, skin.button_bg, skin.button_text, skin.button_text, ROLE_CAPTION, key_pad)
+	_button(theme, PAD_ACTION, skin, skin.button_bg, skin.button_text, skin.button_text, ROLE_PAD_CAPTION, Vector4(xs, PAD_ACTION_PAD_Y, xs, PAD_ACTION_PAD_Y))
 	theme.set_constant(&"h_separation", PAD_ACTION, roundi(xs))
 
-	var mode_boxes: Array[PopBox] = _button(theme, MODE_BUTTON, skin, skin.mode_toggle_bg, skin.mode_toggle_text, skin.mode_toggle_active_text, ROLE_BUTTON, Vector4(s, xs, s, xs))
+	var mode_boxes: Array[PopBox] = _button(theme, MODE_BUTTON, skin, skin.mode_toggle_bg, skin.mode_toggle_text, skin.mode_toggle_active_text, ROLE_MODE, Vector4(xs, xs, xs, xs))
 	for box: PopBox in mode_boxes:
 		if box.press >= 1.0:
 			box.face = skin.mode_toggle_active_bg

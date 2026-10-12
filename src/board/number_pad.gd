@@ -81,11 +81,13 @@ func _init() -> void:
 	_undo.icon = Icons.texture(Icons.UNDO)
 	_undo.vertical_icon_alignment = VERTICAL_ALIGNMENT_TOP
 	_undo.icon_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_undo.expand_icon = true
 	_erase = _make_button("Erase", ThemeFactory.PAD_ACTION)
 	_erase.text = ThemeFactory.display_text(ThemeFactory.PAD_ACTION, "Erase")
 	_erase.icon = Icons.texture(Icons.ERASE)
 	_erase.vertical_icon_alignment = VERTICAL_ALIGNMENT_TOP
 	_erase.icon_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_erase.expand_icon = true
 	_show_mode()
 	_undo.disabled = true
 

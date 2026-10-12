@@ -1,6 +1,6 @@
 # Sudoku: Design System
 
-Owner: senior-graphic-designer. Status: Phase 2, 2026-10-11; Phase 3 addition 2026-10-12, the hint cross chip (Bart, Hard Stop 2; sections 1, 2.7 to 2.9); 2026-10-12, the SUDOKU wordmark and the icon placeholder (sections 7.1, 7.2 and 9); 2026-10-12, the final app icon, Ring, made bolder (sections 7.1 and 9). This is the contract the artists and developers build Phase 3 from. If something you need is missing or would force a guess, ask the senior-graphic-designer through the Development Manager; do not invent a value locally.
+Owner: senior-graphic-designer. Status: Phase 2, 2026-10-11; Phase 3 addition 2026-10-12, the hint cross chip (Bart, Hard Stop 2; sections 1, 2.7 to 2.9); 2026-10-12, the SUDOKU wordmark and the icon placeholder (sections 7.1, 7.2 and 9); 2026-10-12, the final app icon, Ring, made bolder (sections 7.1 and 9); 2026-10-12, number pad labels fit their faces down to 320 by 568 dp (sections 3.2, 3.5, 4.6, 5 and 10). This is the contract the artists and developers build Phase 3 from. If something you need is missing or would force a guess, ask the senior-graphic-designer through the Development Manager; do not invent a value locally.
 
 Bart's Hard Stop 1 decisions behind it: direction Pop, with the Phase 2 fixes from [design/ranking.md](design/ranking.md); v1 ships two skins, Pop light (the default) and Pop dark; candidate ring layout A, reading rows; Godot's built-in font, no font files; a digit crossed by hand is drawn on top of its X with a thin outline; the game fits and works at 320 by 568 dp and readability is judged at 360 dp wide; an app icon whose background follows Pop's palette; "New best time" and "New best score" on the completion screen. The game is called Sudoku for now, a placeholder name Bart may change. The app icon is Ring (section 9).
 
@@ -327,11 +327,13 @@ Sizes in dp. Line height is a multiple of the font size. ThemeFactory turns each
 | title | 24 | Heavy | Yes | -0.25 | 0.86 | 1.1 | Screen titles |
 | heading | 16 | Heavy | Yes | 0.25 | 1.0 | 1.2 | Level names, lesson titles, settings row names |
 | value | 20 | Heavy | No | 0 | 0.86 | 1.0 | Time and score in the header, stats values, receipt values |
-| button | 14 | Heavy | Yes | 0.5 | 1.0 | 1.2 | Button labels, mode buttons, stickers, tags |
+| button | 14 | Heavy | Yes | 0.5 | 1.0 | 1.2 | Button labels, stickers, tags |
+| mode | 14 | Heavy | Yes | 0 | 0.88 | 1.2 | PLACE and CROSS OUT on the mode buttons (3.5) |
 | body | 14 | Semibold | No | 0 | 1.0 | 1.3 | Lesson text, dialog text, the first launch offer |
 | body_small | 13 | Semibold | No | 0 | 1.0 | 1.3 | Hint text, subtitles, setting descriptions |
-| caption | 10 | Heavy | Yes | 0.75 | 1.0 | 1.2 | TIME, SCORE, BEST TIME and other labels, STEP 5 OF 8, labels under the Undo and Erase icons |
-| pad_digit | 26 | Heavy | No | 0 | 1.0 | 1.0 | Digits on the pad keys |
+| caption | 10 | Heavy | Yes | 0.75 | 1.0 | 1.2 | TIME, SCORE, BEST TIME and other labels, STEP 5 OF 8 |
+| pad_caption | 10 | Heavy | Yes | 0.75 | 1.0 | 1.2 | UNDO and ERASE under their icons; line box trimmed by 2 dp at the top and the bottom (3.5) |
+| pad_digit | 26 | Heavy | No | 0 | 1.0 | 1.0 | Digits on the pad keys; line box trimmed by 6 dp at the top and the bottom (3.5) |
 
 Text that can be long steps down instead of overflowing: body to 13 and 12 dp in the lesson card (section 4.8), body_small to 12 and 11 dp in the hint panel. Nothing is ever cut off.
 
@@ -348,6 +350,55 @@ The floor GDD AT-66 checks against:
 - **How it is measured:** the font size BoardPainter passes to `draw_string` for candidates, in device pixels, divided by the density. Or, on a screenshot, the height in pixels of the tallest digit's ink (the 4, 7 or 9) divided by the density.
 - **What the design gives:** a 337 dp board, 37.4 dp cells and candidates of 11.5 dp at density 2 (23 px, tallest digit 19 px), 11.8 dp at 2.625 (31 px) and 11.7 dp at 3 (35 px). The checker computes this from the skin and fails below the floor.
 - Candidate size is not judged on 320 by 568 dp, where it is 8.0 dp, or on 16:9 screens whose height limits the board (11.0 dp at 360 by 640).
+
+### 3.5 Pad type: every label fits its face
+
+Every pad label must fit inside its face on every screen, raised and sunk, so Godot never grows a button past its face and never clips a label. The faces stay as section 4.6 and 4.7 give them (no Layout constant changes): keys 40 to 64 dp tall, the right column at least 116 dp, Undo and Erase at least 54 dp wide. The look stays the same: same sizes, same weight, same icons, same layout.
+
+How Godot sizes a pad button, in dp. The margins are the outline (2) plus the padding inside it, on each side. When the face sinks, the content moves 4 dp right and down, so the top and left margins grow by 4 and the bottom and right margins shrink by 4; the total stays the same while the padding is 2 dp or more. A line box is the font's ascent plus descent.
+
+- Digit key height: margins plus the line box.
+- Mode button width: margins plus the icon (20), the gap (`h_separation`, 8) and the label.
+- Undo and Erase height, with the icon above the caption: Godot counts the line box twice (the text, then one more font height) and the icon at its full size. With `expand_icon` on, the icon is not counted and Godot fits it into the room the caption leaves, at most `icon_max_width` (20).
+
+The fix:
+
+1. **Digit keys: the pad_digit line box is trimmed** by 6 dp at the top and 6 at the bottom (`FontVariation.spacing_top` and `spacing_bottom` of -6). Digits have no descenders and nothing above their top, so the trim removes only empty space. The digit's ink keeps its place in the face: before and after, the ink sits 0.7 dp below the center of the line box, and the box is centered in the face.
+2. **Mode buttons use the mode role:** 14 dp Heavy capitals like the button role, condensed to width 0.88 with no tracking, the same condensing as the value role. The side padding drops from `space_s` to `space_xs`. The label size and height do not change.
+3. **Undo and Erase: the pad_caption line box is trimmed** by 2 dp at the top and the bottom (caption text is all capitals, so nothing below the baseline is used), their padding is 2 dp at the top and bottom, and their icon is fitted to the face (`expand_icon`). On 64 dp faces the icon draws as it does now; on 40 dp faces it steps down to about 14 dp, with the caption under it.
+
+The arithmetic (measured with the real Theme by `tools/design/pad_fit.gd`; Godot rounds text sizes to whole dp):
+
+| Button | Part | Before | After |
+| --- | --- | --- | --- |
+| Digit key, height | margins (2 + 4) x 2 | 12 | 12 |
+| | pad_digit line box (ascent 28 + descent 8; trimmed 22 + 2) | 36 | 24 |
+| | needs | 48 | 36 |
+| CROSS OUT, width | margins: before (2 + 8) x 2, after (2 + 4) x 2 | 20 | 12 |
+| | icon 20 and gap 8 | 28 | 28 |
+| | label: button role 87, mode role 71 | 87 | 71 |
+| | needs | 135 | 111 |
+| PLACE, width | the same, label 48 then 40 | 96 | 80 |
+| Mode buttons, height | margins (2 + 4) x 2 and the 20 dp line box | 32 | 32 |
+| Undo and Erase, height | margins: before (2 + 4) x 2, after (2 + 2) x 2 | 12 | 8 |
+| | icon: 20, then fitted to the room left | 20 | 0 |
+| | caption line box counted twice: 14 + 14, then 10 + 10 | 28 | 20 |
+| | needs | 60 | 28 |
+| Undo and Erase, width | margins (2 + 4) x 2 and UNDO or ERASE, 35 | 47 | 47 |
+
+What each screen gives and needs (face, then need, in dp):
+
+| Screen | Digit key | PLACE | CROSS OUT | Undo and Erase |
+| --- | --- | --- | --- | --- |
+| 320 by 568 | 49.3 by 40; 27 by 36 | 116 by 40; 80 by 32 | 116 by 40; 111 by 32 | 54 by 40; 47 by 28 |
+| 360 by 640 | 62.7 by 40; 27 by 36 | 116 by 40; 80 by 32 | 116 by 40; 111 by 32 | 54 by 40; 47 by 28 |
+| 360 by 800 (judged) | 62.7 by 64; 27 by 36 | 116 by 64; 80 by 32 | 116 by 64; 111 by 32 | 54 by 64; 47 by 28 |
+| 411 by 914 | 74 by 64; 27 by 36 | 133.3 by 64; 80 by 32 | 133.3 by 64; 111 by 32 | 62.6 by 64; 47 by 28 |
+| 1024 by 1366 tablet | 133.3 by 64; 27 by 36 | 160 by 64; 80 by 32 | 160 by 64; 111 by 32 | 76 by 64; 47 by 28 |
+
+The tightest fit is CROSS OUT, with 5 dp to spare on a 116 dp face; then the digit keys, with 4 dp in height on 40 dp faces. Touch areas do not change: every face plus the 8 dp gaps is at least 48 by 48. Before the fix, 26 pad labels on these five screens did not fit (`pad_fit.gd -- current`). Renders: [design/pad-fit.png](design/pad-fit.png) after, [design/pad-fit-current.png](design/pad-fit-current.png) before.
+
+The mode names stay Place and Cross Out (GDD); nothing is shortened.
 
 ## 4. Shape, spacing, touch targets, safe areas and adaptation
 
@@ -397,10 +448,10 @@ The same in every skin, so not skin tokens. They are the constants of the `Layou
 | `BAND_MAX` | 112 | The most the band grows (info zone 160) |
 | `BOARD_GAP_MIN` | 12 | Bottom of the board's shadow to the top of the controls |
 | `BOARD_GAP_MAX` | 40 | The most that gap grows |
-| `KEY_MIN` | 40 | Key face height, smallest |
+| `KEY_MIN` | 40 | Key face height, smallest (every pad label fits a 40 dp face, 3.5) |
 | `KEY_MAX` | 64 | Key face height, largest |
 | `ACTION_RATIO` | 1.8 | Width of the pad's right column, as a multiple of a digit key's width |
-| `ACTION_MIN` | 116 | Narrowest right column (CROSS OUT must fit) |
+| `ACTION_MIN` | 116 | Narrowest right column (CROSS OUT must fit: it needs 111, 3.5) |
 | `ACTION_MAX` | 160 | Widest right column |
 | `COLUMN_MAX` | 600 | Widest content column, centered, on tablets |
 | `HINT_FACE_W` | 64 | Width of the Hint button's face |
@@ -514,10 +565,10 @@ Controls:
 | `BUTTON_DANGER` | "ButtonDanger" | Button | `button_danger_bg` and `button_danger_text` |
 | `HINT_BUTTON` | "HintButton" | Button | as `BUTTON_PRIMARY`; holds the hint icon, a HINT caption and the cost value, all in `button_primary_text` |
 | `ICON_BUTTON` | "IconButton" | Button | as `BUTTON_SECONDARY`, a 40 dp square face, a 24 dp icon |
-| `PAD_KEY_PLACE` | "PadKeyPlace" | Button | `pad_key_place_bg` and `pad_key_place_text`, `radius_control`, pad_digit role |
+| `PAD_KEY_PLACE` | "PadKeyPlace" | Button | `pad_key_place_bg` and `pad_key_place_text`, `radius_control`, pad_digit role with its trimmed line box (3.5), padding `space_xs` |
 | `PAD_KEY_CROSS` | "PadKeyCross" | Button | `pad_key_cross_bg` and `pad_key_cross_text`, and a stripe in `pad_key_cross_mark` across the top right corner, between 0.2 and 0.4 of the face width from the corner, drawn inside the outline |
-| `PAD_ACTION` | "PadAction" | Button | as `BUTTON_SECONDARY`; a 20 dp icon over a caption (Undo, Erase) |
-| `MODE_BUTTON` | "ModeButton" | Button (toggle) | normal: `mode_toggle_bg` and `mode_toggle_text`, raised; pressed: `mode_toggle_active_bg` and `mode_toggle_active_text`, sunk; icon and label on one line |
+| `PAD_ACTION` | "PadAction" | Button | as `BUTTON_SECONDARY`; the icon over a caption in the pad_caption role (Undo, Erase); padding `space_xs` at the sides and 2 dp at the top and bottom; `icon_max_width` 20 and the icon fitted to the face (`expand_icon`, set by the pad), so it is 20 dp at most (3.5) |
+| `MODE_BUTTON` | "ModeButton" | Button (toggle) | normal: `mode_toggle_bg` and `mode_toggle_text`, raised; pressed: `mode_toggle_active_bg` and `mode_toggle_active_text`, sunk; icon and label on one line, the label in the mode role; padding `space_xs` on every side, `h_separation` `space_s` (3.5) |
 | `LIST_BUTTON` | "ListButton" | Button | as `BUTTON_SECONDARY`, content left aligned, padding `space_m` (level select and lesson rows) |
 | `SKIN_OPTION` | "SkinOption" | Button (toggle) | a card that sinks when selected and shows the check icon in a `sticker_bg` badge |
 | `SWITCH` | "Switch" | CheckButton | track `radius_control`, 44 by 26 dp, `switch_off_bg` or `switch_on_bg` with the outline; a 20 dp square knob in `switch_knob` with the outline, left when off and right when on; an OFF or ON caption beside it. Drawn in code, no textures |
@@ -885,10 +936,12 @@ To change a skin value, edit the tables in section 1, then write the files and r
 timeout 300 godot --headless --path . --script res://tools/design/write_skins.gd
 timeout 300 godot --headless --path . --script res://tools/design/check_contrast.gd
 timeout 300 godot --headless --path . --script res://tools/design/check_samples.gd
+timeout 300 godot --headless --path . --script res://tools/design/pad_fit.gd
 timeout 300 godot --path . --script res://tools/design/mark_study.gd
 ```
 
 - `write_skins.gd`: writes `src/skins/pop_light.tres` and `pop_dark.tres` from the two tables in section 1 (every property, in table order, in Godot's own text format), keeping each file's uid. It refuses to write if the tables and GameSkin disagree.
 - `check_contrast.gd`, part 1, on the two skin files loaded as GameSkin: every file sets every property, and every final skin pair (digits and text 4.5:1; open candidates 4.5:1 on every fill a ring can have; the hand X, the Auto Cross slash and crossed digits 3:1; frame, marks, lines, outlines and chart marks 3:1; disabled text 3:1; the slash 1.5:1 on its own digit), the marks that must differ in color, the sizes on the judged screen at densities 2, 2.625 and 3 (the candidate floor, stroke and line weights, the box to cell line ratio, the ring clear of the frame and marks), and that both tables in section 1 match the files. Part 2 keeps the Phase 1 record for all three directions. Exits 1 on any failure.
 - `check_samples.gd`: the Phase 1 sample content, and the layout rules of section 4 on the five screens of 4.10, with the touch targets and the candidate floor.
+- `pad_fit.gd`: builds the number pad's buttons with the real Theme on the five screens of 4.10 and checks that every label fits its face, raised and sunk (3.5). By default it lays the spec of 3.5 over the Theme in memory; `-- current` checks the Theme as it is. With a window, `-- render` writes docs/design/pad-fit.png (`-- render current` writes pad-fit-current.png).
 - `mark_study.gd`: writes the two studies quoted above to docs/design/. It needs a window.

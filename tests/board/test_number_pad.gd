@@ -184,3 +184,13 @@ func test_scene_file_gives_a_number_pad() -> void:
 	assert_true(node is NumberPad)
 	node.free()
 
+
+
+func test_undo_and_erase_stack_a_fitted_icon_over_the_caption() -> void:
+	_build(304.0, 40.0)
+	for node_name: String in ["Undo", "Erase"]:
+		var button: Button = pad.find_child(node_name, true, false) as Button
+		assert_true(button.expand_icon, "%s fits its icon to the face (DESIGN_SYSTEM.md 3.5)" % node_name)
+		assert_eq(button.vertical_icon_alignment, VERTICAL_ALIGNMENT_TOP, "%s icon above the caption" % node_name)
+		assert_eq(button.icon_alignment, HORIZONTAL_ALIGNMENT_CENTER, node_name)
+		assert_true(button.clip_text, node_name)
