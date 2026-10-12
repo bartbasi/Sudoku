@@ -70,6 +70,10 @@ var _host: Control = null
 var _stack: Array[Control] = []
 var _names: Array[StringName] = []
 var _thread: Thread = null
+## A puzzle made while the making a puzzle card must still show
+## (Motion.MAKING_MIN); it opens once the card has shown long enough.
+var _ready_puzzle: Puzzle = null
+var _holding: bool = false
 var _overlay: Control = null
 var _fallback_skins: Dictionary[StringName, GameSkin] = {}
 
@@ -96,10 +100,22 @@ func _exit_tree() -> void:
 
 func _process(_delta: float) -> void:
 	if _thread != null and not _thread.is_alive():
-		var puzzle: Puzzle = _thread.wait_to_finish() as Puzzle
+		_ready_puzzle = _thread.wait_to_finish() as Puzzle
 		_thread = null
+		_holding = true
+	if _holding and _overlay_hold_left() <= 0.0:
+		var puzzle: Puzzle = _ready_puzzle
+		_ready_puzzle = null
+		_holding = false
 		set_process(false)
 		_finish_generation(puzzle)
+
+
+## Seconds the making a puzzle card must still show (7.14).
+func _overlay_hold_left() -> float:
+	if _overlay == null or not is_instance_valid(_overlay):
+		return 0.0
+	return float(_overlay.call(&"hold_left"))
 
 
 func _notification(what: int) -> void:
@@ -183,8 +199,10 @@ func has_puzzle_in_progress() -> bool:
 	return session != null and not session.is_completed
 
 
+## True from the tap that starts a new puzzle until its play screen opens,
+## including the wait that keeps the making a puzzle card up long enough.
 func is_generating() -> bool:
-	return _thread != null
+	return _thread != null or _holding
 
 
 ## Picks a seed, makes the puzzle (on a worker thread unless use_thread is
@@ -201,7 +219,7 @@ func start_new_puzzle(level: int) -> void:
 	if not use_thread:
 		_finish_generation(PuzzleSource.get_puzzle(level, seed_value))
 		return
-	_show_overlay()
+	_show_overlay(level)
 	_thread = Thread.new()
 	var make: Callable = func() -> Puzzle:
 		return PuzzleSource.get_puzzle(level, seed_value)
@@ -244,12 +262,14 @@ func on_puzzle_completed() -> CompletionResult:
 
 
 func _finish_generation(puzzle: Puzzle) -> void:
-	_hide_overlay()
+	var leaving: Control = _overlay
+	_overlay = null
 	var created: GameSession = null
 	if puzzle != null:
 		created = GameSession.create(puzzle.id, puzzle.level, puzzle.givens, puzzle.solution, settings.auto_cross)
 	if created == null:
 		push_error("App: the puzzle could not be made")
+		_leave_overlay(leaving)
 		generation_finished.emit(null)
 		return
 	if session != null:
@@ -263,6 +283,7 @@ func _finish_generation(puzzle: Puzzle) -> void:
 	generation_finished.emit(created)
 	if _host != null:
 		goto(PLAY)
+	_leave_overlay(leaving)
 
 
 func _set_session(new_session: GameSession) -> void:
@@ -560,18 +581,27 @@ func _animate_in(node: Control) -> void:
 	tween.tween_property(node, ^"position:x", 0.0, Motion.SCREEN_IN).set_trans(Motion.trans(&"SCREEN_IN")).set_ease(Motion.ease_of(&"SCREEN_IN"))
 
 
-func _show_overlay() -> void:
+## The making a puzzle overlay (7.14): at once a clear layer that takes
+## every tap; the card follows if the puzzle takes longer than MAKING_DELAY.
+func _show_overlay(level: int) -> void:
 	if _host == null or _overlay != null:
 		return
 	_overlay = GeneratingOverlay.new()
+	_overlay.set(&"level", level)
+	_overlay.set(&"skin", current_skin())
 	_overlay.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	_host.add_child(_overlay)
+	_overlay.call(&"ensure_built")
 
 
-func _hide_overlay() -> void:
-	if _overlay != null:
-		_overlay.queue_free()
-		_overlay = null
+## The play screen is in (or the puzzle failed): the overlay stays on top
+## while its card and scrim go, taking no taps.
+func _leave_overlay(leaving: Control) -> void:
+	if leaving == null or not is_instance_valid(leaving):
+		return
+	if _host != null and leaving.get_parent() == _host:
+		_host.move_child(leaving, -1)
+	leaving.call(&"leave")
 
 
 func _keep_overlay_on_top() -> void:

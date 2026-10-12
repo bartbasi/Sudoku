@@ -26,11 +26,11 @@ func build() -> void:
 	var inside: VBoxContainer = UiKit.vbox(s.space_m)
 	card.add_child(inside)
 	inside.add_child(UiKit.label(ThemeFactory.BODY, OFFER, true))
-	start_button = UiKit.button(ThemeFactory.BUTTON_PRIMARY, "Start lesson", UiSizes.BUTTON_TALL)
+	start_button = UiKit.button(ThemeFactory.BUTTON_PRIMARY, "Start lesson", Layout.BUTTON_TALL)
 	start_button.name = "StartLesson"
 	start_button.pressed.connect(_on_start)
 	inside.add_child(start_button)
-	skip_button = UiKit.button(ThemeFactory.BUTTON_SECONDARY, "Skip", UiSizes.BUTTON_TALL)
+	skip_button = UiKit.button(ThemeFactory.BUTTON_SECONDARY, "Skip", Layout.BUTTON_TALL)
 	skip_button.name = "Skip"
 	skip_button.pressed.connect(_on_skip)
 	inside.add_child(skip_button)

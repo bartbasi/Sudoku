@@ -58,7 +58,7 @@ func build() -> void:
 	var spacer: Control = Control.new()
 	spacer.custom_minimum_size.y = s.space_xl - s.space_m
 	rows.add_child(spacer)
-	reset_button = UiKit.button(ThemeFactory.BUTTON_SECONDARY, "Reset stats", UiSizes.BUTTON_TALL)
+	reset_button = UiKit.button(ThemeFactory.BUTTON_SECONDARY, "Reset stats", Layout.BUTTON_TALL)
 	reset_button.name = "ResetStats"
 	reset_button.pressed.connect(_on_reset_pressed)
 	rows.add_child(reset_button)

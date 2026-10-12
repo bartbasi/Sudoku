@@ -65,12 +65,12 @@ func build() -> void:
 
 	var buttons: HBoxContainer = UiKit.hbox(s.space_m)
 	stack.add_child(buttons)
-	play_again_button = UiKit.button(ThemeFactory.BUTTON_PRIMARY, "Play again", UiSizes.BUTTON_TALL)
+	play_again_button = UiKit.button(ThemeFactory.BUTTON_PRIMARY, "Play again", Layout.BUTTON_TALL)
 	play_again_button.name = "PlayAgain"
 	play_again_button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	play_again_button.pressed.connect(_on_play_again)
 	buttons.add_child(play_again_button)
-	menu_button = UiKit.button(ThemeFactory.BUTTON_SECONDARY, "Menu", UiSizes.BUTTON_TALL)
+	menu_button = UiKit.button(ThemeFactory.BUTTON_SECONDARY, "Menu", Layout.BUTTON_TALL)
 	menu_button.name = "Menu"
 	menu_button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	menu_button.pressed.connect(_on_menu)

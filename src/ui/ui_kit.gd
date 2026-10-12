@@ -42,7 +42,7 @@ static func button(variation: StringName, text: String, height: float, icon: Str
 ## An icon button (back, close, pause): a 40 dp face in a 48 dp touch area
 ## (DESIGN_SYSTEM.md 4.4). Returns the touch area; its button is
 ## touch.button.
-static func icon_button(icon: StringName, face: float = UiSizes.ICON_FACE) -> TouchTarget:
+static func icon_button(icon: StringName, face: float = Layout.ICON_FACE) -> TouchTarget:
 	var node: Button = Button.new()
 	node.theme_type_variation = ThemeFactory.ICON_BUTTON
 	node.icon = Icons.texture(icon, Icons.SIZE_ICON_BUTTON)
@@ -65,14 +65,34 @@ static func panel(variation: StringName) -> PanelContainer:
 
 
 ## A sticker: a panel holding one label, tilted counterclockwise by tilt
-## degrees around its center. Wrapped so its container lays out the
-## untilted size.
+## degrees around its center. A container resets the rotation of the
+## children it lays out, so the face sits in a plain holder that never does;
+## the holder takes the untilted size and keeps the face centered in it.
+## Returns the holder; sticker_label() finds the label.
 static func sticker(panel_variation: StringName, label_variation: StringName, text: String, tilt: float) -> Control:
 	var face: PanelContainer = panel(panel_variation)
+	face.name = "Face"
 	face.add_child(label(label_variation, text))
 	face.rotation = -deg_to_rad(tilt)
-	face.resized.connect(func() -> void: face.pivot_offset = face.size * 0.5)
-	return face
+	var holder: Control = Control.new()
+	holder.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	holder.add_child(face)
+	var fit: Callable = func() -> void:
+		var need: Vector2 = face.get_combined_minimum_size()
+		holder.custom_minimum_size = need
+		face.size = need
+		face.position = ((holder.size - need) * 0.5).max(Vector2.ZERO)
+		face.pivot_offset = need * 0.5
+		holder.pivot_offset = holder.size * 0.5
+	face.minimum_size_changed.connect(fit)
+	holder.resized.connect(fit)
+	fit.call()
+	return holder
+
+
+## The label of a sticker made by sticker().
+static func sticker_label(sticker_node: Control) -> Label:
+	return sticker_node.get_node(^"Face").get_child(0) as Label
 
 
 static func vbox(separation: float) -> VBoxContainer:

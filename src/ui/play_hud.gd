@@ -29,7 +29,7 @@ func setup(skin: GameSkin) -> void:
 	custom_minimum_size.y = Layout.HEADER_ROW
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
 
-	hint_button = UiKit.button(ThemeFactory.HINT_BUTTON, "", UiSizes.ICON_FACE, Icons.HINT)
+	hint_button = UiKit.button(ThemeFactory.HINT_BUTTON, "", Layout.ICON_FACE, Icons.HINT)
 	hint_button.name = "Hint"
 	hint_button.custom_minimum_size.x = Layout.HINT_FACE_W
 	hint_button.icon_alignment = HORIZONTAL_ALIGNMENT_LEFT
@@ -112,12 +112,14 @@ func animate_score(from: int, to: int) -> void:
 	Motion.press(score_block)
 
 
-## A caption over a value in a HUD block.
+## A caption over a value in a HUD block: a Layout.ICON_FACE tall face.
 func _block(panel_style: StringName, caption_style: StringName, caption: String, value_style: StringName, min_width: float) -> PanelContainer:
 	var block: PanelContainer = UiKit.panel(panel_style)
-	block.custom_minimum_size.x = min_width
+	# A 40 dp face with the two lines centered in it (7.5).
+	block.custom_minimum_size = Vector2(min_width, Layout.ICON_FACE)
 	block.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	var lines: VBoxContainer = UiKit.vbox(0.0)
+	lines.alignment = BoxContainer.ALIGNMENT_CENTER
 	block.add_child(lines)
 	var top: Label = UiKit.label(caption_style, caption)
 	lines.add_child(top)

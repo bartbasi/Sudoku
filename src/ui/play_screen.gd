@@ -89,7 +89,7 @@ func build() -> void:
 	session.full_board_conflict.connect(_on_full_board_conflict)
 	session.completed.connect(_on_completed)
 	hud.bind(session)
-	UiKit.set_text(level_sticker.get_child(0) as Label, Levels.name_of(session.level))
+	UiKit.set_text(UiKit.sticker_label(level_sticker), Levels.name_of(session.level))
 	if session.hint != null:
 		hint_panel.show_hint(session.hint)
 	_layout()
@@ -249,3 +249,4 @@ func _place_band_items() -> void:
 	var top: float = column.column_rect().position.y
 	zone.position = Vector2(band.position.x, top)
 	zone.size = Vector2(band.size.x, maxf(0.0, band.end.y - s.space_s - top))
+	hint_panel.max_height = zone.size.y

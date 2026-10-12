@@ -59,7 +59,7 @@ func test_opens_in_both_skins_with_a_new_puzzle() -> void:
 		assert_eq(hud.hint_button.text, "HINT\n−20")
 		var area: PlayArea = screen.get(&"play_area")
 		assert_false(area.pad.is_undo_enabled(), "Undo disabled")
-		assert_eq((screen.get(&"level_sticker") as Control).get_child(0).get(&"text"), "BEGINNER")
+		assert_eq(UiKit.sticker_label(screen.get(&"level_sticker") as Control).text, "BEGINNER")
 		_teardown(parts)
 
 

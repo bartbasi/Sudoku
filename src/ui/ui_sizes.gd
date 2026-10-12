@@ -3,12 +3,9 @@ extends RefCounted
 ## The screen sizes of docs/DESIGN_SYSTEM.md section 7 that are not in
 ## Layout (section 4.6) or in the skin, in dp, in one place so no screen
 ## repeats a number. Spacing, outlines and radii come from the skin; touch
-## sizes and the header row from Layout.
+## sizes, icon and close faces, tall buttons and the header row from Layout.
 ## Owner: ui-systems-dev.
 
-## Full width buttons on the main menu, the pause menu and the completion
-## screen (7.1, 7.8, 7.9).
-const BUTTON_TALL: float = 56.0
 ## Dialog buttons (7.4) and other buttons with a 48 dp face.
 const BUTTON_DIALOG: float = 48.0
 ## Level select rows (7.3) and settings rows (7.11).
@@ -27,7 +24,3 @@ const HERO_MAX: float = 200.0
 ## The app icon foreground's art fills a 66 dp safe zone of a 108 dp layer
 ## (7.1), so the hero box is drawn with a layer this many times its side.
 const HERO_LAYER: float = 108.0 / 66.0
-## The close button on the hint panel: a 32 dp face (7.6).
-const HINT_CLOSE_FACE: float = 32.0
-## Icon button faces (4.4).
-const ICON_FACE: float = 40.0

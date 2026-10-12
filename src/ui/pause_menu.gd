@@ -50,15 +50,15 @@ func setup(skin: GameSkin) -> void:
 	var gap: Control = Control.new()
 	gap.custom_minimum_size.y = skin.space_xl - skin.space_m
 	stack.add_child(gap)
-	resume_button = UiKit.button(ThemeFactory.BUTTON_PRIMARY, "Resume", UiSizes.BUTTON_TALL, Icons.PLAY)
+	resume_button = UiKit.button(ThemeFactory.BUTTON_PRIMARY, "Resume", Layout.BUTTON_TALL, Icons.PLAY)
 	resume_button.name = "Resume"
 	resume_button.pressed.connect(_emit_if_open.bind(resume_pressed))
 	stack.add_child(resume_button)
-	settings_button = UiKit.button(ThemeFactory.BUTTON_SECONDARY, "Settings", UiSizes.BUTTON_TALL, Icons.SETTINGS)
+	settings_button = UiKit.button(ThemeFactory.BUTTON_SECONDARY, "Settings", Layout.BUTTON_TALL, Icons.SETTINGS)
 	settings_button.name = "Settings"
 	settings_button.pressed.connect(_emit_if_open.bind(settings_pressed))
 	stack.add_child(settings_button)
-	menu_button = UiKit.button(ThemeFactory.BUTTON_SECONDARY, "Menu", UiSizes.BUTTON_TALL)
+	menu_button = UiKit.button(ThemeFactory.BUTTON_SECONDARY, "Menu", Layout.BUTTON_TALL)
 	menu_button.name = "Menu"
 	menu_button.pressed.connect(_emit_if_open.bind(menu_pressed))
 	stack.add_child(menu_button)

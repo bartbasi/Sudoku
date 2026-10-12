@@ -32,14 +32,23 @@ func _run() -> void:
 	root.content_scale_size = _size
 	DisplayServer.window_set_size(_size)
 
-	_skins = (load("res://src/skins/skin_service.gd") as GDScript).new() as Node
-	_skins.name = "Skins"
-	root.add_child(_skins)
-	_app = AppService.new()
-	_app.name = "App"
+	# The Skins and App autoloads drive the main scene; they are made here
+	# only if the project has none. Their saves move to SAVE_DIR before
+	# anything is written, so real saves are read at startup but never changed.
+	_skins = root.get_node_or_null(^"Skins")
+	if _skins == null:
+		_skins = (load("res://src/skins/skin_service.gd") as GDScript).new() as Node
+		_skins.name = "Skins"
+		root.add_child(_skins)
+	_app = root.get_node_or_null(^"App") as AppService
+	if _app == null:
+		_app = AppService.new()
+		_app.name = "App"
+		root.add_child(_app)
 	_app.save_dir = SAVE_DIR
 	_app.use_thread = false
-	root.add_child(_app)
+	_app.load_all()
+	_app.set_skin(&"pop_light")
 	await process_frame
 	var host: Control = (load("res://scenes/ui/main.tscn") as PackedScene).instantiate() as Control
 	root.add_child(host)
@@ -75,6 +84,7 @@ func _run() -> void:
 
 	_app.goto(AppService.LEVEL_SELECT)
 	await _shot("light", "level_select")
+	await _making("light")
 	(_app.current_screen_node().get(&"level_buttons") as Array)[Levels.HARD].pressed.emit()
 	await _shot("light", "new_puzzle_confirm")
 	(_app.current_screen_node().get(&"confirm") as ConfirmDialog).cancel()
@@ -115,11 +125,24 @@ func _run() -> void:
 	await _shot("dark", "settings")
 	_app.goto(AppService.COMPLETION, result)
 	await _shot("dark", "completion")
+	_app.goto(AppService.LEVEL_SELECT)
+	await _making("dark")
 
 	_app.set_skin(&"pop_light")
 	_app.abandon_puzzle()
 	_wipe(SAVE_DIR)
 	quit(0)
+
+
+## Making a puzzle (DESIGN_SYSTEM.md 7.14) over the level select, after
+## MAKING_DELAY, so the card shows. The overlay goes again without a puzzle.
+func _making(skin_name: String) -> void:
+	_app.call(&"_show_overlay", Levels.HARD)
+	var overlay: Control = _app.get(&"_overlay") as Control
+	await _shot(skin_name, "making")
+	_app.set(&"_overlay", null)
+	_app.call(&"_leave_overlay", overlay)
+	await _settle()
 
 
 func _settle() -> void:

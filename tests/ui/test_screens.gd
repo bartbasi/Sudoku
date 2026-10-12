@@ -100,8 +100,10 @@ func test_main_menu_shows_continue_only_with_a_puzzle() -> void:
 	menu.call(&"refresh")
 	assert_true(continue_button.visible)
 	assert_eq(new_button.theme_type_variation, ThemeFactory.BUTTON_SECONDARY)
-	assert_eq(continue_button.text, "CONTINUE
-BEGINNER, 1:23")
+	assert_eq(continue_button.text, "", "Continue has no text of its own (7.1)")
+	assert_eq((continue_button.get_node(^"Lines/Label") as Label).text, "CONTINUE")
+	assert_eq((continue_button.get_node(^"Lines/Caption") as Label).theme_type_variation, ThemeFactory.PRIMARY_CAPTION)
+	assert_eq((menu.get(&"continue_caption") as Label).text, "BEGINNER, 1:23")
 	_teardown(parts)
 
 

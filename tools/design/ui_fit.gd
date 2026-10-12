@@ -29,6 +29,7 @@ extends SceneTree
 const PopBox := preload("res://src/design/pop_box.gd")
 const LayoutModel := preload("res://tools/design/layout_model.gd")
 const TouchTarget := preload("res://src/ui/touch_target.gd")
+const MainMenuScript := preload("res://src/ui/main_menu.gd")
 
 # The spec of DESIGN_SYSTEM.md section 3.6, in dp.
 const HUD_VALUE_TRIM: int = 4 ## hud_value line box trimmed this much at the top and at the bottom.
@@ -211,7 +212,7 @@ func _hint_text(level: int) -> String:
 	return ThemeFactory.display_text(ThemeFactory.HINT_BUTTON, "Hint\n%s%d" % [PlayHud.MINUS, Scoring.hint_cost(level)])
 
 
-## Continue: as the main menu builds it now, or as section 7.1 specifies.
+## Continue: as section 7.1 specifies, or the real one from the main menu.
 func _add_continue(label: String, column: float, origin: Vector2) -> void:
 	var line: String = "Expert, 9:59:59"
 	var button: Button = null
@@ -224,11 +225,14 @@ func _add_continue(label: String, column: float, origin: Vector2) -> void:
 		lines.add_child(_centered(UiKit.label(PRIMARY_CAPTION, ThemeFactory.display_text(ThemeFactory.CAPTION, line))))
 		button.add_child(lines)
 	else:
-		button = UiKit.button(ThemeFactory.BUTTON_PRIMARY, "Continue\n" + line, CONTINUE_FACE)
+		# The real one, as the main menu builds it.
+		button = MainMenuScript.continue_button_with_lines()
+		lines = button.get_node(^"Lines") as VBoxContainer
+		UiKit.set_text(button.get_node(^"Lines/Caption") as Label, line)
 	_page.add_child(button)
 	button.position = origin
 	button.size = Vector2(column - _skin.shadow_offset, CONTINUE_FACE)
-	if lines != null:
+	if lines != null and _use_spec:
 		# Section 7.1: the lines fill the button's content rect.
 		var box: StyleBox = button.get_theme_stylebox(&"normal")
 		lines.set_anchors_preset(Control.PRESET_FULL_RECT)
