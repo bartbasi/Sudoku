@@ -430,6 +430,12 @@ class_name IconView extends Control
 class_name Layout extends RefCounted
 # The layout constants of DESIGN_SYSTEM.md section 4.6 (header height, band height, gaps, pad sizes, margins),
 # in dp, as constants. PlayArea, the ui screens and the lesson player all read these; nobody repeats a number.
+# Window shapes (DESIGN_SYSTEM.md 4.11, Bart Phase 6: split screen allowed, foldables lay out well):
+enum Arrangement { STACKED, SIDE, TOO_SMALL }
+static func stacked_board(content: Rect2, skin: GameSkin) -> float   # board side when stacked, 0 if it cannot stack
+static func side_board(content: Rect2, skin: GameSkin) -> float      # board side with the side column, 0 if it cannot
+static func arrangement(content: Rect2, skin: GameSkin) -> int       # content = safe rect minus page_margin on every side
+# These must give the same answers as tools/design/layout_model.gd on every window it checks.
 
 class_name Motion extends RefCounted
 # durations and easing from DESIGN_SYSTEM.md as constants, plus helpers that return the Tween they start
@@ -493,8 +499,14 @@ func band_rect_global() -> Rect2                # the band above the board (DESI
                                                 # panel covers the screen's header row and the band together (DESIGN_SYSTEM.md 7.6)
 func set_band_height(height: float) -> void     # the lesson player sizes the band to its card (DESIGN_SYSTEM.md 4.8);
                                                 # the play screen leaves the Layout default
-# PlayArea receives the whole safe rect below the screen's header and lays out the vertical stack in it:
-# band, board, gap, pad, using the Layout constants (section 7).
+var header_height: float                       # play screen: Layout.HEADER_ROW; lessons: 0
+func arrangement() -> int                       # Layout.Arrangement for the current rect
+func header_rect_global() -> Rect2              # where the play screen puts its header row (HUD)
+func info_zone_rect_global() -> Rect2           # header row plus band, minus space_s at the bottom: the hint panel
+                                                # and the full board message cover exactly this
+# PlayArea receives the whole safe rect and applies page_margin on all four sides (DESIGN_SYSTEM.md 4.11).
+# STACKED: header row, band, board, gap, pad. SIDE: board on the left, a side column (header row, band, pad)
+# on the right. TOO_SMALL: laid out stacked with sizes clamped at zero; the App shows the too small layer.
 # Lays out the board and pad inside its own rect per DESIGN_SYSTEM.md: touch targets of 48 dp or more,
 # fits and works at 320 by 568 dp, readability judged at 360 dp wide (Bart, Hard Stop 1; GDD AT-66).
 
@@ -680,7 +692,10 @@ class_name SaveStore extends RefCounted
 const MAX_BYTES_PUZZLE := 16777216               # 16 MiB: undo history has no limit (GDD 7)
 const MAX_BYTES_OTHER := 262144                  # 256 KiB for settings, stats and lessons
 static func read(path: String, max_bytes: int) -> Variant   # the "data" value, or null when missing, too large, not JSON, or the wrong format
-static func write(path: String, data: Dictionary) -> bool   # atomic: write path + ".tmp", close, then rename over path
+static func write(path: String, data: Dictionary, max_bytes: int = MAX_BYTES_PUZZLE) -> bool
+# atomic: write path + ".tmp", flush, close, then rename over path. Refuses data over max_bytes (UTF-8 bytes),
+# so the last valid file stays. App writes through SaveWriter (src/save/save_writer.gd), which serializes and
+# writes on a worker thread, at most once per frame; lifecycle events and leaving the play screen write at once.
 static func remove(path: String) -> void
 ```
 
