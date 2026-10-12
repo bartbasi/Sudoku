@@ -41,6 +41,13 @@ Sudoku (working name in older docs: bartssudoku; Bart may choose a final name la
   - A hint that points to a cell also highlights the candidate to cross out in that cell.
   - Informational, accepted: the lesson wrong-tap tag reads "Not quite".
 
+- 2026-10-12, Phase 6 (Bart):
+  - Fix before v1: save speed (saves off the main thread, the size cap enforced on write, no double save), the small bugs (pause after focus loss while a puzzle is made, empty fallback hint tag, completion counted twice if killed mid-completion, durable save write) and docs/ASSETS.md catch-up.
+  - Split screen is allowed. The game must lay out well in any window shape a foldable gives it (Galaxy Z Fold5 cover and inner screens, split screen), including wide and short windows. The device orientation stays portrait.
+  - Back or a tap outside the "Start a new puzzle?" dialog means Keep playing.
+  - Later, not v1: worst-case board redraw time, the tablet hint panel size, the Godot Android template defaults (command line intent extra, provider authority, profileable).
+  - Kept as built: Back on the main menu closes the app; the last lesson screen's button says Next; in a lesson, the mode button already on gives the wrong-tap text.
+
 ## Ownership
 
 Each path has one owner. Edit only what you own.
