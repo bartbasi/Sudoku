@@ -1,6 +1,6 @@
 # Sudoku: Design System
 
-Owner: senior-graphic-designer. Status: Phase 2, 2026-10-11; Phase 3 addition 2026-10-12, the hint cross chip (Bart, Hard Stop 2; sections 1, 2.7 to 2.9); 2026-10-12, the SUDOKU wordmark and the icon placeholder (sections 7.1, 7.2 and 9); 2026-10-12, the final app icon, Ring, made bolder (sections 7.1 and 9); 2026-10-12, number pad labels fit their faces down to 320 by 568 dp (sections 3.2, 3.5, 4.6, 5 and 10). This is the contract the artists and developers build Phase 3 from. If something you need is missing or would force a guess, ask the senior-graphic-designer through the Development Manager; do not invent a value locally.
+Owner: senior-graphic-designer. Status: Phase 2, 2026-10-11; Phase 3 addition 2026-10-12, the hint cross chip (Bart, Hard Stop 2; sections 1, 2.7 to 2.9); 2026-10-12, the SUDOKU wordmark and the icon placeholder (sections 7.1, 7.2 and 9); 2026-10-12, the final app icon, Ring, made bolder (sections 7.1 and 9); 2026-10-12, number pad labels fit their faces down to 320 by 568 dp (sections 3.2, 3.5, 4.6, 5 and 10); 2026-10-12, Phase 4: the header row, Continue and the hint panel fit their design, the making a puzzle wait, the lesson card's wrong tap tag and height, and which sizes are Layout constants (sections 1, 3.2, 3.6, 4.6, 4.8, 5, 6, 7 and 10). This is the contract the artists and developers build Phase 3 from. If something you need is missing or would force a guess, ask the senior-graphic-designer through the Development Manager; do not invent a value locally.
 
 Bart's Hard Stop 1 decisions behind it: direction Pop, with the Phase 2 fixes from [design/ranking.md](design/ranking.md); v1 ships two skins, Pop light (the default) and Pop dark; candidate ring layout A, reading rows; Godot's built-in font, no font files; a digit crossed by hand is drawn on top of its X with a thin outline; the game fits and works at 320 by 568 dp and readability is judged at 360 dp wide; an app icon whose background follows Pop's palette; "New best time" and "New best score" on the completion screen. The game is called Sudoku for now, a placeholder name Bart may change. The app icon is Ring (section 9).
 
@@ -60,7 +60,7 @@ Tokens. Colors are `#RRGGBB`, or `#RRGGBBAA` for the one translucent token. Ever
 | **Stickers, tags and charts** | | | | |
 | `sticker_bg` | Color | `#2BD47D` | `#2BD47D` | Level sticker, lesson number sticker, finished check badge, lesson praise tag. |
 | `sticker_text` | Color | `#111111` | `#111111` | Text and icons on sticker_bg. |
-| `celebrate_bg` | Color | `#FF5FA2` | `#FF6FB5` | SOLVED! sticker, NEW BEST labels, the SUDOKU wordmark sticker, the lesson TRY AGAIN tag. |
+| `celebrate_bg` | Color | `#FF5FA2` | `#FF6FB5` | SOLVED! sticker, NEW BEST labels, the SUDOKU wordmark sticker, the lesson NOT QUITE tag. |
 | `celebrate_text` | Color | `#111111` | `#111111` | Text on celebrate_bg. |
 | `hint_tag_bg` | Color | `#087A38` | `#5BE08F` | Technique tag on the hint panel. |
 | `hint_tag_text` | Color | `#FFFFFF` | `#111111` | Text on hint_tag_bg. |
@@ -326,16 +326,19 @@ Sizes in dp. Line height is a multiple of the font size. ThemeFactory turns each
 | display | 44 | Heavy | Yes | -0.5 | 0.84 | 1.0 | SOLVED!, PAUSED, the final score, the wordmark |
 | title | 24 | Heavy | Yes | -0.25 | 0.86 | 1.1 | Screen titles |
 | heading | 16 | Heavy | Yes | 0.25 | 1.0 | 1.2 | Level names, lesson titles, settings row names |
-| value | 20 | Heavy | No | 0 | 0.86 | 1.0 | Time and score in the header, stats values, receipt values |
+| value | 20 | Heavy | No | 0 | 0.86 | 1.0 | Stats values, receipt values |
 | button | 14 | Heavy | Yes | 0.5 | 1.0 | 1.2 | Button labels, stickers, tags |
 | mode | 14 | Heavy | Yes | 0 | 0.88 | 1.2 | PLACE and CROSS OUT on the mode buttons (3.5) |
 | body | 14 | Semibold | No | 0 | 1.0 | 1.3 | Lesson text, dialog text, the first launch offer |
 | body_small | 13 | Semibold | No | 0 | 1.0 | 1.3 | Hint text, subtitles, setting descriptions |
-| caption | 10 | Heavy | Yes | 0.75 | 1.0 | 1.2 | TIME, SCORE, BEST TIME and other labels, STEP 5 OF 8 |
-| pad_caption | 10 | Heavy | Yes | 0.75 | 1.0 | 1.2 | UNDO and ERASE under their icons; line box trimmed by 2 dp at the top and the bottom (3.5) |
+| body_small_12 | 12 | Semibold | No | 0 | 1.0 | 1.3 | Step down of body_small and body (below) |
+| body_small_11 | 11 | Semibold | No | 0 | 1.0 | 1.3 | Last step down of body_small (below) |
+| caption | 10 | Heavy | Yes | 0.75 | 1.0 | 1.2 | BEST TIME and other labels, STEP 5 OF 8, the level and time on Continue |
+| pad_caption | 10 | Heavy | Yes | 0.75 | 1.0 | 1.2 | UNDO and ERASE under their icons, and TIME and SCORE in the header; line box trimmed by 2 dp at the top and the bottom (3.5, 3.6) |
+| hud_value | 20 | Heavy | No | 0 | 0.86 | 1.0 | Time and score in the header: the value role with its line box trimmed by 4 dp at the top and the bottom (3.6) |
 | pad_digit | 26 | Heavy | No | 0 | 1.0 | 1.0 | Digits on the pad keys; line box trimmed by 6 dp at the top and the bottom (3.5) |
 
-Text that can be long steps down instead of overflowing: body to 13 and 12 dp in the lesson card (section 4.8), body_small to 12 and 11 dp in the hint panel. Nothing is ever cut off.
+Text that can be long steps down instead of overflowing: body to 13 and then 12 dp in the lesson card (section 4.8), body_small to 12 and then 11 dp in the hint panel (7.6). A step down is a change of `theme_type_variation`, never a font or size override: body (`BODY`) steps to `BODY_SMALL` (13 dp, the same 1.3 line height) and then `BODY_SMALL_12`; body_small (`BODY_SMALL`) steps to `BODY_SMALL_12` and then `BODY_SMALL_11`. Each variation carries its own line spacing, so a stepped text keeps its 1.3 line height. Nothing is ever cut off.
 
 ### 3.3 Board type
 
@@ -400,6 +403,43 @@ The tightest fit is CROSS OUT, with 5 dp to spare on a 116 dp face; then the dig
 
 The mode names stay Place and Cross Out (GDD); nothing is shortened.
 
+### 3.6 Header, Continue and hint panel: every label fits
+
+Phase 4 found three places where the Theme made a control taller or wider than its design: the play screen's header row (62 dp against 48, so the board shrank), the Continue button (57 against 56) and the hint panel (124 dp against an 88 dp minimum). The fix is the pad's (3.5): trimmed line boxes, smaller paddings, and variations instead of overrides. The design does not change: the header row stays 48 dp with 40 dp faces, Continue stays 56, the hint panel stays inside the info zone. `tools/design/ui_fit.gd` measures all of it with the real Theme and the real PlayHud, HintPanel and UiKit code on the five screens of 4.10. Renders: [design/ui-fit.png](design/ui-fit.png) after, [design/ui-fit-current.png](design/ui-fit-current.png) before.
+
+The fix:
+
+1. **Time and score blocks** (`HUD_TIME`, `HUD_SCORE`): padding `space_s` at the sides and 2 dp at the top and bottom. Their captions use the pad_caption role (line box trimmed to 10 dp; TIME and SCORE are capitals, nothing below the baseline). Their values use the hud_value role: the value role with its line box trimmed by 4 dp at the top and the bottom (digits and the colon have no descenders and nothing above the digit top). The faces are 40 dp tall, the two lines centered in them.
+2. **Hint button** (`HINT_BUTTON`): padding 2 dp on every side. The icon stays 20 dp at the left, the HINT caption and the cost stay in the caption role, untrimmed.
+3. **Continue**: the second line gets its own variation; see 7.1.
+4. **Hint panel**: padding `space_xs` at the top and bottom, and the close button moves out of the top row into its own column at the right; see 7.6.
+
+The arithmetic, in dp (margins are the outline, 2, plus the padding, on each side):
+
+| Control | Part | Before | After |
+| --- | --- | --- | --- |
+| Time and score block, height | margins: before (2 + 8) x 2, after (2 + 2) x 2 | 20 | 8 |
+| | caption line box: caption 14, then pad_caption 10 | 14 | 10 |
+| | value line box: value 28, then hud_value 20 | 28 | 20 |
+| | needs (face 40) | 62 | 38 |
+| Hint button, width | margins: before (2 + 4) x 2, after (2 + 2) x 2 | 12 | 8 |
+| | icon 20, gap 4, HINT 28 (the cost is at most 27, "−200"), rounding 1 | 53 | 53 |
+| | needs (face 64) | 65 | 61 |
+| Hint button, height | margins, then two caption lines 14 + 14 less 2 of line spacing | 12 + 26 | 8 + 26 |
+| | needs (face 40) | 38 | 34 |
+| Header row, width at 320 by 568 | Hint 64, guard 4, time 80 (9:59:59 needs 79), score 61 (1000), guard 4, Pause 48, five gaps of 8 | 302 | 301 |
+| | column | 304 | 304 |
+| Header row, height | the tallest of: the blocks, the 48 dp touch areas of Hint and Pause | 62 | 48 |
+
+What the header costs the board (4.7 rules, with the 32 dp notch and the 24 dp gesture bar):
+
+| Screen | Header 62 (before) | Header 48 (after, the design) |
+| --- | --- | --- |
+| 320 by 568: 496 dp inside the margins, less info zone, 7 of outer line and shadow, gap 12, keys 136 | info zone 110, board 231, cells 25.7 | info zone 96, board 245, cells 27.2 |
+| 360 by 800: 728 dp inside the margins | board 337 (width-bound), band 75, info zone 137, gap 39 | board 337, band 82, info zone 130, gap 40 |
+
+On the judged screen the board keeps its size either way; the header only ate band. On 320 by 568 it cost the board 14 dp, a cell 1.5 dp and the candidates about half a dp, which is why the header must hold 48.
+
 ## 4. Shape, spacing, touch targets, safe areas and adaptation
 
 ### 4.1 Outlines, shadows, radii and stickers
@@ -455,6 +495,9 @@ The same in every skin, so not skin tokens. They are the constants of the `Layou
 | `ACTION_MAX` | 160 | Widest right column |
 | `COLUMN_MAX` | 600 | Widest content column, centered, on tablets |
 | `HINT_FACE_W` | 64 | Width of the Hint button's face |
+| `ICON_FACE` | 40 | Face of every icon button (Pause, back, close on screens) and height of the header faces (Hint, time, score); its touch area is `TOUCH_MIN` |
+| `CLOSE_FACE` | 32 | Face of the close button on the hint panel and the lesson card; touch area `TOUCH_MIN` |
+| `BUTTON_TALL` | 56 | Face height of full width buttons: main menu, pause menu, completion, the first launch offer, the lesson NEXT button |
 | `TIME_MIN_W` | 80 | Narrowest time block (it grows to fit 1:02:05) |
 | `SCORE_MIN_W` | 60 | Narrowest score block |
 | `HEADER_GUARD` | 12 | Smallest gap between Hint and the time block, and between the score block and Pause |
@@ -463,6 +506,21 @@ The same in every skin, so not skin tokens. They are the constants of the `Layou
 | `LESSON_BOARD_FLOOR` | 220 | The lesson board never gets smaller; the lesson text scrolls instead |
 
 `tools/design/layout_model.gd` implements these rules for the play and lesson screens, and `check_samples.gd` runs it on the screens in 4.10.
+
+**Which sizes are Layout constants** (Phase 4 decision). A size goes in `Layout` when more than one area reads it, so no two areas keep their own copy of a number. `ICON_FACE`, `CLOSE_FACE` and `BUTTON_TALL` moved there for that reason: src/ui, src/lessons and ThemeFactory each had their own 40, 32 and 56. A size that one area alone uses stays a named constant in that area's code, as long as this document gives its value. Today that is `UiSizes` in src/ui (ui-systems-dev):
+
+| UiSizes constant | Value | Section |
+| --- | --- | --- |
+| `BUTTON_DIALOG` | 48 | Dialog button faces (7.4, 7.11) |
+| `ROW` | 64 | Level select rows and settings rows (7.3, 7.11) |
+| `SKIN_OPTION_H` | 120 | Skin option cards (7.11) |
+| `PIP` | 10 | Level select pips (7.3) |
+| `LESSON_SQUARE` | 24 | Lessons completed squares (7.10) |
+| `DIALOG_MAX_W` | 328 | Widest dialog card (4.9) |
+| `HERO_MIN`, `HERO_MAX` | 64, 200 | The hero on the main menu and first launch offer (7.1, 7.2) |
+| `HERO_LAYER` | 108/66 | Hero drawing rect against its box (7.1) |
+
+And in src/lessons (lessons-dev): the lessons list row (72) and number sticker (36) of 7.12. If a second area ever needs one of these, it moves to `Layout` first.
 
 ### 4.7 The play screen, and how it adapts
 
@@ -485,9 +543,13 @@ Widths: the three digit columns, the `group_gap`, and the right column share the
 
 ### 4.8 The lesson screen, and how it adapts
 
-The same stack, with no header row: the lesson card sits in PlayArea's band, and the band is as tall as the card. The card holds a top row (the lesson sticker, the step caption and the close button), the lesson title and the step text, and is as tall as its text. On short screens, in this order:
+The same stack, with no header row: the lesson card sits in PlayArea's band, and the band is as tall as the card. The card holds a top row (the lesson sticker, the step caption and the close button), the lesson title and the step text.
 
-1. The text steps down from 14 to 13 to 12 dp while the board would be under 80 percent of its width-bound size.
+**Height: the card reserves room for its tallest text** (Phase 4 decision, approving lessons-dev's approach). The card is as tall as the tallest of: the step text, and each wrong tap text of the same screen with the NOT QUITE tag above it. So the board never moves when a wrong tap shows or goes. The text sits at the top of its room; when a shorter text shows, the room under it stays empty card. That empty space is the price of a board that never jumps, and a still board matters more (readability first). Two limits keep it small: the room is per screen, never per lesson, and only that screen's wrong tap texts count. If a screen leaves more than about two empty lines under its step text, the fix is shorter wrong tap text (lesson-designer), not a moving board.
+
+On short screens, in this order:
+
+1. The text steps down from 14 to 13 to 12 dp (`BODY`, then `BODY_SMALL`, then `BODY_SMALL_12`; section 3.2) while the board would be under 80 percent of its width-bound size.
 2. The title line hides when the board would be under `LESSON_TITLE_MIN_BOARD`. The lesson sticker still says which lesson it is.
 3. The board never goes under `LESSON_BOARD_FLOOR`. If the text still does not fit, the card stops growing and the text scrolls inside it, with a fade at the bottom edge and a small down arrow while there is more. This happens only on screens as short as 320 by 568 dp.
 
@@ -528,16 +590,20 @@ Text (base `Label`):
 | `BODY` | "Body" | body role, `text` |
 | `BODY_SMALL` | "BodySmall" | body_small role, `text` |
 | `BODY_MUTED` | "BodyMuted" | body_small role, `text_muted` |
+| `BODY_SMALL_12` | "BodySmall12" | body_small_12 role, `text` (step down, 3.2) |
+| `BODY_SMALL_11` | "BodySmall11" | body_small_11 role, `text` (last step down of the hint text, 3.2) |
 | `CAPTION` | "Caption" | caption role, `text_muted` |
 | `VALUE` | "Value" | value role, `text` |
-| `HUD_CAPTION` | "HudCaption" | caption role, `hud_label` |
-| `HUD_VALUE` | "HudValue" | value role, `hud_text` |
-| `SCORE_CAPTION` | "ScoreCaption" | caption role, `hud_score_text` |
-| `SCORE_VALUE` | "ScoreValue" | value role, `hud_score_text` |
+| `HUD_CAPTION` | "HudCaption" | pad_caption role (trimmed, 3.6), `hud_label` |
+| `HUD_VALUE` | "HudValue" | hud_value role (trimmed, 3.6), `hud_text` |
+| `SCORE_CAPTION` | "ScoreCaption" | pad_caption role, `hud_score_text` |
+| `SCORE_VALUE` | "ScoreValue" | hud_value role, `hud_score_text` |
 | `STICKER_LABEL` | "StickerLabel" | button role, `sticker_text` |
-| `CELEBRATE_LABEL` | "CelebrateLabel" | caption role, `celebrate_text` (NEW BEST labels, the TRY AGAIN tag) |
+| `CELEBRATE_LABEL` | "CelebrateLabel" | caption role, `celebrate_text` (NEW BEST labels, the lesson NOT QUITE tag) |
 | `CELEBRATE_DISPLAY` | "CelebrateDisplay" | display role, `celebrate_text` (SOLVED!, the SUDOKU wordmark) |
 | `HINT_TAG_LABEL` | "HintTagLabel" | caption role, `hint_tag_text` |
+| `PRIMARY_LABEL` | "PrimaryLabel" | button role, `button_primary_text`: a label inside a primary button (the first line of Continue, 7.1) |
+| `PRIMARY_CAPTION` | "PrimaryCaption" | caption role, `button_primary_text`: a caption line inside a primary button (the level and time on Continue, 7.1) |
 
 Panels (base `PanelContainer`, except `PAGE` and `SCRIM`, base `Panel`):
 
@@ -547,11 +613,11 @@ Panels (base `PanelContainer`, except `PAGE` and `SCRIM`, base `Panel`):
 | `SCRIM` | "Scrim" | `scrim` |
 | `CARD` | "Card" | `surface_bg`, outline, shadow, `radius_card`, padding `space_m` |
 | `DIALOG` | "Dialog" | as `CARD`, padding `space_l` |
-| `HINT_PANEL` | "HintPanel" | as `CARD`, padding `space_s` at the top and bottom, `space_m` at the sides |
+| `HINT_PANEL` | "HintPanel" | as `CARD`, padding `space_xs` at the top and bottom, `space_m` at the sides (3.6) |
 | `LESSON_CARD` | "LessonCard" | as `CARD` |
 | `BOARD_MESSAGE` | "BoardMessage" | as `HINT_PANEL`, with a bar in `conflict_mark` along its left inside edge, `conflict_bar_w` wide (the full board message) |
-| `HUD_TIME` | "HudTime" | `hud_bg`, outline, shadow, `radius_control`, padding `space_s` |
-| `HUD_SCORE` | "HudScore" | `hud_score_bg`, outline, shadow, `radius_control`, padding `space_s` |
+| `HUD_TIME` | "HudTime" | `hud_bg`, outline, shadow, `radius_control`, padding `space_s` at the sides and 2 dp at the top and bottom (3.6) |
+| `HUD_SCORE` | "HudScore" | `hud_score_bg`, outline, shadow, `radius_control`, padding as `HUD_TIME` |
 | `STICKER` | "Sticker" | `sticker_bg`, outline, shadow, `radius_control`, padding `space_s` by `space_xs` |
 | `CELEBRATE_STICKER` | "CelebrateSticker" | as `STICKER` in `celebrate_bg` |
 | `HINT_TAG` | "HintTag" | `hint_tag_bg`, no outline, no shadow, `radius_control`, padding `space_s` by 2 dp |
@@ -563,8 +629,8 @@ Controls:
 | `BUTTON_PRIMARY` | "ButtonPrimary" | Button | `button_primary_bg` and `button_primary_text`, button role, all states of 4.2 |
 | `BUTTON_SECONDARY` | "ButtonSecondary" | Button | `button_bg` and `button_text` |
 | `BUTTON_DANGER` | "ButtonDanger" | Button | `button_danger_bg` and `button_danger_text` |
-| `HINT_BUTTON` | "HintButton" | Button | as `BUTTON_PRIMARY`; holds the hint icon, a HINT caption and the cost value, all in `button_primary_text` |
-| `ICON_BUTTON` | "IconButton" | Button | as `BUTTON_SECONDARY`, a 40 dp square face, a 24 dp icon |
+| `HINT_BUTTON` | "HintButton" | Button | as `BUTTON_PRIMARY`; holds the hint icon (20 dp, at the left) and two caption role lines, HINT and the cost, all in `button_primary_text`; padding 2 dp on every side, `h_separation` `space_xs` (3.6) |
+| `ICON_BUTTON` | "IconButton" | Button | as `BUTTON_SECONDARY`, a `Layout.ICON_FACE` (40 dp) square face, a 24 dp icon |
 | `PAD_KEY_PLACE` | "PadKeyPlace" | Button | `pad_key_place_bg` and `pad_key_place_text`, `radius_control`, pad_digit role with its trimmed line box (3.5), padding `space_xs` |
 | `PAD_KEY_CROSS` | "PadKeyCross" | Button | `pad_key_cross_bg` and `pad_key_cross_text`, and a stripe in `pad_key_cross_mark` across the top right corner, between 0.2 and 0.4 of the face width from the corner, drawn inside the outline |
 | `PAD_ACTION` | "PadAction" | Button | as `BUTTON_SECONDARY`; the icon over a caption in the pad_caption role (Undo, Erase); padding `space_xs` at the sides and 2 dp at the top and bottom; `icon_max_width` 20 and the icon fitted to the face (`expand_icon`, set by the pad), so it is 20 dp at most (3.5) |
@@ -581,7 +647,7 @@ Motion is quick and never blocks input:
 
 - The game state changes the moment the input arrives; animations only show it. The click plays at once.
 - A new input finishes any running animation on the same thing at once and starts its own. Input is never queued behind an animation, and no control waits for one before it accepts taps.
-- No single animation runs longer than 400 ms, except the completion score count (600 ms) and the lesson mark pulse (a loop).
+- No single animation runs longer than 400 ms, except the completion score count (600 ms) and two loops: the lesson mark pulse and the rocking hero while a puzzle is made (7.14).
 - Board effects run through `CellEffect` and `BoardPainter.draw_effects` on a layer above the board, so the board itself does not redraw every frame.
 - Undo plays the effect of the reverse action (undoing a placement plays ERASE).
 - Selection, highlights, hint cross chips, the selection frame's mode, conflicts and Auto Cross marks change instantly, with no animation.
@@ -618,6 +684,9 @@ Motion is quick and never blocks input:
 | `LESSON_SHAKE` | 240 | SINE, IN_OUT | Lesson card shakes 4 dp left and right, three times, after a wrong tap |
 | `PRAISE_IN` | 200 | QUART, OUT | Praise card and Next button slide up 16 dp and fade in over the controls |
 | `LESSON_PULSE` | 1200 | SINE, IN_OUT | Ring around a lesson marked control fades from full to 35 percent and back, looping until the step is done |
+| `MAKING_DELAY` | 300 | | Wait before the making a puzzle card shows; a puzzle made sooner shows no card at all (7.14) |
+| `MAKING_MIN` | 400 | | Once the card shows, it stays at least this long, so it never blinks (7.14) |
+| `MAKING_LOOP` | 900 | SINE, IN_OUT | The hero on the making a puzzle card rocks from 4 degrees counterclockwise to 4 clockwise and back, looping while the card shows (7.14) |
 
 The completion screen's buttons work from its first frame, whatever is still moving.
 
@@ -638,8 +707,8 @@ Sketches are at 360 by 800 dp, the judged screen, with a 32 dp notch inset and a
 │            │  icon  │                │ (app_icon.gd draw_foreground),
 │            └────────┘                │ 64 to 200 square
 │                                      │
-│ [ CONTINUE                         ] │ BUTTON_PRIMARY, 56; second line
-│ [ MEDIUM, 12:48                    ] │ in caption style
+│ [ CONTINUE                         ] │ BUTTON_PRIMARY, 56: PRIMARY_LABEL
+│ [ MEDIUM, 12:48                    ] │ over PRIMARY_CAPTION
 │ [ NEW PUZZLE                       ] │ BUTTON_SECONDARY, 56
 │ [ LESSONS                          ] │ 56
 │ [ STATS          ] [ SETTINGS      ] │ two halves, 56
@@ -649,6 +718,7 @@ Sketches are at 360 by 800 dp, the judged screen, with a 32 dp notch inset and a
 - **Wordmark.** One word, SUDOKU, on one sticker: a `CELEBRATE_STICKER` panel (pink `celebrate_bg`, outline, hard shadow, `radius_control`) holding a `CELEBRATE_DISPLAY` label (display role, capitals, `celebrate_text`), tilted counterclockwise by `sticker_tilt` and centered in the column. The source string is "Sudoku"; the display role sets it in capitals. Its face is about 184 by 52 dp (the word about 168 dp wide at 44 dp, plus the sticker padding); with the tilt and the shadow it takes about 66 dp of height. It reuses the SOLVED! look, so its contrast is already checked (`celebrate_text` on `celebrate_bg`, both skins). It is not tappable.
 - **Hero.** The app icon's foreground, Ring (section 9), drawn in code by `app_icon.gd` `draw_foreground`: the white cell sticker with its ink outline and hard shadow, the nine Heavy candidates and the two magenta X, straight on the lemon page. It reads at both ends of its range: at 64 dp the candidates are about 11 dp Heavy, larger than on the board; at 200 dp they are about 34 dp. Checked on `build/icon_options/ring-final-sheet.png` (last row). The hero is a square box, centered. The foreground's art sits inside the 66 dp safe zone of a 108 dp layer, so the painter passes `draw_foreground` a rect 108/66 times the box side, centered on the box; the art then fills the box. No background layer and no tile: the art sits straight on `page_bg`. It is not tappable.
 - Buttons are full width with 12 dp gaps and sit at the bottom: 4 rows of 56, 3 gaps of 12 and the 4 dp shadow, 264 dp in all. The wordmark sits at the top. The hero takes the height between them less a `space_xl` (24 dp) gap above and below it, clamped to 64 to 200 dp, and is centered in that space when it stops at 200.
+- **Continue** has two lines in two styles, set with variations only. The `BUTTON_PRIMARY` button has no text of its own. It holds a centered `VBoxContainer` (separation 0, mouse filter ignore) with two centered labels: CONTINUE in `PRIMARY_LABEL` (button role) and the level and time, "MEDIUM, 12:48", in `PRIMARY_CAPTION` (caption role); both in `button_primary_text`, a pair the checker already holds at 4.5:1. The box fills the button's content rect (the normal style's content margins), and it follows the face when the button sinks: on every draw of the button, move the box by the current style's `PopBox.face_rect(Rect2()).position` (the style for `get_draw_mode()`, which includes the press copy `Motion.press` puts on). Height: margins (2 + 8) x 2 = 20, plus 20 and 14 for the two lines, 54 of the 56 dp face. Before, both lines in the button role needed 57.
 - With no puzzle in progress there is no CONTINUE, and NEW PUZZLE becomes primary.
 - At 360 by 800 (32 dp notch, 24 dp gesture bar): 744 safe, 728 inside the margins; 728 minus 66, 264 and 48 leaves 350, so the hero is 200 dp.
 - At 320 by 568 with the same insets: 512 safe, 496 inside the margins; 496 minus 66, 264 and 48 leaves 118, so the hero is about 118 dp, or 186 dp with no CONTINUE row (one row and one gap fewer). Everything fits.
@@ -700,8 +770,9 @@ Over the level select, behind a `SCRIM`. A `DIALOG` card, centered, 328 dp wide 
 Header row (the HUD), left to right:
 
 - **Hint** (`HINT_BUTTON`): a 64 by 40 face with the hint icon, a HINT caption and the cost under it as "−80" (a real minus sign, U+2212, which the font has). At the top left, the corner farthest from the pad, at least 48 dp above the board (the band) and the whole header away from Pause. The band and the gaps around Hint hold nothing tappable, so a slip toward the board lands on nothing. Disabled when GDD 10.4 says (4.2).
-- **Time** (`HUD_TIME`): TIME caption over the value, at least 80 wide, growing to fit 1:02:05.
-- **Score** (`HUD_SCORE`): SCORE caption over the value, at least 60 wide. Time and score are centered between Hint and Pause, at least 12 from each.
+- **Time** (`HUD_TIME`): TIME caption over the value, a 40 dp tall face (`Layout.ICON_FACE`) with the two lines centered in it, at least 80 wide, growing to fit 9:59:59.
+- **Score** (`HUD_SCORE`): SCORE caption over the value, the same 40 dp face, at least 60 wide. Time and score are centered between Hint and Pause, at least 12 from each.
+- The row is `HEADER_ROW` (48) tall at every screen size; nothing in it may make it taller (3.6).
 - **Pause** (`ICON_BUTTON`): at the top right.
 
 The band below holds the level name on a `STICKER`, tilted, 8 dp above the board's left end. It is not tappable.
@@ -718,16 +789,18 @@ When the puzzle completes, the board locks and the completion screen follows (6,
 
 ```
 ┌────────────────────────────────────────┐ covers the info zone,
-│ [HIDDEN SINGLE] LESSON: HIDDEN SINGLE (x)│ from y 40 to 8 above the board
-│ In this box, 1 fits in only one cell.    │ body_small, 3 lines at most
-│ It goes here.                            │
+│ [HIDDEN SINGLE] LESSON: HIDDEN SI…  (x) │ from y 40 to 8 above the board
+│ In this box, 1 fits in only one         │ body_small, 3 lines at most;
+│ cell. It goes here.                     │ close in its own column
 └────────────────────────────────────────┘
 ├─────────────────────────────────────────┤ board: never covered
 ```
 
 - A `HINT_PANEL` over the whole info zone, from the top of the header row to 8 dp above the board (the header row's rect joined with `band_rect_global()`), full column width: at least 88 dp tall (122 at 360 by 800). The band alone is too short for it at its minimum (48 dp). It covers the header row, never any cell, so it can never cover a target or reason cell.
-- Top row: the technique name in a `HINT_TAG`, the lesson title in caption style when the GDD gives one ("LESSON: HIDDEN SINGLE"), and a close `ICON_BUTTON` at the right with a 32 dp face and a 48 dp touch area.
-- Then the hint text in body_small, three lines at most; it steps down to 12 and 11 dp before it would need a fourth.
+- Two columns side by side (an `HBoxContainer`, separation 0). The left column fills the width: the top row, then 4 dp (`space_xs`), then the hint text. The right column is the close button alone: an `ICON_BUTTON` with a `Layout.CLOSE_FACE` (32 dp) face in its 48 by 48 touch area, at the top of the column (size flags shrink begin). Its touch area is the column's width, so the text never runs under it.
+- Top row: the technique name in a `HINT_TAG`, then the lesson title in caption style when the GDD gives one ("LESSON: HIDDEN SINGLE"), cut with an ellipsis when it is too long. The row is as tall as the tag, 18 dp.
+- Then the hint text in `BODY_SMALL`, three lines at most. Before it would need a fourth line, or would make the panel taller than the info zone, it steps down to `BODY_SMALL_12` and then `BODY_SMALL_11`, by changing the label's `theme_type_variation` (3.2). The rule: use the first of the three at which the text wraps to three lines or fewer at the column's width and the panel fits the info zone.
+- Height at the smallest info zone, 88 dp (320 by 568 and 360 by 640): outline and padding (2 + 4) x 2 = 12, the top row 18, the gap 4, and three lines of 13 dp text 52, 86 in all. At 320 by 568 the longest texts need `BODY_SMALL_12` (three lines, 83 dp); everywhere else every hint text the game writes fits at 13 dp. `ui_fit.gd` checks every hint text template on all five screens. The 11 dp step is kept for safety; no text needs it today.
 - While it shows, the Hint button is covered (it is disabled anyway, GDD 10.2), as are the time, score and Pause. The timer keeps running; Android Back still opens the pause menu.
 - The board marks the targets and reasons (2.7) for as long as the panel shows. Motion: `PANEL_IN`, `MARK_POP`, `PANEL_OUT`.
 
@@ -844,9 +917,31 @@ Each row: the lesson number on a 36 dp `STICKER`, the title in heading style and
 
 - No timer, score or Hint (GDD 15.4). Close leaves the lesson.
 - Marked cells use the hint reason look (2.6, 2.7). A marked control (the mode buttons, a digit key, Undo, Erase) gets a ring around its face: `hint_mark_w` in `hint_reason_mark`, 4 dp outside the face and its shadow, corners `radius_control` plus 4, pulsing (`LESSON_PULSE`).
-- A wrong tap: the card shows the wrong tap text in place of the step text, led by a pink `CELEBRATE_STICKER` tag (the word TRY AGAIN is a proposal; lesson-designer may change it), and shakes (`LESSON_SHAKE`). Nothing else changes.
+- A wrong tap: the card shows the wrong tap text in place of the step text, led by a pink `CELEBRATE_STICKER` tag that says NOT QUITE (the source string is "Not quite", Bart, Hard Stop 2; `CELEBRATE_LABEL` sets it in capitals), and shakes (`LESSON_SHAKE`). Nothing else changes, and the card does not change height (4.8).
 - After the right tap: the controls are covered by a `CARD` with the praise line in body, a green check `STICKER`, and a full width NEXT `BUTTON_PRIMARY` (56 dp face) under it (`PRAISE_IN`). The board stays in view.
 - Adaptation: section 4.8.
+
+### 7.14 Making a puzzle
+
+A new puzzle is made on a worker thread after the player picks a level (level select, Start new in the confirm dialog, or Play again). Expert comes from the bank and is ready at once; Beginner to Medium usually take well under half a second; Hard can take a second or two, about 4 at worst on a mid-range phone (docs/GENERATION_TIMING.md). So most waits should show nothing at all, and a long one should show that the game is working, not frozen.
+
+```
+│                                        │ the screen the player was on,
+│ ┌────────────────────────────────────┐ │ under the SCRIM
+│ │              (HARD)                │ │ STICKER, tilted sticker_tilt
+│ │            ┌────────┐              │ │
+│ │            │  icon  │              │ │ hero, 64, rocking (MAKING_LOOP)
+│ │            └────────┘              │ │
+│ │        Making your puzzle.         │ │ BODY, centered
+│ └────────────────────────────────────┘ │ DIALOG, centered
+```
+
+1. **At once** (the frame of the tap): a clear layer over the whole screen takes every tap, so nothing else can start. Nothing is drawn on it. The button that was tapped plays its normal press.
+2. **If the puzzle is ready within `MAKING_DELAY` (300 ms)**: the play screen comes in (`SCREEN_IN`) and nothing else ever showed. This is every Expert puzzle and most others.
+3. **Otherwise, at 300 ms**: the `SCRIM` fades in and a `DIALOG` card appears (`Motion.appear`, `DIALOG_IN`), centered in the safe area, as wide as a dialog (at most `UiSizes.DIALOG_MAX_W`, at least 16 dp from the safe area's sides). In it, centered, `space_m` apart: the level name on a `STICKER` (tilted `sticker_tilt`), so the player sees which level is coming; the hero, the app icon's foreground (as on the main menu, 7.1) in a 64 dp box, rocking 4 degrees either side (`MAKING_LOOP`, around its center); and "Making your puzzle." in `BODY`. Nothing on it is tappable: there is no Cancel, because the longest wait is a few seconds.
+4. **When the puzzle is ready**: if the card has shown for less than `MAKING_MIN` (400 ms), wait until it has; then the play screen comes in (`SCREEN_IN`) while the card and scrim go (`Motion.disappear`). The timer starts when the board first appears (GDD 8), so none of this counts.
+
+Every color here is a pair the checker already holds (`sticker_text` on `sticker_bg`, `text` on `surface_bg`). The hero rocks by rotating its Control; it redraws nothing, so it costs nothing at 60 fps.
 
 ## 8. Two color decisions
 
@@ -937,6 +1032,7 @@ timeout 300 godot --headless --path . --script res://tools/design/write_skins.gd
 timeout 300 godot --headless --path . --script res://tools/design/check_contrast.gd
 timeout 300 godot --headless --path . --script res://tools/design/check_samples.gd
 timeout 300 godot --headless --path . --script res://tools/design/pad_fit.gd
+timeout 300 godot --headless --path . --script res://tools/design/ui_fit.gd
 timeout 300 godot --path . --script res://tools/design/mark_study.gd
 ```
 
@@ -944,4 +1040,5 @@ timeout 300 godot --path . --script res://tools/design/mark_study.gd
 - `check_contrast.gd`, part 1, on the two skin files loaded as GameSkin: every file sets every property, and every final skin pair (digits and text 4.5:1; open candidates 4.5:1 on every fill a ring can have; the hand X, the Auto Cross slash and crossed digits 3:1; frame, marks, lines, outlines and chart marks 3:1; disabled text 3:1; the slash 1.5:1 on its own digit), the marks that must differ in color, the sizes on the judged screen at densities 2, 2.625 and 3 (the candidate floor, stroke and line weights, the box to cell line ratio, the ring clear of the frame and marks), and that both tables in section 1 match the files. Part 2 keeps the Phase 1 record for all three directions. Exits 1 on any failure.
 - `check_samples.gd`: the Phase 1 sample content, and the layout rules of section 4 on the five screens of 4.10, with the touch targets and the candidate floor.
 - `pad_fit.gd`: builds the number pad's buttons with the real Theme on the five screens of 4.10 and checks that every label fits its face, raised and sunk (3.5). By default it lays the spec of 3.5 over the Theme in memory; `-- current` checks the Theme as it is. With a window, `-- render` writes docs/design/pad-fit.png (`-- render current` writes pad-fit-current.png).
+- `ui_fit.gd`: builds the play screen's header row (the real PlayHud), the main menu's Continue button and the hint panel with the real Theme on the five screens of 4.10, with the widest time (9:59:59), score (1000), Hint cost and every hint text the game writes, and checks that they fit their design (3.6, 7.1, 7.5, 7.6). By default it lays the spec of 3.6 over the Theme in memory; `-- current` checks the Theme and screen code as they are. With a window, `-- render` writes docs/design/ui-fit.png (`-- render current` writes ui-fit-current.png).
 - `mark_study.gd`: writes the two studies quoted above to docs/design/. It needs a window.

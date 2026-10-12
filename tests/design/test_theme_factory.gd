@@ -41,7 +41,7 @@ func _style_rows() -> Array[PackedStringArray]:
 
 
 func test_design_system_lists_the_styles() -> void:
-	assert_eq(_style_rows().size(), 43, "section 5 has 17 text, 12 panel and 14 control styles")
+	assert_eq(_style_rows().size(), 47, "section 5 has 21 text, 12 panel and 14 control styles")
 
 
 func test_every_style_has_its_constant() -> void:
@@ -315,8 +315,9 @@ func test_pad_line_boxes_are_trimmed_as_section_3_5() -> void:
 	var caption: FontVariation = ThemeFactory.role_font(ThemeFactory.ROLE_PAD_CAPTION)
 	assert_eq(caption.spacing_top, -2, "pad_caption trimmed 2 dp at the top")
 	assert_eq(caption.spacing_bottom, -2, "pad_caption trimmed 2 dp at the bottom")
+	assert_eq(ThemeFactory.ROLE_TRIMS.size(), 3, "three roles are trimmed: pad_digit, pad_caption, hud_value")
 	for role: StringName in ThemeFactory.ROLES:
-		if role in [ThemeFactory.ROLE_PAD_DIGIT, ThemeFactory.ROLE_PAD_CAPTION]:
+		if ThemeFactory.ROLE_TRIMS.has(role):
 			continue
 		var font: FontVariation = ThemeFactory.role_font(role)
 		assert_eq(font.spacing_top, 0, "%s is not trimmed at the top" % role)
@@ -345,4 +346,89 @@ func test_pad_buttons_use_the_roles_and_padding_of_section_3_5() -> void:
 		assert_eq(Vector4(action.pad_left, action.pad_top, action.pad_right, action.pad_bottom), Vector4(xs + o, y, xs + o, y), "Undo and Erase padding in %s" % skin.id)
 		assert_eq(theme.get_constant(&"icon_max_width", ThemeFactory.PAD_ACTION), 20, "Undo and Erase icon at most 20")
 		assert_eq(theme.get_font(&"font", ThemeFactory.PAD_ACTION), ThemeFactory.role_font(ThemeFactory.ROLE_PAD_CAPTION) as Font, "pad_caption font")
-		assert_eq(theme.get_font(&"font", ThemeFactory.HUD_CAPTION), ThemeFactory.role_font(ThemeFactory.ROLE_CAPTION) as Font, "HUD captions keep the untrimmed caption")
+		assert_eq(theme.get_font(&"font", ThemeFactory.HUD_CAPTION), ThemeFactory.role_font(ThemeFactory.ROLE_PAD_CAPTION) as Font, "HUD captions use the trimmed pad_caption (3.6)")
+
+
+func test_header_values_are_trimmed_as_section_3_6() -> void:
+	var hud: FontVariation = ThemeFactory.role_font(ThemeFactory.ROLE_HUD_VALUE)
+	var value: FontVariation = ThemeFactory.role_font(ThemeFactory.ROLE_VALUE)
+	assert_eq(hud.spacing_top, -4, "hud_value trimmed 4 dp at the top")
+	assert_eq(hud.spacing_bottom, -4, "hud_value trimmed 4 dp at the bottom")
+	assert_eq(hud.variation_transform, value.variation_transform, "hud_value is the value role's width")
+	assert_eq(hud.spacing_glyph, value.spacing_glyph, "and its spacing")
+	assert_eq(hud.variation_embolden, value.variation_embolden, "and its weight")
+	var size: int = ThemeFactory.role_size(ThemeFactory.ROLE_HUD_VALUE)
+	assert_true(is_equal_approx(hud.get_height(size), value.get_height(size) - 8.0), "the value line box is 8 dp shorter")
+	for type: StringName in [ThemeFactory.HUD_VALUE, ThemeFactory.SCORE_VALUE]:
+		assert_eq(ThemeFactory.VARIATION_ROLES[type], ThemeFactory.ROLE_HUD_VALUE, "%s uses hud_value" % type)
+	for type: StringName in [ThemeFactory.HUD_CAPTION, ThemeFactory.SCORE_CAPTION]:
+		assert_eq(ThemeFactory.VARIATION_ROLES[type], ThemeFactory.ROLE_PAD_CAPTION, "%s uses pad_caption" % type)
+
+
+func test_header_and_hint_paddings_follow_section_3_6() -> void:
+	for skin: GameSkin in _skins():
+		var theme: Theme = ThemeFactory.build(skin)
+		var o: float = skin.outline_w
+		var s: float = skin.space_s
+		var y: float = ThemeFactory.HUD_PAD_Y + o
+		assert_eq(ThemeFactory.HUD_PAD_Y, 2.0, "header blocks 2 dp at the top and bottom")
+		for type: StringName in [ThemeFactory.HUD_TIME, ThemeFactory.HUD_SCORE]:
+			var box: PopBox = theme.get_stylebox(&"panel", type) as PopBox
+			assert_eq(Vector4(box.pad_left, box.pad_top, box.pad_right, box.pad_bottom), Vector4(s + o, y, s + o, y), "%s padding in %s" % [type, skin.id])
+		var p: float = ThemeFactory.HINT_BUTTON_PAD + o
+		assert_eq(ThemeFactory.HINT_BUTTON_PAD, 2.0, "Hint button 2 dp on every side")
+		for state: StringName in [&"normal", &"pressed", &"disabled"]:
+			var hint: PopBox = theme.get_stylebox(state, ThemeFactory.HINT_BUTTON) as PopBox
+			assert_eq(Vector4(hint.pad_left, hint.pad_top, hint.pad_right, hint.pad_bottom), Vector4(p, p, p, p), "Hint %s padding in %s" % [state, skin.id])
+		assert_eq(theme.get_constant(&"h_separation", ThemeFactory.HINT_BUTTON), roundi(skin.space_xs), "Hint gap space_xs")
+		var panel: PopBox = theme.get_stylebox(&"panel", ThemeFactory.HINT_PANEL) as PopBox
+		var m: float = skin.space_m
+		var xs: float = skin.space_xs
+		assert_eq(Vector4(panel.pad_left, panel.pad_top, panel.pad_right, panel.pad_bottom), Vector4(m + o, xs + o, m + o, xs + o), "hint panel padding in %s" % skin.id)
+
+
+func test_header_blocks_fit_a_40_dp_face() -> void:
+	# The arithmetic of section 3.6: margins 8, caption line 10, value line 20.
+	for skin: GameSkin in _skins():
+		var theme: Theme = ThemeFactory.build(skin)
+		var box: PopBox = theme.get_stylebox(&"panel", ThemeFactory.HUD_TIME) as PopBox
+		var caption: int = roundi(ThemeFactory.role_font(ThemeFactory.ROLE_PAD_CAPTION).get_height(ThemeFactory.role_size(ThemeFactory.ROLE_PAD_CAPTION)))
+		var value: int = roundi(ThemeFactory.role_font(ThemeFactory.ROLE_HUD_VALUE).get_height(ThemeFactory.role_size(ThemeFactory.ROLE_HUD_VALUE)))
+		var need: float = box.get_minimum_size().y + float(caption + value)
+		assert_true(need <= Layout.ICON_FACE, "time block needs %.0f of a %.0f dp face in %s" % [need, Layout.ICON_FACE, skin.id])
+
+
+func test_step_down_variations_keep_their_line_height() -> void:
+	var steps: Dictionary[StringName, int] = {
+		ThemeFactory.BODY: 14, ThemeFactory.BODY_SMALL: 13,
+		ThemeFactory.BODY_SMALL_12: 12, ThemeFactory.BODY_SMALL_11: 11,
+	}
+	var theme: Theme = ThemeFactory.build(_skins()[0])
+	for type: StringName in steps:
+		var role: StringName = ThemeFactory.VARIATION_ROLES[type]
+		assert_eq(theme.get_font_size(&"font_size", type), steps[type], "%s size" % type)
+		assert_eq(ThemeFactory.role_font(role).variation_embolden, ThemeFactory.SEMIBOLD, "%s is semibold" % type)
+		assert_false(ThemeFactory.role_caps(role), "%s keeps sentence case" % type)
+		var line: float = ThemeFactory.role_font(role).get_height(steps[type]) + float(theme.get_constant(&"line_spacing", type))
+		assert_true(absf(line - 1.3 * float(steps[type])) <= 0.5, "%s line height 1.3 (%.1f)" % [type, line])
+
+
+func test_continue_lines_use_primary_text() -> void:
+	for skin: GameSkin in _skins():
+		var theme: Theme = ThemeFactory.build(skin)
+		assert_eq(theme.get_font(&"font", ThemeFactory.PRIMARY_LABEL), ThemeFactory.role_font(ThemeFactory.ROLE_BUTTON) as Font, "first line in the button role")
+		assert_eq(theme.get_font(&"font", ThemeFactory.PRIMARY_CAPTION), ThemeFactory.role_font(ThemeFactory.ROLE_CAPTION) as Font, "second line in the caption role")
+		for type: StringName in [ThemeFactory.PRIMARY_LABEL, ThemeFactory.PRIMARY_CAPTION]:
+			assert_eq(theme.get_color(&"font_color", type), skin.button_primary_text, "%s color in %s" % [type, skin.id])
+	assert_eq(ThemeFactory.display_text(ThemeFactory.PRIMARY_LABEL, "Continue"), "CONTINUE")
+	assert_eq(ThemeFactory.display_text(ThemeFactory.PRIMARY_CAPTION, "Medium, 12:48"), "MEDIUM, 12:48")
+	assert_eq(ThemeFactory.display_text(ThemeFactory.BODY_SMALL_11, "Keep case"), "Keep case")
+
+
+func test_icon_button_face_is_the_layout_constant() -> void:
+	assert_eq(ThemeFactory.ICON_BUTTON_FACE, Layout.ICON_FACE, "ICON_BUTTON reads Layout.ICON_FACE")
+	for skin: GameSkin in _skins():
+		var theme: Theme = ThemeFactory.build(skin)
+		var box: PopBox = theme.get_stylebox(&"normal", ThemeFactory.ICON_BUTTON) as PopBox
+		var face: float = box.pad_left + box.pad_right + Icons.SIZE_ICON_BUTTON
+		assert_eq(face, Layout.ICON_FACE, "icon button face %.0f dp in %s" % [face, skin.id])

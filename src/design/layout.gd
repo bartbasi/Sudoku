@@ -30,6 +30,15 @@ const ACTION_MAX: float = 160.0
 const COLUMN_MAX: float = 600.0
 ## Width of the Hint button's face.
 const HINT_FACE_W: float = 64.0
+## Face of every icon button (Pause, back, close on screens) and height of
+## the header faces (Hint, time, score). Its touch area is TOUCH_MIN.
+const ICON_FACE: float = 40.0
+## Face of the close button on the hint panel and the lesson card. Touch
+## area TOUCH_MIN.
+const CLOSE_FACE: float = 32.0
+## Face height of full width buttons: main menu, pause menu, completion, the
+## first launch offer, the lesson NEXT button.
+const BUTTON_TALL: float = 56.0
 ## Narrowest time block (it grows to fit 1:02:05).
 const TIME_MIN_W: float = 80.0
 ## Narrowest score block.

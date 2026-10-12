@@ -20,6 +20,8 @@ const HEADING: StringName = &"Heading"
 const BODY: StringName = &"Body"
 const BODY_SMALL: StringName = &"BodySmall"
 const BODY_MUTED: StringName = &"BodyMuted"
+const BODY_SMALL_12: StringName = &"BodySmall12"
+const BODY_SMALL_11: StringName = &"BodySmall11"
 const CAPTION: StringName = &"Caption"
 const VALUE: StringName = &"Value"
 const HUD_CAPTION: StringName = &"HudCaption"
@@ -30,6 +32,8 @@ const STICKER_LABEL: StringName = &"StickerLabel"
 const CELEBRATE_LABEL: StringName = &"CelebrateLabel"
 const CELEBRATE_DISPLAY: StringName = &"CelebrateDisplay"
 const HINT_TAG_LABEL: StringName = &"HintTagLabel"
+const PRIMARY_LABEL: StringName = &"PrimaryLabel"
+const PRIMARY_CAPTION: StringName = &"PrimaryCaption"
 
 # Panels (base PanelContainer, except PAGE and SCRIM: Panel)
 const PAGE: StringName = &"Page"
@@ -67,7 +71,8 @@ const VARIATIONS: Dictionary[StringName, StringName] = {
 	BODY: &"Label", BODY_SMALL: &"Label", BODY_MUTED: &"Label", CAPTION: &"Label",
 	VALUE: &"Label", HUD_CAPTION: &"Label", HUD_VALUE: &"Label", SCORE_CAPTION: &"Label",
 	SCORE_VALUE: &"Label", STICKER_LABEL: &"Label", CELEBRATE_LABEL: &"Label",
-	CELEBRATE_DISPLAY: &"Label", HINT_TAG_LABEL: &"Label",
+	CELEBRATE_DISPLAY: &"Label", HINT_TAG_LABEL: &"Label", BODY_SMALL_12: &"Label",
+	BODY_SMALL_11: &"Label", PRIMARY_LABEL: &"Label", PRIMARY_CAPTION: &"Label",
 	PAGE: &"Panel", SCRIM: &"Panel", CARD: &"PanelContainer", DIALOG: &"PanelContainer",
 	HINT_PANEL: &"PanelContainer", LESSON_CARD: &"PanelContainer", BOARD_MESSAGE: &"PanelContainer",
 	HUD_TIME: &"PanelContainer", HUD_SCORE: &"PanelContainer", STICKER: &"PanelContainer",
@@ -88,8 +93,11 @@ const ROLE_BUTTON: StringName = &"button"
 const ROLE_MODE: StringName = &"mode"
 const ROLE_BODY: StringName = &"body"
 const ROLE_BODY_SMALL: StringName = &"body_small"
+const ROLE_BODY_SMALL_12: StringName = &"body_small_12"
+const ROLE_BODY_SMALL_11: StringName = &"body_small_11"
 const ROLE_CAPTION: StringName = &"caption"
 const ROLE_PAD_CAPTION: StringName = &"pad_caption"
+const ROLE_HUD_VALUE: StringName = &"hud_value"
 const ROLE_PAD_DIGIT: StringName = &"pad_digit"
 
 ## Weights (section 3.1) as variation_embolden on the built-in font.
@@ -108,22 +116,27 @@ const ROLES: Dictionary[StringName, Array] = {
 	ROLE_MODE: [14, HEAVY, true, 0.0, 0.88, 1.2],
 	ROLE_BODY: [14, SEMIBOLD, false, 0.0, 1.0, 1.3],
 	ROLE_BODY_SMALL: [13, SEMIBOLD, false, 0.0, 1.0, 1.3],
+	ROLE_BODY_SMALL_12: [12, SEMIBOLD, false, 0.0, 1.0, 1.3],
+	ROLE_BODY_SMALL_11: [11, SEMIBOLD, false, 0.0, 1.0, 1.3],
 	ROLE_CAPTION: [10, HEAVY, true, 0.75, 1.0, 1.2],
 	ROLE_PAD_CAPTION: [10, HEAVY, true, 0.75, 1.0, 1.2],
+	ROLE_HUD_VALUE: [20, HEAVY, false, 0.0, 0.86, 1.0],
 	ROLE_PAD_DIGIT: [26, HEAVY, false, 0.0, 1.0, 1.0],
 }
 
 ## Roles whose line box is trimmed by this many dp at the top and at the
-## bottom, so the label fits its pad face (section 3.5).
-const ROLE_TRIMS: Dictionary[StringName, int] = {ROLE_PAD_DIGIT: 6, ROLE_PAD_CAPTION: 2}
+## bottom, so the label fits its pad or header face (sections 3.5 and 3.6).
+const ROLE_TRIMS: Dictionary[StringName, int] = {ROLE_PAD_DIGIT: 6, ROLE_PAD_CAPTION: 2, ROLE_HUD_VALUE: 4}
 
 ## The role each text-bearing variation sets its text in.
 const VARIATION_ROLES: Dictionary[StringName, StringName] = {
 	DISPLAY: ROLE_DISPLAY, DISPLAY_ACCENT: ROLE_DISPLAY, TITLE: ROLE_TITLE, HEADING: ROLE_HEADING,
 	BODY: ROLE_BODY, BODY_SMALL: ROLE_BODY_SMALL, BODY_MUTED: ROLE_BODY_SMALL, CAPTION: ROLE_CAPTION,
-	VALUE: ROLE_VALUE, HUD_CAPTION: ROLE_CAPTION, HUD_VALUE: ROLE_VALUE, SCORE_CAPTION: ROLE_CAPTION,
-	SCORE_VALUE: ROLE_VALUE, STICKER_LABEL: ROLE_BUTTON, CELEBRATE_LABEL: ROLE_CAPTION,
+	BODY_SMALL_12: ROLE_BODY_SMALL_12, BODY_SMALL_11: ROLE_BODY_SMALL_11,
+	VALUE: ROLE_VALUE, HUD_CAPTION: ROLE_PAD_CAPTION, HUD_VALUE: ROLE_HUD_VALUE, SCORE_CAPTION: ROLE_PAD_CAPTION,
+	SCORE_VALUE: ROLE_HUD_VALUE, STICKER_LABEL: ROLE_BUTTON, CELEBRATE_LABEL: ROLE_CAPTION,
 	CELEBRATE_DISPLAY: ROLE_DISPLAY, HINT_TAG_LABEL: ROLE_CAPTION,
+	PRIMARY_LABEL: ROLE_BUTTON, PRIMARY_CAPTION: ROLE_CAPTION,
 	BUTTON_PRIMARY: ROLE_BUTTON, BUTTON_SECONDARY: ROLE_BUTTON, BUTTON_DANGER: ROLE_BUTTON,
 	HINT_BUTTON: ROLE_CAPTION, ICON_BUTTON: ROLE_BUTTON, PAD_KEY_PLACE: ROLE_PAD_DIGIT,
 	PAD_KEY_CROSS: ROLE_PAD_DIGIT, PAD_ACTION: ROLE_PAD_CAPTION, MODE_BUTTON: ROLE_MODE,
@@ -136,8 +149,12 @@ const VARIATION_ROLES: Dictionary[StringName, StringName] = {
 const CONDENSE_PULL: float = 0.55
 
 ## Fixed shapes from section 5.
-const ICON_BUTTON_FACE: float = 40.0
+const ICON_BUTTON_FACE: float = Layout.ICON_FACE
 const HINT_TAG_PAD_Y: float = 2.0
+## HUD_TIME and HUD_SCORE padding at the top and bottom (section 3.6).
+const HUD_PAD_Y: float = 2.0
+## HINT_BUTTON padding on every side (section 3.6).
+const HINT_BUTTON_PAD: float = 2.0
 const PAD_ACTION_PAD_Y: float = 2.0
 const STRIPE_NEAR: float = 0.2
 const STRIPE_FAR: float = 0.4
@@ -224,16 +241,20 @@ static func _add_labels(theme: Theme, skin: GameSkin) -> void:
 	_label(theme, BODY, ROLE_BODY, skin.text)
 	_label(theme, BODY_SMALL, ROLE_BODY_SMALL, skin.text)
 	_label(theme, BODY_MUTED, ROLE_BODY_SMALL, skin.text_muted)
+	_label(theme, BODY_SMALL_12, ROLE_BODY_SMALL_12, skin.text)
+	_label(theme, BODY_SMALL_11, ROLE_BODY_SMALL_11, skin.text)
 	_label(theme, CAPTION, ROLE_CAPTION, skin.text_muted)
 	_label(theme, VALUE, ROLE_VALUE, skin.text)
-	_label(theme, HUD_CAPTION, ROLE_CAPTION, skin.hud_label)
-	_label(theme, HUD_VALUE, ROLE_VALUE, skin.hud_text)
-	_label(theme, SCORE_CAPTION, ROLE_CAPTION, skin.hud_score_text)
-	_label(theme, SCORE_VALUE, ROLE_VALUE, skin.hud_score_text)
+	_label(theme, HUD_CAPTION, ROLE_PAD_CAPTION, skin.hud_label)
+	_label(theme, HUD_VALUE, ROLE_HUD_VALUE, skin.hud_text)
+	_label(theme, SCORE_CAPTION, ROLE_PAD_CAPTION, skin.hud_score_text)
+	_label(theme, SCORE_VALUE, ROLE_HUD_VALUE, skin.hud_score_text)
 	_label(theme, STICKER_LABEL, ROLE_BUTTON, skin.sticker_text)
 	_label(theme, CELEBRATE_LABEL, ROLE_CAPTION, skin.celebrate_text)
 	_label(theme, CELEBRATE_DISPLAY, ROLE_DISPLAY, skin.celebrate_text)
 	_label(theme, HINT_TAG_LABEL, ROLE_CAPTION, skin.hint_tag_text)
+	_label(theme, PRIMARY_LABEL, ROLE_BUTTON, skin.button_primary_text)
+	_label(theme, PRIMARY_CAPTION, ROLE_CAPTION, skin.button_primary_text)
 
 
 static func _label(theme: Theme, type: StringName, role: StringName, color: Color) -> void:
@@ -268,7 +289,7 @@ static func _add_panels(theme: Theme, skin: GameSkin) -> void:
 	theme.set_stylebox(&"panel", DIALOG, dialog)
 
 	var hint_panel: PopBox = _raised(skin, skin.surface_bg, skin.radius_card)
-	_pad(hint_panel, skin, m, skin.space_s, m, skin.space_s)
+	_pad(hint_panel, skin, m, skin.space_xs, m, skin.space_xs)
 	theme.set_stylebox(&"panel", HINT_PANEL, hint_panel)
 
 	var message: PopBox = _raised(skin, skin.surface_bg, skin.radius_card)
@@ -279,10 +300,10 @@ static func _add_panels(theme: Theme, skin: GameSkin) -> void:
 
 	var s: float = skin.space_s
 	var hud_time: PopBox = _raised(skin, skin.hud_bg, skin.radius_control)
-	_pad(hud_time, skin, s, s, s, s)
+	_pad(hud_time, skin, s, HUD_PAD_Y, s, HUD_PAD_Y)
 	theme.set_stylebox(&"panel", HUD_TIME, hud_time)
 	var hud_score: PopBox = _raised(skin, skin.hud_score_bg, skin.radius_control)
-	_pad(hud_score, skin, s, s, s, s)
+	_pad(hud_score, skin, s, HUD_PAD_Y, s, HUD_PAD_Y)
 	theme.set_stylebox(&"panel", HUD_SCORE, hud_score)
 
 	var sticker: PopBox = _raised(skin, skin.sticker_bg, skin.radius_control)
@@ -329,7 +350,7 @@ static func _add_buttons(theme: Theme, skin: GameSkin) -> void:
 	_button(theme, BUTTON_PRIMARY, skin, skin.button_primary_bg, skin.button_primary_text, skin.button_primary_text, ROLE_BUTTON, text_pad)
 	_button(theme, BUTTON_SECONDARY, skin, skin.button_bg, skin.button_text, skin.button_text, ROLE_BUTTON, text_pad)
 	_button(theme, BUTTON_DANGER, skin, skin.button_danger_bg, skin.button_danger_text, skin.button_danger_text, ROLE_BUTTON, text_pad)
-	_button(theme, HINT_BUTTON, skin, skin.button_primary_bg, skin.button_primary_text, skin.button_primary_text, ROLE_CAPTION, Vector4(xs, xs, xs, xs))
+	_button(theme, HINT_BUTTON, skin, skin.button_primary_bg, skin.button_primary_text, skin.button_primary_text, ROLE_CAPTION, Vector4(HINT_BUTTON_PAD, HINT_BUTTON_PAD, HINT_BUTTON_PAD, HINT_BUTTON_PAD))
 	theme.set_constant(&"h_separation", HINT_BUTTON, roundi(xs))
 
 	var icon_pad: float = (ICON_BUTTON_FACE - Icons.SIZE_ICON_BUTTON) * 0.5 - skin.outline_w

@@ -13,10 +13,12 @@ extends SceneTree
 ##   timeout 300 godot --headless --path . --script res://tools/design/pad_fit.gd
 ##       checks the spec of section 3.5, laid over the real Theme in memory
 ##   timeout 300 godot --headless --path . --script res://tools/design/pad_fit.gd -- current
-##       checks the real Theme and NumberPad flags as they are now
+##       checks the real Theme and NumberPad's own expand_icon flag as they are now
 ##   timeout 300 godot --path . --script res://tools/design/pad_fit.gd -- render
 ##       also writes docs/design/pad-fit.png (needs a window); add current
 ##       for docs/design/pad-fit-current.png
+##
+## The HUD's Hint button and the other screen fits are checked by ui_fit.gd.
 ##
 ## Exits 1 if any label does not fit. Study code in tools/, never shipped.
 ## Owner: senior-graphic-designer.
@@ -44,6 +46,7 @@ var _use_spec: bool = true
 var _render: bool = false
 var _viewport: SubViewport = null
 var _rows: Array[Array] = [] ## [label, Button, face size]
+var _expand_icon: bool = ACTION_EXPAND_ICON
 
 
 func _initialize() -> void:
@@ -54,6 +57,8 @@ func _initialize() -> void:
 	var theme: Theme = ThemeFactory.build(skin)
 	if _use_spec:
 		_apply_spec(theme, skin)
+	else:
+		_expand_icon = _number_pad_expands_icons()
 	var screens: Array[LayoutModel.Screen] = LayoutModel.screens()
 	var width: float = 8.0
 	var height: float = 8.0
@@ -82,6 +87,21 @@ func _initialize() -> void:
 		y += 20.0
 		_add_pad(page, screen.label, layout, skin, Vector2(8.0, y))
 		y += 3.0 * layout.key_h + 2.0 * skin.space_s + 16.0
+
+
+## NumberPad's own Undo and Erase flag, read from a pad built by the game code.
+func _number_pad_expands_icons() -> bool:
+	var pad: NumberPad = NumberPad.new()
+	var expands: bool = true
+	var found: int = 0
+	for child: Node in pad.get_children(true):
+		if child is Button and (child.name == &"Undo" or child.name == &"Erase"):
+			expands = expands and (child as Button).expand_icon
+			found += 1
+	pad.free()
+	if found != 2:
+		_failures.append("NumberPad has no Undo and Erase buttons to read expand_icon from")
+	return expands and found == 2
 
 
 ## The spec, laid over the real Theme in memory (nothing in src/ changes).
@@ -136,7 +156,7 @@ func _button(page: Control, label: String, variation: StringName, text: String, 
 	if stacked:
 		button.vertical_icon_alignment = VERTICAL_ALIGNMENT_TOP
 		button.icon_alignment = HORIZONTAL_ALIGNMENT_CENTER
-		button.expand_icon = ACTION_EXPAND_ICON and _use_spec
+		button.expand_icon = _expand_icon
 	button.clip_text = variation != ThemeFactory.PAD_KEY_PLACE
 	page.add_child(button)
 	button.position = face.position
@@ -180,6 +200,7 @@ func _measure() -> void:
 		var face: Vector2 = row[2]
 		var was_pressed: bool = button.button_pressed
 		var was_toggle: bool = button.toggle_mode
+		var was_clip: bool = button.clip_text
 		button.toggle_mode = true
 		button.clip_text = false
 		var need: Vector2 = Vector2.ZERO
@@ -188,7 +209,7 @@ func _measure() -> void:
 			need = need.max(button.get_combined_minimum_size())
 		button.set_pressed_no_signal(was_pressed)
 		button.toggle_mode = was_toggle
-		button.clip_text = button.theme_type_variation != ThemeFactory.PAD_KEY_PLACE
+		button.clip_text = was_clip
 		var fits: bool = need.x <= face.x + 0.01 and need.y <= face.y + 0.01
 		var label: String = row[0]
 		if not label.contains("digit") or label.ends_with("digit 1") or label.ends_with("digit 2"):

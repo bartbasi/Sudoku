@@ -35,14 +35,19 @@ const NEW_BEST_IN: float = 0.200
 const LESSON_SHAKE: float = 0.240
 const PRAISE_IN: float = 0.200
 const LESSON_PULSE: float = 1.200
+const MAKING_DELAY: float = 0.300
+const MAKING_MIN: float = 0.400
+const MAKING_LOOP: float = 0.900
 
 ## Details given in the "What moves" column of the same table.
 const SCRIM_IN: float = 0.150 ## The scrim fades in over this while a dialog appears.
 const RECEIPT_ROW: float = 0.200 ## Each receipt row's own slide and fade.
 const DIALOG_FROM_SCALE: float = 0.9 ## A dialog card scales from this to 1.
+const MAKING_ROCK_DEG: float = 4.0 ## The making a puzzle hero rocks this many degrees either side.
 
 ## Transition and ease per constant: x is the Tween.TransitionType, y the
-## Tween.EaseType. COMPLETE_STAGGER is a delay and has none.
+## Tween.EaseType. COMPLETE_STAGGER, MAKING_DELAY and MAKING_MIN are waits and
+## have none.
 const CURVES: Dictionary[StringName, Vector2i] = {
 	&"PRESS_DOWN": Vector2i(Tween.TRANS_QUAD, Tween.EASE_OUT),
 	&"PRESS_UP": Vector2i(Tween.TRANS_BACK, Tween.EASE_OUT),
@@ -71,11 +76,13 @@ const CURVES: Dictionary[StringName, Vector2i] = {
 	&"LESSON_SHAKE": Vector2i(Tween.TRANS_SINE, Tween.EASE_IN_OUT),
 	&"PRAISE_IN": Vector2i(Tween.TRANS_QUART, Tween.EASE_OUT),
 	&"LESSON_PULSE": Vector2i(Tween.TRANS_SINE, Tween.EASE_IN_OUT),
+	&"MAKING_LOOP": Vector2i(Tween.TRANS_SINE, Tween.EASE_IN_OUT),
 }
 
 const _META_PRESS: StringName = &"_motion_press"
 const _META_SHOW: StringName = &"_motion_show"
 const _META_EFFECTS: StringName = &"_motion_effects"
+const _META_ROCK: StringName = &"_motion_rock"
 
 ## Styles a press animates: the raised looks only. A held button already
 ## shows its theme's pressed look.
@@ -195,6 +202,47 @@ static func disappear(node: CanvasItem) -> Tween:
 		if "scale" in target:
 			target.set(&"scale", Vector2.ONE))
 	node.set_meta(_META_SHOW, tween)
+	return tween
+
+
+## The making a puzzle hero rocks (MAKING_LOOP, section 7.14): from
+## MAKING_ROCK_DEG counterclockwise to MAKING_ROCK_DEG clockwise and back,
+## around the node's center, looping until the returned tween is killed or
+## the node is freed. It starts at the counterclockwise end. Only the
+## rotation changes, so nothing redraws. A new call on the same node stops
+## the running rock first. Returns null for a node with no rotation (neither
+## a Control nor a Node2D).
+static func rock(node: CanvasItem) -> Tween:
+	if not (node is Control or node is Node2D):
+		return null
+	if node.has_meta(_META_ROCK):
+		var old: Tween = node.get_meta(_META_ROCK) as Tween
+		node.remove_meta(_META_ROCK)
+		if old != null and old.is_valid():
+			old.kill()
+	var angle: float = deg_to_rad(MAKING_ROCK_DEG)
+	var tween: Tween = _tween_for(node)
+	# Weak references: a node outside the tree gets a SceneTree tween, and an
+	# endless loop on it must stop by itself once the node is freed.
+	var node_ref: WeakRef = weakref(node)
+	var tween_ref: WeakRef = weakref(tween)
+	var set_angle: Callable = func(value: float) -> void:
+		var target: CanvasItem = node_ref.get_ref() as CanvasItem
+		if target == null:
+			var mine: Tween = tween_ref.get_ref() as Tween
+			if mine != null and mine.is_valid():
+				mine.kill()
+			return
+		var control: Control = target as Control
+		if control != null:
+			control.pivot_offset = control.size * 0.5
+		target.set(&"rotation", value)
+	set_angle.call(-angle)
+	tween.set_loops()
+	var half: float = MAKING_LOOP * 0.5
+	tween.tween_method(set_angle, -angle, angle, half).set_trans(trans(&"MAKING_LOOP")).set_ease(ease_of(&"MAKING_LOOP"))
+	tween.tween_method(set_angle, angle, -angle, half).set_trans(trans(&"MAKING_LOOP")).set_ease(ease_of(&"MAKING_LOOP"))
+	node.set_meta(_META_ROCK, tween)
 	return tween
 
 

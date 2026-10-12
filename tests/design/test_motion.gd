@@ -61,7 +61,7 @@ func _runs_for(tween: Tween, duration: float, what: String) -> void:
 
 func test_constants_match_section_6() -> void:
 	var rows: Array[PackedStringArray] = DesignDoc.rows("## 6.")
-	assert_eq(rows.size(), 28, "section 6 lists 28 timings")
+	assert_eq(rows.size(), 31, "section 6 lists 31 timings")
 	var map: Dictionary = (Motion as Script).get_script_constant_map()
 	for cells: PackedStringArray in rows:
 		var constant: String = DesignDoc.code(cells[0])
@@ -79,13 +79,13 @@ func test_constants_match_section_6() -> void:
 		assert_true(Motion.CURVES.has(StringName(constant)), "%s has easing" % constant)
 		assert_eq(int(Motion.trans(StringName(constant))), trans, "%s transition" % constant)
 		assert_eq(int(Motion.ease_of(StringName(constant))), ease, "%s ease" % constant)
-	assert_eq(Motion.CURVES.size(), rows.size() - 1, "easing for every timed row")
+	assert_eq(Motion.CURVES.size(), rows.size() - 3, "easing for every row but the three waits")
 
 
 func test_nothing_runs_longer_than_allowed() -> void:
 	var map: Dictionary = (Motion as Script).get_script_constant_map()
 	for constant: String in map:
-		if map[constant] is float and constant not in ["DIALOG_FROM_SCALE", "SCORE_COUNT", "LESSON_PULSE"]:
+		if map[constant] is float and constant not in ["DIALOG_FROM_SCALE", "MAKING_ROCK_DEG", "SCORE_COUNT", "LESSON_PULSE", "MAKING_LOOP"]:
 			assert_true((map[constant] as float) <= 0.4, "%s is at most 400 ms" % constant)
 
 
@@ -239,3 +239,66 @@ func test_tweens_outlive_a_freed_node_outside_the_tree_quietly() -> void:
 	assert_eq(steps[0], steps_before, "on_step is not called once the owner is gone")
 	for tween: Tween in [effect_tween, press, out]:
 		assert_false(tween.is_running(), "the tween ends")
+
+
+func test_rock_swings_four_degrees_either_side_and_loops() -> void:
+	var hero: Control = _add(Control.new()) as Control
+	hero.size = Vector2(64, 64)
+	var tween: Tween = Motion.rock(hero)
+	assert_true(tween != null, "rock returns a tween")
+	if tween == null:
+		_clean()
+		return
+	var angle: float = deg_to_rad(Motion.MAKING_ROCK_DEG)
+	assert_true(is_equal_approx(Motion.MAKING_ROCK_DEG, 4.0), "4 degrees either side")
+	assert_true(is_equal_approx(hero.rotation, -angle), "starts 4 degrees counterclockwise")
+	assert_eq(hero.pivot_offset, Vector2(32, 32), "rocks around its center")
+	tween.custom_step(Motion.MAKING_LOOP * 0.5)
+	assert_true(is_equal_approx(hero.rotation, angle), "4 degrees clockwise at half a loop")
+	tween.custom_step(Motion.MAKING_LOOP * 0.25)
+	assert_true(absf(hero.rotation) < angle, "between the ends on the way back")
+	tween.custom_step(Motion.MAKING_LOOP * 0.25)
+	assert_true(is_equal_approx(hero.rotation, -angle), "back at the start after one loop")
+	tween.custom_step(Motion.MAKING_LOOP * 10.0)
+	assert_true(tween.is_running(), "it keeps looping")
+	var lowest: float = 0.0
+	var highest: float = 0.0
+	for i: int in 90:
+		tween.custom_step(Motion.MAKING_LOOP / 90.0)
+		lowest = minf(lowest, hero.rotation)
+		highest = maxf(highest, hero.rotation)
+	assert_true(lowest >= -angle - 0.0001 and highest <= angle + 0.0001, "never past 4 degrees")
+	hero.size = Vector2(100, 40)
+	tween.custom_step(0.01)
+	assert_eq(hero.pivot_offset, Vector2(50, 20), "the pivot follows a resize")
+	assert_eq(hero.mouse_filter, Control.MOUSE_FILTER_STOP, "input is not touched")
+	tween.kill()
+	_clean()
+
+
+func test_a_new_rock_stops_the_old_one() -> void:
+	var hero: Control = _add(Control.new()) as Control
+	var old: Tween = Motion.rock(hero)
+	old.custom_step(0.2)
+	var tween: Tween = Motion.rock(hero)
+	assert_false(old.is_valid(), "the old loop is stopped")
+	assert_true(tween.is_valid(), "the new one runs")
+	assert_true(is_equal_approx(hero.rotation, -deg_to_rad(Motion.MAKING_ROCK_DEG)), "the new one starts at its start")
+	tween.kill()
+	assert_true(Motion.rock(_add(Node.new()) as CanvasItem) == null, "nothing to rock on a plain Node")
+	_clean()
+
+
+func test_rock_stops_quietly_when_a_node_outside_the_tree_is_freed() -> void:
+	var counter: ErrorCounter = ErrorCounter.new()
+	OS.add_logger(counter)
+	var hero: Control = Control.new()
+	var tween: Tween = Motion.rock(hero)
+	tween.custom_step(0.1)
+	assert_true(hero.rotation > -deg_to_rad(Motion.MAKING_ROCK_DEG), "it rocks outside the tree")
+	hero.free()
+	tween.custom_step(0.1)
+	tween.custom_step(Motion.MAKING_LOOP)
+	OS.remove_logger(counter)
+	assert_eq(counter.count(), 0, "no error once the node is freed")
+	assert_false(tween.is_valid(), "the loop ends by itself")
