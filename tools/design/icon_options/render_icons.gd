@@ -1,32 +1,39 @@
 extends SceneTree
-## Renders the three app icon options to build/icon_options/ (ignored by git
-## and by Godot's importer) for Bart to pick from, and checks that every
-## foreground and monochrome pixel stays inside the Android safe zone.
+## Renders the final app icon, Ring (Bart's pick, 2026-10-12, made bolder),
+## to build/icon_options/ (ignored by git and by Godot's importer), next to
+## Ring as Bart picked it, and checks that every foreground and monochrome
+## pixel stays inside the Android safe zone.
 ## Needs a window (headless mode has no renderer):
 ##   timeout 120 godot --path . --script res://tools/design/icon_options/render_icons.gd
 ## Exits 1 on any problem. Prototype tool, never shipped.
 ## Owner: senior-graphic-designer.
 ##
-## Per option <slug>:
-##   <slug>-full-512.png, <slug>-full-48.png      legacy square icon
-##   <slug>-launcher-512.png, <slug>-launcher-48.png
-##       background and foreground, visible area, circle mask, as a launcher shows it
-##   <slug>-mono-512.png, <slug>-mono-48.png
-##       monochrome layer, visible area, on a dark circle, as a themed icon
-##   <slug>-layers-432.png    background and foreground with the safe zone
-##                            (circle) and visible area (square) drawn on
-## And sheet.png: all three side by side, 48 px ones also at 1x.
+## Writes, for the final Ring, at 512, 192, 144, 96 and 48 px:
+##   ring-final-full-<px>.png       legacy square icon
+##   ring-final-launcher-<px>.png   background and foreground, visible area,
+##                                  circle mask, as a launcher shows it
+##   ring-final-mono-<px>.png       monochrome layer, visible area, on a dark
+##                                  circle, as a themed icon
+## plus ring-final-layers-432.png (the safe zone circle and the visible area
+## square drawn on), and ring-final-sheet.png: every form at every size at
+## 1x, the picked Ring row above each final row, and the main menu hero
+## (draw_foreground on page_bg) at 64 and 200 px.
+## option_nine.gd and option_box.gd stay in the folder as the record of the
+## pick; this script no longer renders them.
 
-const OPTIONS: Array[String] = [
-	"res://tools/design/icon_options/option_ring.gd",
-	"res://tools/design/icon_options/option_nine.gd",
-	"res://tools/design/icon_options/option_box.gd",
-]
+const ORIGINAL: String = "res://tools/design/icon_options/option_ring_original.gd"
+const FINAL: String = "res://tools/design/icon_options/option_ring.gd"
+const SLUG: String = "ring-final"
 const OUT_DIR: String = "res://build/icon_options/"
-const SIZES: Array[int] = [512, 48]
+const SIZES: Array[int] = [512, 192, 144, 96, 48]
+const FORMS: Array[String] = ["full", "launcher", "mono"]
+const FORM_NAMES: Dictionary = {"full": "Full icon", "launcher": "Launcher (circle mask)", "mono": "Themed (monochrome)"}
+const HERO_SIZES: Array[int] = [64, 200]
 const LAYER_PX: int = 432
 const SAFE_SHARE: float = 66.0 / 108.0
 const VISIBLE_SHARE: float = 72.0 / 108.0
+## Pop light page_bg, behind the main menu hero.
+const PAGE_BG: Color = Color("#FFEB8F")
 ## Review guides and preview backdrops. Not part of any design.
 const GUIDE: Color = Color(1.0, 0.0, 1.0, 0.9)
 const THEMED_BACKDROP: Color = Color("#2B2F3A")
@@ -51,49 +58,43 @@ func _run() -> void:
 	var ignore: FileAccess = FileAccess.open(OUT_DIR + ".gdignore", FileAccess.WRITE)
 	if ignore != null:
 		ignore.close()
-	var sheet_rows: Array[Dictionary] = []
-	for path: String in OPTIONS:
-		var script: GDScript = load(path) as GDScript
-		if script == null or not script.can_instantiate():
-			_problems.append("%s does not load" % path)
-			continue
-		var icon: Object = script.new()
-		var missing: bool = false
-		for method: String in ["draw_full", "draw_background", "draw_foreground", "draw_monochrome"]:
-			if not icon.has_method(method):
-				_problems.append("%s has no %s(canvas, rect)" % [path, method])
-				missing = true
-		if missing:
-			continue
-		var constants: Dictionary = script.get_script_constant_map()
-		var option_name: String = str(constants.get("NAME", path.get_file()))
-		var slug: String = option_name.to_lower()
-		var row: Dictionary = {"name": option_name, "reason": str(constants.get("REASON", ""))}
+	var original: Object = _load(ORIGINAL)
+	var final_icon: Object = _load(FINAL)
+	if original == null or final_icon == null:
+		_finish()
+		return
+	var renders: Dictionary = {}
+	for version: String in ["original", "final"]:
+		var icon: Object = original if version == "original" else final_icon
 		for px: int in SIZES:
 			var full: Image = await _render(_canvas(icon, ["draw_full"], Rect2(0, 0, px, px)), Vector2i(px, px))
-			_save(full, "%s-full-%d" % [slug, px])
 			var launcher: Image = await _launcher(icon, ["draw_background", "draw_foreground"], px)
-			_save(launcher, "%s-launcher-%d" % [slug, px])
 			var mono: Image = await _launcher(icon, ["draw_monochrome"], px)
 			_tint_on_circle(mono)
-			_save(mono, "%s-mono-%d" % [slug, px])
-			row["full-%d" % px] = full
-			row["launcher-%d" % px] = launcher
-			row["mono-%d" % px] = mono
-		var layer_rect: Rect2 = Rect2(0, 0, LAYER_PX, LAYER_PX)
-		var layers: Image = await _render(_canvas(icon, ["draw_background", "draw_foreground"], layer_rect, true), Vector2i(LAYER_PX, LAYER_PX))
-		_save(layers, "%s-layers-%d" % [slug, LAYER_PX])
-		for method: String in ["draw_foreground", "draw_monochrome"]:
-			var alone: Image = await _render(_canvas(icon, [method], layer_rect), Vector2i(LAYER_PX, LAYER_PX))
-			var outside: int = _pixels_outside_safe_zone(alone)
-			print("%-5s %-16s pixels outside the safe zone: %d" % [option_name, method, outside])
-			if outside > 0:
-				_problems.append("%s: %s draws %d pixels outside the safe zone" % [option_name, method, outside])
-		sheet_rows.append(row)
-	if not sheet_rows.is_empty():
-		var sheet: Image = await _sheet(sheet_rows)
-		_save(sheet, "sheet")
+			renders["%s-full-%d" % [version, px]] = full
+			renders["%s-launcher-%d" % [version, px]] = launcher
+			renders["%s-mono-%d" % [version, px]] = mono
+			if version == "final":
+				_save(full, "%s-full-%d" % [SLUG, px])
+				_save(launcher, "%s-launcher-%d" % [SLUG, px])
+				_save(mono, "%s-mono-%d" % [SLUG, px])
+		for px: int in HERO_SIZES:
+			renders["%s-hero-%d" % [version, px]] = await _hero(icon, px)
+	var layer_rect: Rect2 = Rect2(0, 0, LAYER_PX, LAYER_PX)
+	var layers: Image = await _render(_canvas(final_icon, ["draw_background", "draw_foreground"], layer_rect, true), Vector2i(LAYER_PX, LAYER_PX))
+	_save(layers, "%s-layers-%d" % [SLUG, LAYER_PX])
+	for method: String in ["draw_foreground", "draw_monochrome"]:
+		var alone: Image = await _render(_canvas(final_icon, [method], layer_rect), Vector2i(LAYER_PX, LAYER_PX))
+		var outside: int = _pixels_outside_safe_zone(alone)
+		print("Ring final %-16s pixels outside the safe zone: %d, farthest drawn pixel %.3f R" % [method, outside, _farthest(alone)])
+		if outside > 0:
+			_problems.append("Ring final: %s draws %d pixels outside the safe zone" % [method, outside])
+	var sheet: Image = await _sheet(renders)
+	_save(sheet, "%s-sheet" % SLUG)
+	_finish()
 
+
+func _finish() -> void:
 	print("")
 	for path: String in _written:
 		print("wrote    %s" % path)
@@ -101,6 +102,19 @@ func _run() -> void:
 		print("PROBLEM  %s" % problem)
 	print("Rendered %d file(s), %d problem(s)." % [_written.size(), _problems.size()])
 	quit(0 if _problems.is_empty() else 1)
+
+
+func _load(path: String) -> Object:
+	var script: GDScript = load(path) as GDScript
+	if script == null or not script.can_instantiate():
+		_problems.append("%s does not load" % path)
+		return null
+	var icon: Object = script.new()
+	for method: String in ["draw_full", "draw_background", "draw_foreground", "draw_monochrome"]:
+		if not icon.has_method(method):
+			_problems.append("%s has no %s(canvas, rect)" % [path, method])
+			return null
+	return icon
 
 
 ## A Control that calls the icon's draw functions into rect, optionally with
@@ -117,6 +131,22 @@ func _canvas(icon: Object, methods: Array[String], rect: Rect2, guides: bool = f
 			canvas.draw_rect(Rect2(center - visible * 0.5, visible), GUIDE, false, 2.0)
 	)
 	return canvas
+
+
+## The main menu hero (DESIGN_SYSTEM.md 7.1): draw_foreground with a rect
+## 108/66 of the box side, centered on the box, on page_bg, no background
+## layer. The image has a 20 px page margin around the box.
+func _hero(icon: Object, box: int) -> Image:
+	var pad: int = 20
+	var side: int = box + 2 * pad
+	var layer: float = float(box) / SAFE_SHARE
+	var offset: float = (layer - float(side)) * 0.5
+	var canvas: Control = Control.new()
+	canvas.draw.connect(func() -> void:
+		canvas.draw_rect(Rect2(0, 0, side, side), PAGE_BG)
+		icon.call("draw_foreground", canvas, Rect2(-offset, -offset, layer, layer))
+	)
+	return await _render(canvas, Vector2i(side, side), false)
 
 
 ## The adaptive layers as a launcher shows them: the visible area of the
@@ -168,41 +198,61 @@ func _pixels_outside_safe_zone(image: Image) -> int:
 	return count
 
 
-## One sheet for the review: per option, the full icon, the launcher icon and
-## the themed icon at 192 px (scaled from 512), and the same three at 48 px, 1x.
-func _sheet(rows: Array[Dictionary]) -> Image:
-	var big: int = 192
+## Farthest drawn pixel center from the layer center, share of the safe
+## zone radius.
+func _farthest(image: Image) -> float:
+	var center: Vector2 = Vector2(LAYER_PX, LAYER_PX) * 0.5
+	var radius: float = float(LAYER_PX) * SAFE_SHARE * 0.5
+	var far: float = 0.0
+	for y: int in LAYER_PX:
+		for x: int in LAYER_PX:
+			if image.get_pixel(x, y).a > ALPHA_FLOOR:
+				far = maxf(far, Vector2(float(x) + 0.5, float(y) + 0.5).distance_to(center))
+	return far / radius
+
+
+## The comparison sheet: for each form, the picked Ring row and then the
+## final row, every size at 1x; then the hero on page_bg at 64 and 200 px.
+func _sheet(renders: Dictionary) -> Image:
 	var margin: int = 24
-	var label_h: int = 56
-	var cell_w: int = big + margin
-	var width: int = margin + 3 * cell_w + 3 * (48 + margin)
+	var label_h: int = 30
+	var big: int = SIZES[0]
+	var width: int = margin
+	for px: int in SIZES:
+		width += px + margin
 	var row_h: int = label_h + big + margin
-	var height: int = margin + rows.size() * row_h
-	var textures: Array[Dictionary] = []
-	for row: Dictionary in rows:
-		var entry: Dictionary = {}
-		for key: String in ["full-512", "launcher-512", "mono-512", "full-48", "launcher-48", "mono-48"]:
-			var image: Image = (row[key] as Image).duplicate() as Image
-			if image.get_width() != 48:
-				image.resize(big, big, Image.INTERPOLATE_LANCZOS)
-			entry[key] = ImageTexture.create_from_image(image)
-		textures.append(entry)
+	var hero_h: int = label_h + HERO_SIZES[HERO_SIZES.size() - 1] + 40 + margin
+	var height: int = margin + FORMS.size() * 2 * row_h + hero_h
+	var size_list: String = ""
+	for px: int in SIZES:
+		size_list += ("" if size_list.is_empty() else ", ") + str(px)
+	var textures: Dictionary = {}
+	for key: String in renders.keys():
+		textures[key] = ImageTexture.create_from_image(renders[key] as Image)
 	var canvas: Control = Control.new()
 	canvas.draw.connect(func() -> void:
 		canvas.draw_rect(Rect2(0, 0, width, height), SHEET_BG)
 		var font: Font = ThemeDB.fallback_font
-		for r: int in rows.size():
-			var top: float = float(margin + r * row_h)
-			var title: String = "%d. %s" % [r + 1, rows[r]["name"]]
-			canvas.draw_string(font, Vector2(margin, top + 20.0), title, HORIZONTAL_ALIGNMENT_LEFT, -1, 20, SHEET_TEXT)
-			canvas.draw_string(font, Vector2(margin, top + 44.0), str(rows[r]["reason"]), HORIZONTAL_ALIGNMENT_LEFT, float(width - 2 * margin), 15, SHEET_TEXT)
-			var y: float = top + float(label_h)
-			var keys: Array[String] = ["full", "launcher", "mono"]
-			for k: int in keys.size():
-				var x_big: float = float(margin + k * cell_w)
-				canvas.draw_texture_rect(textures[r][keys[k] + "-512"] as Texture2D, Rect2(x_big, y, big, big), false)
-				var x_small: float = float(margin + 3 * cell_w + k * (48 + margin))
-				canvas.draw_texture(textures[r][keys[k] + "-48"] as Texture2D, Vector2(x_small, y + float(big - 48) * 0.5))
+		var top: float = float(margin)
+		for form: String in FORMS:
+			for version: String in ["original", "final"]:
+				var which: String = "Ring as picked" if version == "original" else "Ring final"
+				var title: String = "%s, %s: %s px at 1x" % [FORM_NAMES[form], which, size_list]
+				canvas.draw_string(font, Vector2(margin, top + 20.0), title, HORIZONTAL_ALIGNMENT_LEFT, -1, 18, SHEET_TEXT)
+				var x: float = float(margin)
+				var y: float = top + float(label_h)
+				for px: int in SIZES:
+					var texture: Texture2D = textures["%s-%s-%d" % [version, form, px]] as Texture2D
+					canvas.draw_texture(texture, Vector2(x, y + float(big - px) * 0.5))
+					x += float(px + margin)
+				top += float(row_h)
+		canvas.draw_string(font, Vector2(margin, top + 20.0), "Main menu hero on page_bg, 64 and 200 px: Ring as picked, then Ring final", HORIZONTAL_ALIGNMENT_LEFT, -1, 18, SHEET_TEXT)
+		var hx: float = float(margin)
+		for version: String in ["original", "final"]:
+			for px: int in HERO_SIZES:
+				var texture: Texture2D = textures["%s-hero-%d" % [version, px]] as Texture2D
+				canvas.draw_texture(texture, Vector2(hx, top + float(label_h)))
+				hx += float(px + 40 + margin)
 	)
 	return await _render(canvas, Vector2i(width, height), false)
 
