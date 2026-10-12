@@ -504,6 +504,11 @@ The same in every skin, so not skin tokens. They are the constants of the `Layou
 | `LESSON_TOP_ROW` | 32 | Height of the lesson card's top row |
 | `LESSON_TITLE_MIN_BOARD` | 260 | The lesson title line hides when the board would be smaller |
 | `LESSON_BOARD_FLOOR` | 220 | The lesson board never gets smaller; the lesson text scrolls instead |
+| `COLUMN_MIN` | 304 | Narrowest column that holds the header row and the pad, stacked or beside the board. It is the 320 dp screen's column, where both are proven to fit (3.5; 3.6: the header row needs 301) |
+| `SIDE_MAX` | 360 | Widest side column. Wider windows center the board and the side column as a group |
+| `SIDE_GAP` | 16 | From the board's outer line and shadow to the side column |
+| `BOARD_MIN` | 240 | Smallest play board in either arrangement. Under it the window is too small |
+| `CONTENT_MIN_H` | 264 | Shortest content box in any arrangement: the main menu's button stack (4 rows of 56, 3 gaps of 12, the 4 dp shadow) |
 
 `tools/design/layout_model.gd` implements these rules for the play and lesson screens, and `check_samples.gd` runs it on the screens in 4.10.
 
@@ -615,15 +620,7 @@ The breakpoints, in content box dp:
 - Between them, side by side wins whenever `min(H - 7, W - 327) > min(min(W, 600) - 7, H - 251)`. Roughly: once the window is wider than about its height plus 76 dp, and H is under about 600.
 - No hysteresis: Android split screen snaps to fixed ratios, so the shape does not wobble around a breakpoint.
 
-**New Layout constants.** ui-motion-artist adds them to `Layout`. When that lands, these rows move into the first table of 4.6 and `tests/design/test_layout.gd` counts 27 constants instead of 22, in the same integration step, so the test never sees one without the other.
-
-| Constant | Value | What it is |
-| --- | --- | --- |
-| `COLUMN_MIN` | 304 | Narrowest column that holds the header row and the pad, stacked or beside the board. It is the 320 dp screen's column, where both are proven to fit (3.5; 3.6: the header row needs 301) |
-| `SIDE_MAX` | 360 | Widest side column. Wider windows center the board and the side column as a group |
-| `SIDE_GAP` | 16 | From the board's outer line and shadow to the side column |
-| `BOARD_MIN` | 240 | Smallest play board in either arrangement. Under it the window is too small |
-| `CONTENT_MIN_H` | 264 | Shortest content box in any arrangement: the main menu's button stack (4 rows of 56, 3 gaps of 12, the 4 dp shadow) |
+**Layout constants.** `COLUMN_MIN`, `SIDE_MAX`, `SIDE_GAP`, `BOARD_MIN` and `CONTENT_MIN_H` are in the 4.6 table (Phase 6).
 
 `LESSON_BOARD_FLOOR` (220) stays for the stacked lesson screen, under `BOARD_MIN` on purpose: a window that can play can always show a lesson, because the lesson card can scroll.
 
@@ -661,7 +658,7 @@ When the window is too small, the game does not squeeze the board. At 344 by 430
 
 - A full screen layer over every screen, in `PAGE` (`page_bg`), takes every tap. Centered in the safe area: the hero (the app icon foreground) in a 64 dp box when the content box is at least 160 tall, hidden below that; under it, in `BODY`, centered and wrapped: "This window is too small. Make it bigger to play." (the lead-game-designer owns the exact words in the GDD). Nothing on it is tappable. Its colors are a pair the checker already holds (`text` on `page_bg`).
 - On the play screen the timer stops at once and the pause menu opens under the layer, exactly as when the app loses focus (GDD 8). When the window grows back, the layer goes and the player is on the pause menu. A puzzle that is being made when the window shrinks opens paused, as for focus loss (Phase 6 fix).
-- Android Back does what it does on the screen underneath.
+- Android Back does what it does on the screen underneath, with one exception (GDD 8.1): in the pause menu under the layer, Back does nothing, so it cannot resume a puzzle the player cannot see.
 - Layout underneath still runs, clamped so no size goes below zero; the layer covers it.
 
 #### The windows, with the arithmetic

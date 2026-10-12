@@ -51,3 +51,68 @@ const LESSON_TOP_ROW: float = 32.0
 const LESSON_TITLE_MIN_BOARD: float = 260.0
 ## The lesson board never gets smaller; the lesson text scrolls instead.
 const LESSON_BOARD_FLOOR: float = 220.0
+
+# Window shapes, DESIGN_SYSTEM.md section 4.11 (Phase 6: split screen and
+# foldables). Every screen asks arrangement() so they always agree.
+
+## Narrowest column holding the header row and the pad, stacked or beside the board.
+const COLUMN_MIN: float = 304.0
+## Widest side column.
+const SIDE_MAX: float = 360.0
+## From the board's outer line and shadow to the side column.
+const SIDE_GAP: float = 16.0
+## Smallest play board in either arrangement. Under it the window is too small.
+const BOARD_MIN: float = 240.0
+## Shortest content box in any arrangement: the main menu's button stack.
+const CONTENT_MIN_H: float = 264.0
+
+## STACKED: info zone, board, gap and pad in one column. SIDE: the board at
+## the left, the side column (header row, band, pad) at the right.
+## TOO_SMALL: the window only shows the too small message.
+enum Arrangement { STACKED, SIDE, TOO_SMALL }
+
+
+
+## The board side the stacked play layout gives in this content box (the
+## safe rect minus page_margin on every side), or 0 when the box is narrower
+## than COLUMN_MIN.
+## Breakpoint comparisons allow 0.01 dp of float slack, as layout_model.gd does.
+static func stacked_board(content: Rect2, skin: GameSkin) -> float:
+	var size: Vector2 = content.size
+	if size.x < COLUMN_MIN - 0.01:
+		return 0.0
+	var over: float = _over(skin)
+	var fixed: float = HEADER_ROW + BAND_MIN + over + BOARD_GAP_MIN + _pad_min(skin)
+	return maxf(0.0, minf(minf(size.x, COLUMN_MAX) - over, size.y - fixed))
+
+
+## The board side the side by side play layout gives, or 0 when the box is
+## shorter than the side column's minimum (header row, BAND_MIN, the pad at KEY_MIN).
+static func side_board(content: Rect2, skin: GameSkin) -> float:
+	var size: Vector2 = content.size
+	if size.y < HEADER_ROW + BAND_MIN + _pad_min(skin) - 0.01:
+		return 0.0
+	var over: float = _over(skin)
+	return maxf(0.0, minf(minf(size.y - over, size.x - over - SIDE_GAP - COLUMN_MIN), COLUMN_MAX - over))
+
+
+## The arrangement with the larger board, stacked on a tie; TOO_SMALL when
+## the box is under CONTENT_MIN_H or neither board reaches BOARD_MIN.
+static func arrangement(content: Rect2, skin: GameSkin) -> int:
+	if content.size.y < CONTENT_MIN_H - 0.01:
+		return Arrangement.TOO_SMALL
+	var stacked: float = stacked_board(content, skin)
+	var side: float = side_board(content, skin)
+	if maxf(stacked, side) < BOARD_MIN - 0.01:
+		return Arrangement.TOO_SMALL
+	return Arrangement.SIDE if side > stacked + 0.5 else Arrangement.STACKED
+
+
+## What the board block adds past the cells: the outer line and the shadow.
+static func _over(skin: GameSkin) -> float:
+	return skin.line_outer_w + skin.shadow_offset
+
+
+## The pad at its smallest: three rows of KEY_MIN with two space_s gaps.
+static func _pad_min(skin: GameSkin) -> float:
+	return 3.0 * KEY_MIN + 2.0 * skin.space_s
