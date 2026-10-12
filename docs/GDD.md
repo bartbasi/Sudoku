@@ -2,7 +2,7 @@
 
 Owner: lead-game-designer. Approved by Bart at Hard Stop 1, 2026-10-11. Where this document disagrees with docs/BRIEF.md, the brief wins, unless Bart decided otherwise (CLAUDE.md, "Decisions from Bart after the brief").
 
-Change log: 2026-10-11, Phase 2: updated for Bart's Hard Stop 1 decisions (his answers to the three questions, the New best rule in 12.1 with AT-67, a hand-crossed digit drawn on top of its X, ring layout A, the Pop light and Pop dark skins, the screen sizes in AT-66), and corrected the example scores in section 13 and AT-53 to match the score formula. Later in Phase 2: added the Settings line for Auto Cross (5.2), and the rule that taps after a lesson step's answer are ignored until Next (15.4, AT-63). 2026-10-12, Phase 3: updated for Bart's Hard Stop 2 decisions: a givens floor for Beginner and Easy (11.4, AT-68) and the hint highlight of candidates to cross (2.3, 10.2, AT-69).
+Change log: 2026-10-11, Phase 2: updated for Bart's Hard Stop 1 decisions (his answers to the three questions, the New best rule in 12.1 with AT-67, a hand-crossed digit drawn on top of its X, ring layout A, the Pop light and Pop dark skins, the screen sizes in AT-66), and corrected the example scores in section 13 and AT-53 to match the score formula. Later in Phase 2: added the Settings line for Auto Cross (5.2), and the rule that taps after a lesson step's answer are ignored until Next (15.4, AT-63). 2026-10-12, Phase 3: updated for Bart's Hard Stop 2 decisions: a givens floor for Beginner and Easy (11.4, AT-68) and the hint highlight of candidates to cross (2.3, 10.2, AT-69). 2026-10-12, Phase 6: window shapes for foldables and split screen, with Hint at the far end in side by side (2.4), the too small message and what it does to the puzzle (8, 8.1, 14), and AT-70 and AT-71.
 
 ## 1. Summary for Bart
 
@@ -40,6 +40,8 @@ Play
 - Undo: one step per place, replace, erase, cross or restore, with no limit, back to the start of the puzzle. Undo selects the cell it changes. The history survives closing the app. [7]
 - A full board with a clash does not complete. A short message says so and the timer keeps running. [6]
 - The timer runs only while the board is on screen. The pause menu hides the board. Coming back from the background opens the pause menu. [8]
+- Window shapes (Bart, Phase 6): the game lays out stacked or side by side to fit the window. Side by side puts Hint at the far end from the board. Changing shape changes only the layout. [2.4]
+- A window too small for a readable board shows "This window is too small. Make it bigger to play." and takes every tap. On the play screen the timer stops and the pause menu opens under the message; when the window grows, the player is on the pause menu with nothing lost. [8.1]
 - Points: Beginner 100, Easy 200, Medium 400, Hard 700, Expert 1000. Hint cost: 20, 40, 80, 140, 200. [9, 10]
 - Five levels: Beginner, Easy, Medium, Hard, Expert, all open from the start. [11]
 - Beginner puzzles have at least 36 givens and Easy at least 32, so they look gentler. Givens still never decide the level. No symmetric givens in v1. [11]
@@ -109,6 +111,25 @@ Decision: other cells holding the same digit as the selected cell are highlighte
 Decision: the selected cell shows the current mode, so Place and Cross Out look different on the board itself, not by color alone.
 - Reason: the player watches the board, not the pad. A missed mode switch places a digit where they meant to cross one.
 - Example: the player selects r4c4 in Place mode and switches to Cross Out. The pad toggle and r4c4 itself both change to the Cross Out look.
+
+### 2.4 Window shapes
+
+Bart, Phase 6: split screen is allowed, and the game must lay out well in any window a foldable gives it (Galaxy Z Fold5 cover and inner screens, split screen on either), wide and short windows included. The device stays portrait (AT-65); only the window's shape varies.
+
+- The game picks one of three arrangements from the window's size, by the rule and the numbers in docs/DESIGN_SYSTEM.md section 4.11. Every screen uses the same rule, so the play screen, the lessons and the menus always agree.
+  - **Stacked:** the info zone (header row and band), the board, then the pad, top to bottom. This is the layout of every earlier phase.
+  - **Side by side:** the board at the left; at the right a side column holding the header row, the band and the pad, top to bottom.
+  - **Too small:** a message instead of the game (section 8.1).
+- The game rules do not depend on the arrangement. Every control is there in both, does the same thing and has a touch area of at least 48 by 48 dp. Cells are the one exception, as in DESIGN_SYSTEM 4.4. Nothing overlaps, and no hint text, panel or message ever covers a cell.
+- The 320 by 568 dp promise of Hard Stop 1 still holds: that screen is stacked (AT-66).
+
+Decision: side by side, the header row is mirrored. Pause sits at the end next to the board, the time and score in the middle, and Hint at the far end, away from the board.
+- Reason: Hint must never sit next to the board, where a finger slipping off a cell would buy a hint. That is why Hint moved away from the board in Phase 2. A slip onto Pause only pauses, which costs nothing.
+- Example: Fold5 inner screen, game in the top half of a split screen (690 by 400 dp). The board is 345 dp at the left. The side column is 306 dp wide, 16 dp to the right of the board. Its header row reads, left to right: Pause, the time, the score, Hint. The hint panel, when shown, covers the side column's header row and band, never the board.
+
+Decision: changing the window's shape during play changes only the layout. The digits, the ring, the selection, the mode, a hint on screen, the score and the undo history stay exactly as they were. The change itself never stops or resets the timer; the timer stops only where section 8 says, for example when the game loses focus to the other app in split screen, or when the window becomes too small (8.1).
+- Reason: a fold or a dragged divider is not a player action, so it must not cost anything or change the puzzle.
+- Example: a Hard puzzle at 3:10 on the full inner screen (stacked), r4c4 selected, Cross Out on, a Pointing hint on screen. The player opens a second app and the game becomes the top half (side by side). r4c4 is still selected, Cross Out is still on, and the same hint shows in the side column with the same highlighted candidates. If the second app took focus, the pause menu is showing at 3:10 and the timer waits for Resume (section 8).
 
 ## 3. Input model
 
@@ -339,9 +360,9 @@ Decision: undo history survives closing the app. It is saved with the puzzle in 
 
 - The timer starts at 0:00 when a new puzzle's board first appears. Time spent generating the puzzle is not counted.
 - It runs only while the puzzle screen is showing with nothing over the board. The hint panel and the full board message do not stop it.
-- It pauses while the pause menu is open (including Settings opened from it), while the app is in the background or has lost focus, and while the player is on any other screen (main menu, lessons, stats) with a puzzle in progress.
+- It pauses while the pause menu is open (including Settings opened from it), while the app is in the background or has lost focus, while the window is too small (8.1), and while the player is on any other screen (main menu, lessons, stats) with a puzzle in progress.
 - When the app comes back from the background during a puzzle, the pause menu is showing. The timer resumes when the player taps Resume.
-- Android Back on the puzzle screen opens the pause menu. Back in the pause menu resumes.
+- Android Back on the puzzle screen opens the pause menu. Back in the pause menu resumes, except while the window is too small (8.1).
 - It stops for good at completion.
 - It counts whole seconds, shown as m:ss, or h:mm:ss from one hour. The final time t is the whole seconds at completion.
 - It is saved with the puzzle. After a restart it continues from the saved value. Time while the app is closed never counts.
@@ -349,6 +370,27 @@ Decision: undo history survives closing the app. It is saved with the puzzle in 
 Decision: the pause menu covers the board.
 - Reason: paused time should not be thinking time.
 - Example: at 4:12 the player opens the pause menu, studies nothing because the board is hidden, and resumes at 4:12.
+
+### 8.1 A window that is too small
+
+Decision: when the window is too small for a readable board, the game shows a message instead of squeezing the board. DESIGN_SYSTEM 4.11 gives the exact test: the window's content box is under 264 dp tall, or the largest board it allows, stacked or side by side, is under 240 dp. The message reads exactly:
+
+"This window is too small. Make it bigger to play."
+
+- Reason: a board under 240 dp has candidates too small to read or tap. A short message that says what to do is better than a board nobody can use. The wording is plain, names the problem and the fix, and fits every screen, not only the play screen.
+- Windows that are too small on the Fold5 (DESIGN_SYSTEM 4.11 table): the top or bottom half of the cover screen (344 by 430 dp), the inner screen one third wide (230 by 829 dp), and the inner screen's bottom third (690 by 276 dp).
+
+Rules:
+- The message covers every screen, full screen, and takes every tap. Nothing on it can be tapped, and a tap on it changes nothing underneath and plays no sound.
+- On the play screen, the moment the window becomes too small: the timer stops and the pause menu opens under the message, exactly as when the app loses focus (section 8). The puzzle is saved, as on focus loss.
+- Nothing is lost. Every digit, every ring mark, the selection, the mode, a hint on screen, the score, the undo history and the timer's value stay as they were. On other screens the state underneath stays too: a lesson stays on its step, a dialog stays open with nothing chosen, Settings keeps what was set.
+- When the window grows back to stacked or side by side, the message goes and the screen underneath shows as it was left. On the play screen that is the pause menu (or Settings, if the player had opened it from the pause menu before the window shrank), so the puzzle comes back paused. The timer runs again only when the player taps Resume.
+- A puzzle that is being made when the window becomes too small opens paused, with the timer at 0:00, as when the app loses focus while a puzzle is made. Its level's Started goes up when its board first appears, under the pause menu, as usual (section 13).
+- Android Back while the message shows: in the pause menu it does nothing. Everywhere else it does what it does on the screen underneath.
+- Reason for the Back rule: Back in the pause menu resumes play. Under the message that would start the clock on a board the player cannot see, and the player would come back to a running timer instead of the pause menu.
+- The message and the arrangement are never saved. They come from the window each time the game lays out.
+
+Example: a Medium puzzle at 6:20 on the full cover screen. The player opens split screen with the game in the top half of the cover screen (344 by 430 dp). The message shows and the timer stops at 6:20. The player taps the message three times and presses Back: nothing changes. Two minutes later the player drags the divider down until the game has the whole cover screen again. The message is gone, the pause menu is showing at 6:20, and after Resume the timer runs on from 6:20 with the board exactly as it was.
 
 ## 9. Score
 
@@ -656,7 +698,7 @@ Average example: Easy completions in 300 s with 1 hint (score 160 + 116 = 276) a
 | Lesson progress | Which lessons were finished | When a lesson is finished the first time | Never |
 | First launch | Whether the lesson 1 offer was answered | When answered | Never |
 
-- Not saved: a lesson in progress (it restarts from its first screen) and the full board message.
+- Not saved: a lesson in progress (it restarts from its first screen), the full board message, and the window arrangement and too small message (2.4, 8.1), which come from the window each time.
 - If the app dies without warning, no board change is lost, because each one is saved at once. At most the timer seconds since the last save are lost.
 - If saved data cannot be read or fails validation, that part falls back to its default (for the puzzle: none in progress), the other parts load normally, and the game does not crash.
 
@@ -1015,3 +1057,32 @@ How to read them:
 - Steps (App): start with no Beginner completions (fresh install, or after Reset Stats). Complete a Beginner puzzle using one hint. Complete a second Beginner puzzle faster than the first, using no hints. Complete a third Beginner puzzle more slowly than the second, using one hint.
 - Expected (Core): the labels are, in order: none; none; New best score only; New best time only; both; none. Before the reset the Easy row shows best time 4:00 and best score 333. The completion after the reset gets no label.
 - Expected (App): the first completion screen shows no label. The second shows both "New best time" and "New best score", because it is faster and its score is at least 20 higher (no hint cost, and a time bonus at least as large). The third shows no label. The Beginner stats then show the second puzzle's time and score as the bests.
+
+### Window shapes
+
+These run on a Galaxy Z Fold5, or in the editor with the window set to each size in dp and the stated insets. "Status bar" is a 32 dp inset at the top, "gesture bar" a 24 dp inset at the bottom, "taskbar" a 48 dp inset at the bottom in place of the gesture bar. Measure sizes on a screenshot, converting pixels to dp by the screen density (2.625 on the Fold5).
+
+**AT-70 Window shapes** (App)
+- Steps: run the game in each window below. In each, start or continue a Medium puzzle, select a cell, place a digit, cross a candidate, buy a hint and leave it on screen, then open the pause menu, Settings, the main menu, level select, stats, the lessons list, a lesson, and the "Start a new puzzle?" dialog. Complete a Beginner puzzle in at least one stacked window and one side by side window to see the completion screen. Then, mid puzzle with a hint on screen, change the window from the inner full screen to the inner top half and back.
+
+| Window (dp) | Insets | Expected arrangement |
+| --- | --- | --- |
+| 320 by 568 | status bar, gesture bar | Stacked |
+| Cover, full, 344 by 882 | status bar, gesture bar | Stacked |
+| Cover, top two thirds, 344 by 588 | status bar | Stacked |
+| Inner, full, 690 by 829 | status bar, gesture bar | Stacked |
+| Inner, full, 690 by 829 | status bar, taskbar | Stacked |
+| Inner, left or right half, 345 by 829 | status bar, gesture bar | Stacked |
+| Inner, two thirds wide, 460 by 829 | status bar, gesture bar | Stacked |
+| Inner, top half, 690 by 400 | status bar | Side by side |
+| Inner, bottom half, 690 by 400 | gesture bar | Side by side |
+| Inner, top two thirds, 690 by 553 | status bar | Side by side |
+| 700 by 420 | none | Side by side |
+
+- Expected: each window shows the arrangement in the table, and the board sizes match the table in docs/DESIGN_SYSTEM.md section 4.11 within 1 dp. Stacked: header row and band, board, pad, top to bottom. Side by side: the board at the left, and at the right the header row, the band with the level sticker, and the pad; the header row reads Pause, time, score, Hint from the board outward, so Hint is at the far end and never next to the board. In every window and on every screen: the board's cells are square; every control other than a cell has a touch area of at least 48 by 48 dp; nothing overlaps, is cut off, or sits under an inset; the hint panel never covers a cell; every input works as in a stacked window. Changing the window shape mid puzzle keeps every digit, ring mark, the selection, the mode, the hint on screen with its highlights, the score and the undo history; the timer is not reset, and it stops only if the game lost focus, in which case the pause menu is showing.
+
+**AT-71 Too small window** (App)
+- Steps, part 1: on the inner full screen, start a Medium puzzle, place a digit, cross a candidate, buy a hint and leave it on screen, and play until the timer shows about 1:00. Change the window to the cover screen's top half (344 by 430 dp, status bar). Wait 30 s. Tap the middle of the message, tap where the pad was, and press Back. Grow the window back to the inner full screen. Note the timer, then tap Resume and undo twice.
+- Expected, part 1: the moment the window shrinks, a full screen message reads exactly "This window is too small. Make it bigger to play." and the timer stops. The taps and Back change nothing, play no sound and do not resume. After the window grows, the message is gone and the pause menu is showing, with the same time as when the window shrank. After Resume the board shows the same digit, the same crossed candidate and the same hint, the timer runs on from that time, the score was charged for one hint only, and the two undos reverse the cross and then the placement.
+- Steps, part 2: repeat the shrink and grow with each other too small window: the cover screen's bottom half (344 by 430 dp, gesture bar), the inner screen one third wide (230 by 829 dp, status bar and gesture bar) and the inner screen's bottom third (690 by 276 dp, gesture bar). Do it once on the main menu, once in a lesson in the middle of a step, once with the "Start a new puzzle?" dialog open, and once while a Hard puzzle is being made.
+- Expected, part 2: each of those windows shows the message, and every tap on it does nothing. When the window grows, the main menu, the lesson on the same step, and the dialog with nothing chosen are back exactly as left. The Hard puzzle opens behind the pause menu with the timer at 0:00, and the timer starts only after Resume.

@@ -670,7 +670,9 @@ Auto Cross has one source of truth: `settings.auto_cross`. On resume and wheneve
 
 New puzzle (GDD 15.2): with a puzzle in progress, Start new in the confirm dialog calls `abandon_puzzle()` and then `start_new_puzzle(level)`. Keep playing changes nothing.
 
-Android lifecycle in `App._notification`: on `NOTIFICATION_APPLICATION_PAUSED`, `NOTIFICATION_APPLICATION_FOCUS_OUT` and `NOTIFICATION_WM_CLOSE_REQUEST`, save everything and open the pause menu if a puzzle is showing. On `NOTIFICATION_WM_GO_BACK_REQUEST`, go back one screen; on the play screen Back opens the pause menu, and in the pause menu Back resumes (GDD 8). project.godot sets `application/config/quit_on_go_back=false`.
+Android lifecycle in `App._notification`: on `NOTIFICATION_APPLICATION_PAUSED`, `NOTIFICATION_APPLICATION_FOCUS_OUT` and `NOTIFICATION_WM_CLOSE_REQUEST`, save everything and open the pause menu if a puzzle is showing. On `NOTIFICATION_WM_GO_BACK_REQUEST`, go back one screen; on the play screen Back opens the pause menu, and in the pause menu Back resumes (GDD 8).
+
+Window shapes (GDD 2.4 and 8.1, DESIGN_SYSTEM.md 4.11). App re-checks `Layout.arrangement` on every `size_changed`. Entering TOO_SMALL shows the too small layer above every screen, and on the play screen opens the pause menu (timer stops) and calls `save_session()`. While the layer shows, Back in the pause menu does nothing; elsewhere Back does what the screen underneath does. A puzzle that finishes generating while too small opens paused. Leaving TOO_SMALL removes the layer and shows the screen underneath as it was left. project.godot sets `application/config/quit_on_go_back=false`.
 
 The first launch answer is stored in `settings.json` (`Settings.first_launch_answered`). If that file is unreadable the lesson 1 offer shows once more, which is harmless.
 
