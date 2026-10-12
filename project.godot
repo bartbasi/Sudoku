@@ -13,6 +13,13 @@ config_version=5
 config/name="Sudoku"
 run/main_scene="res://scenes/ui/main.tscn"
 config/features=PackedStringArray("4.7", "GL Compatibility")
+config/quit_on_go_back=false
+
+[autoload]
+
+Skins="*res://src/skins/skin_service.gd"
+Audio="*res://src/audio/audio_service.gd"
+App="*res://src/ui/app.gd"
 
 [debug]
 
