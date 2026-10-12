@@ -150,10 +150,28 @@ static func safe_rect_local(node: Control) -> Rect2:
 	var viewport: Viewport = node.get_viewport()
 	if viewport == null:
 		return Rect2(Vector2.ZERO, node.size)
-	var safe: Rect2 = ScreenMetrics.safe_rect(viewport)
-	var origin: Vector2 = node.get_global_rect().position
-	var local: Rect2 = Rect2(safe.position - origin, safe.size)
-	return local.intersection(Rect2(Vector2.ZERO, node.size)) if node.size != Vector2.ZERO else local
+	return safe_rect_in(ScreenMetrics.safe_rect(viewport), node.get_global_rect().position, screen_slide(node), node.size)
+
+
+## The math behind safe_rect_local: safe (viewport coordinates) seen from a
+## node of node_size whose top left is at global_origin while its screen is
+## slid by slide, measured from the screen's resting place.
+static func safe_rect_in(safe: Rect2, global_origin: Vector2, slide: Vector2, node_size: Vector2) -> Rect2:
+	var local: Rect2 = Rect2(safe.position - (global_origin - slide), safe.size)
+	return local.intersection(Rect2(Vector2.ZERO, node_size)) if node_size != Vector2.ZERO else local
+
+
+## How far the screen holding node is moved from its resting place right
+## now (App slides each new screen in from the right). Screens are full rect,
+## so at rest this is zero. Layout measures from the resting place, so the
+## column does not lose the slide's width on the right.
+static func screen_slide(node: Node) -> Vector2:
+	var at: Node = node
+	while at != null:
+		if at is UiScreen:
+			return (at as UiScreen).position
+		at = at.get_parent()
+	return Vector2.ZERO
 
 
 ## The skin in use for a node inside a screen: its UiScreen's skin, or Pop

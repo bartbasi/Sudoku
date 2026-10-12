@@ -24,9 +24,13 @@ static func density() -> float:
 static func apply_dp_scale(window: Window) -> void:
 	if window == null:
 		return
-	var d: float = density()
-	var px: Vector2i = window.size
-	window.content_scale_size = Vector2i(maxi(1, roundi(float(px.x) / d)), maxi(1, roundi(float(px.y) / d)))
+	window.content_scale_size = dp_size(window.size, density())
+
+
+## A size in device pixels as whole dp, at least 1 by 1.
+static func dp_size(px: Vector2i, px_per_dp: float) -> Vector2i:
+	var d: float = px_per_dp if px_per_dp > 0.0 else 1.0
+	return Vector2i(maxi(1, roundi(float(px.x) / d)), maxi(1, roundi(float(px.y) / d)))
 
 
 ## The device safe area (clear of notches, cutouts, the status bar and the
@@ -43,8 +47,18 @@ static func safe_rect(viewport: Viewport) -> Rect2:
 		return visible
 	var window: Window = viewport as Window
 	var origin: Vector2i = window.position if window != null else Vector2i.ZERO
-	var local_px: Rect2 = Rect2(Vector2(safe_px.position - origin), Vector2(safe_px.size))
-	var units: Rect2 = viewport.get_final_transform().affine_inverse() * local_px
+	return safe_rect_from(safe_px, origin, viewport.get_final_transform(), visible)
+
+
+## The conversion behind safe_rect: safe_px (screen pixels) moved to the
+## window at window_origin, mapped to units by the inverse of final (the
+## viewport's final transform, units to pixels) and clipped to visible.
+## visible when the result has no area.
+static func safe_rect_from(safe_px: Rect2i, window_origin: Vector2i, final: Transform2D, visible: Rect2) -> Rect2:
+	if safe_px.size.x <= 0 or safe_px.size.y <= 0:
+		return visible
+	var local_px: Rect2 = Rect2(Vector2(safe_px.position - window_origin), Vector2(safe_px.size))
+	var units: Rect2 = final.affine_inverse() * local_px
 	var clipped: Rect2 = units.intersection(visible)
 	return clipped if clipped.has_area() else visible
 

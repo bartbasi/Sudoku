@@ -355,6 +355,16 @@ func _apply_skin() -> void:
 		box.add_theme_constant_override(&"separation", roundi(current.space_s))
 
 
+## The viewport's safe rect in a screen's own coordinates, measured from
+## where the screen comes to rest. App slides a new screen in from x = 24, and
+## layout runs in that first frame, so global_origin still holds the slide;
+## subtracting position (the slide) keeps the full width. Static so the tests
+## can check it without a scene tree.
+static func resting_safe_rect(safe: Rect2, global_origin: Vector2, at: Vector2, own_size: Vector2) -> Rect2:
+	var local: Rect2 = Rect2(safe.position - (global_origin - at), safe.size)
+	return local.intersection(Rect2(Vector2.ZERO, own_size))
+
+
 func _safe_rect() -> Rect2:
 	if safe_rect_override.has_area():
 		return safe_rect_override
@@ -362,8 +372,7 @@ func _safe_rect() -> Rect2:
 	if viewport == null:
 		return Rect2(Vector2.ZERO, size)
 	var safe: Rect2 = ScreenMetrics.safe_rect(viewport)
-	var local: Rect2 = Rect2(safe.position - get_global_rect().position, safe.size)
-	return local.intersection(Rect2(Vector2.ZERO, size))
+	return resting_safe_rect(safe, get_global_rect().position, position, size)
 
 
 func _layout() -> void:

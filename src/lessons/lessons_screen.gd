@@ -219,8 +219,7 @@ func _safe_rect() -> Rect2:
 	if viewport == null:
 		return Rect2(Vector2.ZERO, size)
 	var safe: Rect2 = ScreenMetrics.safe_rect(viewport)
-	var local: Rect2 = Rect2(safe.position - get_global_rect().position, safe.size)
-	return local.intersection(Rect2(Vector2.ZERO, size))
+	return LessonPlayer.resting_safe_rect(safe, get_global_rect().position, position, size)
 
 
 ## Title row (HEADER_ROW) at the top of the safe area inset by page_margin,

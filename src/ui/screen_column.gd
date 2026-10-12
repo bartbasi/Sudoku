@@ -26,8 +26,12 @@ func _notification(what: int) -> void:
 
 ## The column in this control's own coordinates.
 func column_rect() -> Rect2:
-	var safe: Rect2 = UiKit.safe_rect_local(self)
-	var inner: Rect2 = safe.grow(-margin)
+	return column_in(UiKit.safe_rect_local(self), margin)
+
+
+## The column inside safe (local coordinates) with the given page margin.
+static func column_in(safe: Rect2, page_margin: float) -> Rect2:
+	var inner: Rect2 = safe.grow(-page_margin)
 	var width: float = minf(inner.size.x, Layout.COLUMN_MAX)
 	inner.position.x += (inner.size.x - width) * 0.5
 	inner.size.x = width
