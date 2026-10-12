@@ -1,6 +1,6 @@
 # Sudoku: Design System
 
-Owner: senior-graphic-designer. Status: Phase 2, 2026-10-11; Phase 3 addition 2026-10-12, the hint cross chip (Bart, Hard Stop 2; sections 1, 2.7 to 2.9); 2026-10-12, the SUDOKU wordmark and the icon placeholder (sections 7.1, 7.2 and 9); 2026-10-12, the final app icon, Ring, made bolder (sections 7.1 and 9); 2026-10-12, number pad labels fit their faces down to 320 by 568 dp (sections 3.2, 3.5, 4.6, 5 and 10); 2026-10-12, Phase 4: the header row, Continue and the hint panel fit their design, the making a puzzle wait, the lesson card's wrong tap tag and height, and which sizes are Layout constants (sections 1, 3.2, 3.6, 4.6, 4.8, 5, 6, 7 and 10). This is the contract the artists and developers build Phase 3 from. If something you need is missing or would force a guess, ask the senior-graphic-designer through the Development Manager; do not invent a value locally.
+Owner: senior-graphic-designer. Status: Phase 2, 2026-10-11; Phase 3 addition 2026-10-12, the hint cross chip (Bart, Hard Stop 2; sections 1, 2.7 to 2.9); 2026-10-12, the SUDOKU wordmark and the icon placeholder (sections 7.1, 7.2 and 9); 2026-10-12, the final app icon, Ring, made bolder (sections 7.1 and 9); 2026-10-12, number pad labels fit their faces down to 320 by 568 dp (sections 3.2, 3.5, 4.6, 5 and 10); 2026-10-12, Phase 4: the header row, Continue and the hint panel fit their design, the making a puzzle wait, the lesson card's wrong tap tag and height, and which sizes are Layout constants (sections 1, 3.2, 3.6, 4.6, 4.8, 5, 6, 7 and 10); 2026-10-12, Phase 6: window shapes for foldables and split screen, side by side and too small (sections 4.7, 4.8, 4.9, 4.11, 7.6 and 10). This is the contract the artists and developers build Phase 3 from. If something you need is missing or would force a guess, ask the senior-graphic-designer through the Development Manager; do not invent a value locally.
 
 Bart's Hard Stop 1 decisions behind it: direction Pop, with the Phase 2 fixes from [design/ranking.md](design/ranking.md); v1 ships two skins, Pop light (the default) and Pop dark; candidate ring layout A, reading rows; Godot's built-in font, no font files; a digit crossed by hand is drawn on top of its X with a thin outline; the game fits and works at 320 by 568 dp and readability is judged at 360 dp wide; an app icon whose background follows Pop's palette; "New best time" and "New best score" on the completion screen. The game is called Sudoku for now, a placeholder name Bart may change. The app icon is Ring (section 9).
 
@@ -531,7 +531,7 @@ Top to bottom inside the safe area, inset by `page_margin`, in a column `min(wid
 3. **Gap.**
 4. **Controls:** three rows of keys.
 
-PlayArea receives the safe rect below the header row and lays out items 1 (the band) to 4. How the height is shared:
+This is the stacked arrangement. Wide and short windows put the pad beside the board instead, and very small windows show a message; section 4.11 says when. From Phase 6 PlayArea receives the whole safe rect, reserves the header row at the top of its column (the play screen sets its height to `HEADER_ROW`, the lesson player to 0) and lays out items 1 to 4; the numbers below do not change. How the height is shared:
 
 1. Start from the minimums: band `BAND_MIN`, gap `BOARD_GAP_MIN`, keys `KEY_MIN`.
 2. The board takes the rest, up to the column width minus its outer line and shadow. On tall screens it is width-bound; on short ones the height limits it.
@@ -547,7 +547,7 @@ The same stack, with no header row: the lesson card sits in PlayArea's band, and
 
 **Height: the card reserves room for its tallest text** (Phase 4 decision, approving lessons-dev's approach). The card is as tall as the tallest of: the step text, and each wrong tap text of the same screen with the NOT QUITE tag above it. So the board never moves when a wrong tap shows or goes. The text sits at the top of its room; when a shorter text shows, the room under it stays empty card. That empty space is the price of a board that never jumps, and a still board matters more (readability first). Two limits keep it small: the room is per screen, never per lesson, and only that screen's wrong tap texts count. If a screen leaves more than about two empty lines under its step text, the fix is shorter wrong tap text (lesson-designer), not a moving board.
 
-On short screens, in this order:
+Side by side (4.11) the card sits in the side column, with a simpler rule; see 4.11. Stacked, on short screens, in this order:
 
 1. The text steps down from 14 to 13 to 12 dp (`BODY`, then `BODY_SMALL`, then `BODY_SMALL_12`; section 3.2) while the board would be under 80 percent of its width-bound size.
 2. The title line hides when the board would be under `LESSON_TITLE_MIN_BOARD`. The lesson sticker still says which lesson it is.
@@ -560,6 +560,7 @@ On short screens, in this order:
 - Dialogs: centered, at most 328 dp wide and at least 16 dp from the safe area's sides, over the scrim.
 - Full screen overlays (the pause menu, the first launch offer) fill the screen in `page_bg` and center their content in the safe area.
 - The same `COLUMN_MAX` and centering apply on tablets.
+- In wide and short windows the main menu, the first launch offer, the pause menu and the completion screen split into two halves; lists and dialogs do not change (4.11).
 
 ### 4.10 Sizes on the screens we design for
 
@@ -574,6 +575,121 @@ From `check_samples.gd`, with insets for a notch (24 to 32 dp) and a gesture bar
 | 1024 by 1366 tablet | 593 (width-bound) | 65.9 | 22.0 dp | 160 | 133 by 64 | 160 |
 
 Lesson screen boards: 220 dp at 320 by 568 (12 dp text, no title line, the text scrolls), 277 dp at 360 by 640, and the full width-bound board from 360 by 800 up.
+
+### 4.11 Window shapes: foldables and split screen
+
+Bart, Phase 6: split screen is allowed, and the game must lay out well in any window a foldable gives it (Galaxy Z Fold5 cover and inner screens, split screen on either), including wide and short windows. The device stays portrait; the window shape varies. Two arrangements cover every shape, and below a floor the game says the window is too small.
+
+**The content box.** Every rule here starts from the content box: the window's safe area (4.5) inset by `page_margin` on every side. W and H are its width and height in dp. Every screen gets the arrangement from one shared function (below), so the play screen, the lesson player and the menus always agree.
+
+**The two arrangements.**
+
+- **Stacked** (4.7, 4.8, unchanged): info zone, board, gap, pad, top to bottom, in a column `min(W, COLUMN_MAX)` wide.
+- **Side by side**: the board at the left, as large as H allows; then `SIDE_GAP`; then the **side column**, `COLUMN_MIN` to `SIDE_MAX` wide, holding top to bottom the header row, the band (together the info zone, as on the stacked screen) and the pad. The board's top and the side column's top line up, and the pad's bottom lines up with the board's bottom whenever the side column is full.
+
+```
+┌───────────────────────────────────────────────────────────────┐
+│ ┌───────────────────────────┐  [II] [TIME][SCORE]    [HINT ]  │ header row 48, mirrored:
+│ │                           │                                 │ Hint at the far end from the board
+│ │                           │  (MEDIUM)                       │ band: level sticker; the hint panel
+│ │        board 345          │                                 │ covers header row and band
+│ │                           │  [1][2][3]   20   [ PLACE     ] │
+│ │                           │  [4][5][6]        [ CROSS OUT ] │ the same pad, side column width
+│ │                           │  [7][8][9]        [UNDO][ERASE] │
+│ └───────────────────────────┘                                 │
+└───────────────────────────────────────────────────────────────┘
+  board 345 + 7          16          side column 306           (inner top half, 690 by 400)
+```
+
+**Which one.** Work out the play board both ways and take the larger; stacked on a tie:
+
+- Stacked board: `Bs = min(min(W, COLUMN_MAX) - 7, H - 251)`, or 0 when `W < COLUMN_MIN`. 7 is the outer line (3) plus the shadow (4); 251 is the header row 48, `BAND_MIN` 48, the 7, `BOARD_GAP_MIN` 12 and the pad at its minimum, 3 keys of 40 and 2 gaps of 8, 136.
+- Side by side board: `Bw = min(H - 7, W - 7 - SIDE_GAP - COLUMN_MIN, COLUMN_MAX - 7)`, that is `min(H - 7, W - 327, 593)`, or 0 when H is under the side column's minimum, 48 + 48 + 136 = 232.
+- **Side by side when `Bw > Bs`**, otherwise stacked.
+- **Too small** when `H < CONTENT_MIN_H` or `max(Bs, Bw) < BOARD_MIN`.
+
+The breakpoints, in content box dp:
+
+- Stacked works from 304 wide and 491 tall: a window of 320 by 507 plus its insets. 320 by 568 with a 32 dp status bar and a 24 dp gesture bar is inside that (H 496, board 245), so the Hard Stop 1 promise holds.
+- Side by side works from 567 wide and 264 tall: a window of 583 by 280 plus its insets, board 240.
+- Between them, side by side wins whenever `min(H - 7, W - 327) > min(min(W, 600) - 7, H - 251)`. Roughly: once the window is wider than about its height plus 76 dp, and H is under about 600.
+- No hysteresis: Android split screen snaps to fixed ratios, so the shape does not wobble around a breakpoint.
+
+**New Layout constants.** ui-motion-artist adds them to `Layout`. When that lands, these rows move into the first table of 4.6 and `tests/design/test_layout.gd` counts 27 constants instead of 22, in the same integration step, so the test never sees one without the other.
+
+| Constant | Value | What it is |
+| --- | --- | --- |
+| `COLUMN_MIN` | 304 | Narrowest column that holds the header row and the pad, stacked or beside the board. It is the 320 dp screen's column, where both are proven to fit (3.5; 3.6: the header row needs 301) |
+| `SIDE_MAX` | 360 | Widest side column. Wider windows center the board and the side column as a group |
+| `SIDE_GAP` | 16 | From the board's outer line and shadow to the side column |
+| `BOARD_MIN` | 240 | Smallest play board in either arrangement. Under it the window is too small |
+| `CONTENT_MIN_H` | 264 | Shortest content box in any arrangement: the main menu's button stack (4 rows of 56, 3 gaps of 12, the 4 dp shadow) |
+
+`LESSON_BOARD_FLOOR` (220) stays for the stacked lesson screen, under `BOARD_MIN` on purpose: a window that can play can always show a lesson, because the lesson card can scroll.
+
+**The shared function.** `Layout.arrangement(content: Vector2, skin: GameSkin) -> int` returns `Layout.Arrangement.STACKED`, `SIDE` or `TOO_SMALL` by the rule above, with `Layout.stacked_board(content, skin)` and `Layout.side_board(content, skin)` beside it (the skin gives the outer line, the shadow and `space_s`). `tools/design/layout_model.gd` holds the reference version of all three; the code must give the same answers on every window in the table below.
+
+#### The play screen, side by side
+
+- PlayArea lays out everything from the whole safe rect: the board at the left, the side column at the right, the two centered as a group when the content box is wider than they need. When the board's width limits it, the board is centered vertically in H.
+- The side column's height is shared like the stacked one, with no board in it: start from the header row 48, `BAND_MIN` and the pad at `KEY_MIN`; the keys grow first, to `KEY_MAX`; then the band, to `BAND_MAX`; anything left is split above and below the side column.
+- **Header row, mirrored:** Pause at the left, next to the board; time and score centered; Hint at the right end. Hint must never sit next to the board, where a slip from a cell would buy a hint (the reason Hint moved in Phase 2). Next to the board, Pause is harmless: a slip there only pauses. Faces, guards and sizes are those of 7.5.
+- **Band:** the level sticker, `space_s` above the pad's left end, as it sits above the board when stacked.
+- **Hint panel and full board message:** they cover the side column's info zone (header row and band, down to `space_s` above the pad): the 7.6 rule in a different place. They never cover a cell. The panel is the side column's width, and its text steps down by the 7.6 rule (`ui_fit.gd` measures every hint text on every window below; side by side the longest need 12 dp, as at 320 by 568).
+- **Pad:** NumberPad does not change; it lays out in the side column's width with the 4.7 widths.
+- Touch areas stay at least 48 by 48. The pad is never narrower than at 320 by 568.
+
+#### The lesson player, side by side
+
+- The board sits at the left like the play board. The side column holds the lesson card (there is no header row) and the pad.
+- The card takes the height its text needs (4.8: the tallest of the step text and the wrong tap texts), up to H minus the pad at its minimum (136). If it does not fit, in this order: the text steps from 14 to 13 to 12 dp; the title line hides; the text scrolls in the card (4.8). The board does not change with the card, so the stacked rule "while the board is under 80 percent" does not apply here.
+- The keys grow from what the card leaves. The praise card and NEXT cover the pad as on the stacked screen (7.13), growing upward over the lesson card when needed. The pulsing ring around a marked control follows the control.
+
+#### Menus, lists, dialogs and overlays
+
+Every screen reads the same arrangement. Stacked, every screen is as in section 7. Side by side:
+
+- **Main menu and first launch offer:** two halves of the column `min(W, COLUMN_MAX)`, `space_xl` apart. Left: the wordmark at the top and the hero under it, filling the height left (64 to 200, 7.1). Right: the buttons (on the first launch offer, the card and its two buttons), centered vertically. At the inner top half the halves are 288 wide; the left has 352 - 66 - 48 = 238 for the hero, so it is 200; the buttons take 264 of 352.
+- **Pause menu:** two halves the same way. Left: PAUSED, the level sticker and the paused time (about 118). Right: RESUME, SETTINGS and MENU (196), centered.
+- **Completion:** two halves. Left: the starburst with SOLVED! and the level sticker, shrinking to the height. Right: the receipt, then PLAY AGAIN and MENU pinned at the bottom. When the receipt with both NEW BEST labels does not fit above the buttons, the receipt scrolls; the buttons never move.
+- **Lists** (level select, stats, settings, lessons list): no change. One column `min(W, COLUMN_MAX)` wide, the title row fixed, the list scrolls (all four already scroll).
+- **Dialogs** (7.4, the Reset dialog of 7.11, the making a puzzle card of 7.14): no change in either arrangement; centered, at most 328 wide. A dialog card is never taller than the content box: if it would be, its text scrolls and its buttons stay in view. At the smallest supported height, 264, the tallest one (7.4: three lines of text and two 48 dp buttons) needs about 215.
+
+#### Smaller than that: the too small message
+
+When the window is too small, the game does not squeeze the board. At 344 by 430 the best board would be 131 dp, with cells of 14.6 dp and candidates under 4 dp: nobody can read that. Instead:
+
+- A full screen layer over every screen, in `PAGE` (`page_bg`), takes every tap. Centered in the safe area: the hero (the app icon foreground) in a 64 dp box when the content box is at least 160 tall, hidden below that; under it, in `BODY`, centered and wrapped: "This window is too small. Make it bigger to play." (the lead-game-designer owns the exact words in the GDD). Nothing on it is tappable. Its colors are a pair the checker already holds (`text` on `page_bg`).
+- On the play screen the timer stops at once and the pause menu opens under the layer, exactly as when the app loses focus (GDD 8). When the window grows back, the layer goes and the player is on the pause menu. A puzzle that is being made when the window shrinks opens paused, as for focus loss (Phase 6 fix).
+- Android Back does what it does on the screen underneath.
+- Layout underneath still runs, clamped so no size goes below zero; the layer covers it.
+
+#### The windows, with the arithmetic
+
+Fold5 density is 2.625 (the cover is 904 by 2316 px, the inner screen 1812 by 2176 px). A window gets the 32 dp status bar inset only when it touches the top of the screen, and the 24 dp gesture bar inset only when it touches the bottom; the taskbar row assumes 48 at the bottom of the inner screen. W = width - 16; H = height - insets - 16. Candidates in dp at 2.625. Numbers from `check_samples.gd`.
+
+| Window | W by H | Bs (stacked) | Bw (side by side) | Result | Board, cell, candidates | Column, keys, info zone |
+| --- | --- | --- | --- | --- | --- | --- |
+| Cover, 344 by 882 | 328 by 810 | min(321, 810 - 251 = 559) = **321** | min(803, 328 - 327 = 1) = 1 | Stacked | 321 width-bound, 35.7, 11.0 dp | column 328; keys 57 by 64; info zone 160, gap 40, 37 spare above and below |
+| Inner, 690 by 829 | 674 by 757 | min(600 - 7 = 593, 757 - 251 = 506) = **506** | min(750, 674 - 327 = 347) = 347 | Stacked | 506 height-bound, 56.2, 18.7 dp | column 600; keys 133 by 40; info zone 96 |
+| Inner, taskbar shown | 674 by 733 | **482** | 347 | Stacked | 482, 53.6, 17.5 dp | as above |
+| Inner left or right half, 345 by 829 | 329 by 757 | min(322, 506) = **322** | min(750, 2) = 2 | Stacked | 322 width-bound, 35.8, 11.0 dp | column 329; keys 58 by 64; info zone 152 |
+| Inner top half, 690 by 400 (status bar) | 674 by 352 | min(593, 352 - 251 = 101) = 101 | min(345, 347) = **345** | Side by side | 345 height-bound, 38.3, 11.8 dp | side column 674 - 352 - 16 = 306; keys 50 by 64; info zone 144 (hint panel 136) |
+| Inner bottom half, 690 by 400 (gesture bar) | 674 by 360 | 109 | min(353, 347) = **347** | Side by side | 347 width-bound, 38.6, 12.2 dp | side column 304; keys 49 by 64; info zone 152; board centered, 3 above and below |
+| Cover top half, 344 by 430 | 328 by 382 | 131 | 1 | **Too small** | | message |
+| Cover bottom half, 344 by 430 | 328 by 390 | 139 | 1 | **Too small** | | message |
+| Inner two thirds wide, 460 by 829 | 444 by 757 | **437** | 117 | Stacked | 437, 48.6, 15.6 dp | |
+| Inner one third wide, 230 by 829 | 214 by 757 | 0 (under 304 wide) | 0 | **Too small** | | message |
+| Inner top two thirds, 690 by 553 | 674 by 505 | 254 | **347** | Side by side | 347 width-bound, 38.6, 12.2 dp | side column 304; info zone 160 |
+| Inner bottom third, 690 by 276 | 674 by 236 | 0 | 229 | **Too small** (H under 264) | | message |
+| Cover top two thirds, 344 by 588 | 328 by 540 | **289** | 1 | Stacked | 289 height-bound, 32.1, 9.5 dp | |
+| QA L6 window, 700 by 420, no insets | 684 by 404 | 153 | **357** | Side by side | 357, 39.7, 12.6 dp | the board there is about 160 today (QA L6) |
+
+The lesson screen on the same windows: the cover and the inner halves keep the full board, 14 dp text and the title; the full inner screen gets a 448 dp board with 12 dp text (424 with the taskbar); the inner top half, side by side, a 345 dp board with 13 dp text and the title; the cover top two thirds a 224 dp board, 12 dp text, no title line, all text showing.
+
+**Readability.** The judgment stays at 360 dp wide (3.4) and does not move. On the windows Bart uses: 11.0 dp candidates on the cover screen and on an inner half (exactly the 11 dp floor, at 344 and 345 dp wide), 11.8 to 12.6 dp side by side on the inner screen, and 18.7 dp on the full inner screen. The smallest supported boards (240 dp, about 7.6 dp candidates) are like 320 by 568: they fit and work, and are not judged.
+
+Picture: [design/window-shapes.png](design/window-shapes.png), drawn by `tools/design/window_fit.gd` from the model. The faces are drawn at their real sizes; digits and labels are left out.
 
 ## 5. Theme styles
 
@@ -801,6 +917,7 @@ When the puzzle completes, the board locks and the completion screen follows (6,
 - Top row: the technique name in a `HINT_TAG`, then the lesson title in caption style when the GDD gives one ("LESSON: HIDDEN SINGLE"), cut with an ellipsis when it is too long. The row is as tall as the tag, 18 dp.
 - Then the hint text in `BODY_SMALL`, three lines at most. Before it would need a fourth line, or would make the panel taller than the info zone, it steps down to `BODY_SMALL_12` and then `BODY_SMALL_11`, by changing the label's `theme_type_variation` (3.2). The rule: use the first of the three at which the text wraps to three lines or fewer at the column's width and the panel fits the info zone.
 - Height at the smallest info zone, 88 dp (320 by 568 and 360 by 640): outline and padding (2 + 4) x 2 = 12, the top row 18, the gap 4, and three lines of 13 dp text 52, 86 in all. At 320 by 568 the longest texts need `BODY_SMALL_12` (three lines, 83 dp); everywhere else every hint text the game writes fits at 13 dp. `ui_fit.gd` checks every hint text template on all five screens. The 11 dp step is kept for safety; no text needs it today.
+- Side by side (4.11) the info zone is at the top of the side column, so the panel is the side column's width (304 to 360) and sits beside the board, never over it.
 - While it shows, the Hint button is covered (it is disabled anyway, GDD 10.2), as are the time, score and Pause. The timer keeps running; Android Back still opens the pause menu.
 - The board marks the targets and reasons (2.7) for as long as the panel shows. Motion: `PANEL_IN`, `MARK_POP`, `PANEL_OUT`.
 
@@ -1034,11 +1151,14 @@ timeout 300 godot --headless --path . --script res://tools/design/check_samples.
 timeout 300 godot --headless --path . --script res://tools/design/pad_fit.gd
 timeout 300 godot --headless --path . --script res://tools/design/ui_fit.gd
 timeout 300 godot --path . --script res://tools/design/mark_study.gd
+timeout 300 godot --path . --script res://tools/design/window_fit.gd
 ```
 
 - `write_skins.gd`: writes `src/skins/pop_light.tres` and `pop_dark.tres` from the two tables in section 1 (every property, in table order, in Godot's own text format), keeping each file's uid. It refuses to write if the tables and GameSkin disagree.
 - `check_contrast.gd`, part 1, on the two skin files loaded as GameSkin: every file sets every property, and every final skin pair (digits and text 4.5:1; open candidates 4.5:1 on every fill a ring can have; the hand X, the Auto Cross slash and crossed digits 3:1; frame, marks, lines, outlines and chart marks 3:1; disabled text 3:1; the slash 1.5:1 on its own digit), the marks that must differ in color, the sizes on the judged screen at densities 2, 2.625 and 3 (the candidate floor, stroke and line weights, the box to cell line ratio, the ring clear of the frame and marks), and that both tables in section 1 match the files. Part 2 keeps the Phase 1 record for all three directions. Exits 1 on any failure.
-- `check_samples.gd`: the Phase 1 sample content, and the layout rules of section 4 on the five screens of 4.10, with the touch targets and the candidate floor.
+- `check_samples.gd`: the Phase 1 sample content, and the layout rules of section 4 on the five screens of 4.10, with the touch targets and the candidate floor; since Phase 6 also the windows of 4.11, each of which must pick its pinned arrangement (stacked, side by side or too small) and, when supported, fit with 48 dp touch targets, a board of at least `BOARD_MIN`, the main menu and the pause menu.
 - `pad_fit.gd`: builds the number pad's buttons with the real Theme on the five screens of 4.10 and checks that every label fits its face, raised and sunk (3.5). By default it lays the spec of 3.5 over the Theme in memory; `-- current` checks the Theme as it is. With a window, `-- render` writes docs/design/pad-fit.png (`-- render current` writes pad-fit-current.png).
 - `ui_fit.gd`: builds the play screen's header row (the real PlayHud), the main menu's Continue button and the hint panel with the real Theme on the five screens of 4.10, with the widest time (9:59:59), score (1000), Hint cost and every hint text the game writes, and checks that they fit their design (3.6, 7.1, 7.5, 7.6). By default it lays the spec of 3.6 over the Theme in memory; `-- current` checks the Theme and screen code as they are. With a window, `-- render` writes docs/design/ui-fit.png (`-- render current` writes ui-fit-current.png).
 - `mark_study.gd`: writes the two studies quoted above to docs/design/. It needs a window.
+- `window_fit.gd`: draws the play screen's wireframe on the windows of 4.11 into docs/design/window-shapes.png. It needs a window.
+- `pad_fit.gd` and `ui_fit.gd` also measure the pad, the header row, Continue (at the main menu's half width when side by side) and every hint text on each window of 4.11 the game supports.

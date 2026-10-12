@@ -1,6 +1,7 @@
 extends SceneTree
 ## Proves that every number pad label fits its face (DESIGN_SYSTEM.md 3.5 and
-## 4.7) on the five screens of section 4.10, with the real Theme from
+## 4.7) on the five screens of section 4.10 and the foldable windows of
+## section 4.11 the game supports, with the real Theme from
 ## ThemeFactory and the face sizes from layout_model.gd.
 ##
 ## For each screen it builds the pad's buttons the way NumberPad does (digit
@@ -87,6 +88,10 @@ func _initialize() -> void:
 		y += 20.0
 		_add_pad(page, screen.label, layout, skin, Vector2(8.0, y))
 		y += 3.0 * layout.key_h + 2.0 * skin.space_s + 16.0
+	# Since Phase 6 also the foldable windows of section 4.11 the game
+	# supports, measured off the render.
+	for screen: LayoutModel.Screen in LayoutModel.supported_windows(skin):
+		_add_pad(page, screen.label, LayoutModel.play(screen, skin), skin, Vector2(8.0, height + 100.0))
 
 
 ## NumberPad's own Undo and Erase flag, read from a pad built by the game code.

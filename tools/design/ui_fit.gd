@@ -2,7 +2,8 @@ extends SceneTree
 ## Proves that the play screen's header row, the main menu's Continue button
 ## and the hint panel fit their design (DESIGN_SYSTEM.md 3.6, 7.1, 7.5 and
 ## 7.6) with the real Theme from ThemeFactory and the real screen code where
-## it exists (PlayHud, HintPanel, UiKit), on the five screens of section 4.10.
+## it exists (PlayHud, HintPanel, UiKit), on the five screens of section 4.10
+## and the foldable windows of section 4.11 the game supports.
 ##
 ##   timeout 300 godot --headless --path . --script res://tools/design/ui_fit.gd
 ##       checks the spec of section 3.6, laid over the real Theme in memory
@@ -136,12 +137,17 @@ func _initialize() -> void:
 		y += layout.hint_panel + 16.0
 
 	# Every screen and every text, off the render, for the measurements.
+	# Since Phase 6 also the foldable windows of section 4.11 the game
+	# supports: side by side, the header row and the hint panel sit in the
+	# side column (content_w) and Continue in the main menu's right half (menu_w).
 	var far: float = height + 100.0
-	for screen: LayoutModel.Screen in screens:
+	var measured: Array[LayoutModel.Screen] = screens.duplicate()
+	measured.append_array(LayoutModel.supported_windows(_skin))
+	for screen: LayoutModel.Screen in measured:
 		var layout: LayoutModel.StackLayout = LayoutModel.play(screen, _skin)
 		if not shown.has(screen):
 			_add_hud(screen.label, layout.content_w, Vector2(8.0, far))
-			_add_continue(screen.label, layout.content_w, Vector2(8.0, far + 60.0))
+			_add_continue(screen.label, layout.menu_w, Vector2(8.0, far + 60.0))
 		for i: int in HINT_TEXTS.size():
 			for step: StringName in _steps:
 				var p: PanelContainer = _add_panel(layout.content_w, Vector2(8.0, far + 140.0), HINT_TEXTS[i], step)

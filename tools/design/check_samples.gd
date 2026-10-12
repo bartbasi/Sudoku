@@ -433,6 +433,45 @@ func _check_final_layout() -> void:
 			if screen.judged and kind == "play":
 				_expect(layout.board_width_bound, "%s: the board must be width-bound on the judged screen" % screen.label)
 				_expect(minf(dp2, dp3) >= CANDIDATE_FLOOR_DP, "%s: candidates %.2f dp, below the %.1f dp floor" % [screen.label, minf(dp2, dp3), CANDIDATE_FLOOR_DP])
+			_expect(layout.arrangement == screen.expected, "%s: arrangement %s, expected %s" % [screen.label,
+				LayoutModel.ARRANGEMENT_NAMES[layout.arrangement], LayoutModel.ARRANGEMENT_NAMES[screen.expected]])
+	_check_windows(skin)
+
+
+## The foldable and split screen windows of DESIGN_SYSTEM.md 4.11: each must
+## pick its pinned arrangement, and every supported one must fit with 48 dp
+## touch targets and a board of at least BOARD_MIN. Candidates in dp at the
+## window's own density.
+func _check_windows(skin: GameSkin) -> void:
+	print("")
+	print("Window shapes (DESIGN_SYSTEM.md 4.11; dp; candidates at the window's density)")
+	for screen: LayoutModel.Screen in LayoutModel.window_screens():
+		var content: Vector2 = LayoutModel.content_size(screen, skin)
+		var stacked: float = LayoutModel.stacked_board(content, skin)
+		var side: float = LayoutModel.side_board(content, skin)
+		for kind: String in ["play", "lesson"]:
+			var layout: LayoutModel.StackLayout = LayoutModel.play(screen, skin) if kind == "play" else LayoutModel.lesson(screen, skin)
+			var name: String = LayoutModel.ARRANGEMENT_NAMES[layout.arrangement]
+			if kind == "play":
+				print("  %-34s content %5.1f x %5.1f; board if stacked %5.1f, if side by side %5.1f: %s" % [screen.label, content.x, content.y, stacked, side, name.to_upper()])
+				_expect(layout.arrangement == screen.expected, "%s: arrangement %s, expected %s" % [screen.label, name, LayoutModel.ARRANGEMENT_NAMES[screen.expected]])
+			if layout.arrangement == LayoutModel.Arrangement.TOO_SMALL:
+				if kind == "play":
+					print("  %-34s        shows the too small message" % "")
+				continue
+			var px: int = LayoutModel.candidate_px(layout.board, screen.density, skin)
+			print("  %-34s %-6s board %5.1f (%s), cell %4.1f, candidates %4.1f dp, info zone %5.1f, hint panel %5.1f, column %5.1f, keys %4.1f x %4.1f, right column %5.1f, gap %4.1f, spare %5.1f%s" % [
+				"", kind, layout.board, "width" if layout.board_width_bound else "height", layout.cell(), float(px) / screen.density,
+				layout.info_zone, layout.hint_panel, layout.content_w, layout.key_w, layout.key_h, layout.action_w, layout.gap, layout.spare,
+				", spare width %.1f, menu halves %.1f" % [layout.spare_x, layout.menu_w] if layout.arrangement == LayoutModel.Arrangement.SIDE else ""])
+			if kind == "lesson":
+				print("  %-34s        lesson text %d dp, title %s, %s" % ["", int(LayoutModel.lesson_text_size),
+					"shown" if LayoutModel.lesson_title_shown else "hidden",
+					"text scrolls in the card" if LayoutModel.lesson_scrolls else "all text shows"])
+			for problem: String in layout.problems:
+				_failures.append("%s %s: %s" % [screen.label, kind, problem])
+			if kind == "play":
+				_expect(layout.board >= LayoutModel.BOARD_MIN - 0.01, "%s: board %.1f under BOARD_MIN" % [screen.label, layout.board])
 
 
 # Sizes for the ring layout doc
