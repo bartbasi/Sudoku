@@ -288,3 +288,90 @@ func test_the_board_never_goes_under_the_floor() -> void:
 				var band: Rect2 = player.area.band_rect()
 				assert_true(band.end.y <= player.area.view.position.y + 0.5, "the card sits above the board")
 		_free()
+
+
+## A press on a pad control, sent the way the viewport sends it: the pad's
+## gui_input signal, in the pad's own coordinates.
+func _press_pad(control: StringName) -> void:
+	var pad: NumberPad = player.area.pad
+	var rect: Rect2 = pad.touch_rect_global(control)
+	assert_true(rect.has_area(), "the pad has a touch area for %s" % control)
+	var event: InputEventMouseButton = InputEventMouseButton.new()
+	event.button_index = MOUSE_BUTTON_LEFT
+	event.pressed = true
+	event.position = pad.get_global_transform().affine_inverse() * rect.get_center()
+	pad.gui_input.emit(event)
+
+
+func test_a_tap_on_undo_while_it_is_off_shows_the_fallback() -> void:
+	_build()
+	var lesson: Lesson = Lx.lesson(2)
+	_start(lesson)
+	player.show_screen(2)
+	assert_false(player.area.pad.is_undo_enabled(), "Undo is off at the start of a screen")
+	var before: Array = _state()
+	_press_pad(NumberPad.UNDO)
+	assert_eq(_state(), before, "the tap changes nothing")
+	assert_true(player.is_showing_wrong(), "the Not quite tag shows")
+	assert_eq(player.card_text(), lesson.screens[2].fallback)
+	_free()
+
+
+func test_a_tap_on_the_mode_already_on_is_a_wrong_tap() -> void:
+	_build()
+	var lesson: Lesson = Lx.lesson(2)
+	_start(lesson)
+	# Screen 3 is in Cross Out mode, and its wrong list has a mode entry.
+	player.show_screen(2)
+	var before: Array = _state()
+	_press_pad(NumberPad.CROSS_OUT)
+	assert_eq(_state(), before)
+	assert_eq(player.card_text(), "Stay in Cross Out mode for now. Tap 9 on the number pad.")
+	# Screen 2's answer is the mode switch; Place, already on, is not it.
+	player.show_screen(1)
+	before = _state()
+	_press_pad(NumberPad.PLACE)
+	assert_eq(_state(), before, "the screen does not move on")
+	assert_false(player.is_praise_showing())
+	assert_eq(player.card_text(), lesson.screens[1].fallback)
+	_free()
+
+
+func test_pad_taps_that_reach_the_gate_are_left_to_it() -> void:
+	_build()
+	var lesson: Lesson = Lx.lesson(2)
+	_start(lesson)
+	player.show_screen(1)
+	for control: StringName in [&"pad:3", NumberPad.ERASE, NumberPad.CROSS_OUT]:
+		player.dropped_pad_tap(control)
+		assert_false(player.is_showing_wrong(), "%s goes through the gate, not here" % control)
+	_free()
+
+
+func test_dropped_taps_after_the_answer_show_nothing() -> void:
+	_build()
+	_start(Lx.lesson(2))
+	player.show_screen(2)
+	_tap(_pad(9))
+	assert_true(player.is_praise_showing())
+	player.dropped_pad_tap(NumberPad.CROSS_OUT)
+	player.dropped_pad_tap(NumberPad.UNDO)
+	assert_false(player.is_showing_wrong(), "every other tap is ignored until Next")
+	_free()
+
+
+func test_the_text_steps_down_by_label_variation() -> void:
+	assert_eq(LessonPlayer.STEP_DOWN, [ThemeFactory.BODY, ThemeFactory.BODY_SMALL, ThemeFactory.BODY_SMALL_12] as Array[StringName])
+	var seen: Dictionary[StringName, bool] = {}
+	for screen_size: Vector2 in [Vector2(320.0, 568.0), Vector2(360.0, 800.0)]:
+		_build(screen_size.x, screen_size.y)
+		for lesson: Lesson in LessonLibrary.load_all():
+			_start(lesson)
+			for i: int in lesson.screens.size():
+				player.show_screen(i)
+				var body: Label = player.card.body
+				assert_false(body.has_theme_font_size_override(&"font_size"), "no size override")
+				assert_true(LessonPlayer.STEP_DOWN.has(body.theme_type_variation), String(body.theme_type_variation))
+				seen[body.theme_type_variation] = true
+		_free()
+	assert_true(seen.has(ThemeFactory.BODY), "a tall screen keeps the body style")

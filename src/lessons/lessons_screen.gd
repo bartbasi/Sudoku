@@ -19,7 +19,6 @@ const LESSON_SCREEN: StringName = &"lesson"
 ## Row height and the number sticker's side (DESIGN_SYSTEM.md 7.12).
 const ROW_HEIGHT: float = 72.0
 const NUMBER_SIDE: float = 36.0
-const BACK_FACE: float = 40.0
 
 ## The App autoload node, set by App.goto. Null in tests that set none.
 var app: Node = null
@@ -73,7 +72,7 @@ func ensure_built() -> void:
 	page.theme_type_variation = ThemeFactory.PAGE
 	page.mouse_filter = Control.MOUSE_FILTER_STOP
 	add_child(page)
-	back_area = TouchArea.make(Icons.BACK, BACK_FACE, "Back") as TouchArea
+	back_area = TouchArea.make(Icons.BACK, Layout.ICON_FACE, "Back") as TouchArea
 	back_area.tapped.connect(_on_back)
 	add_child(back_area)
 	title_label = Label.new()
@@ -265,7 +264,7 @@ func _layout_row(row: Button, badge: Control, width: float, current: GameSkin) -
 		words_w -= badge.get_combined_minimum_size().x + gap
 	var title: Label = row.get_node(^"Line/Words/Title") as Label
 	var subtitle: Label = row.get_node(^"Line/Words/Subtitle") as Label
-	var sub_h: float = Card.text_height(subtitle, subtitle.text, words_w, 0)
+	var sub_h: float = Card.text_height(subtitle, subtitle.text, words_w)
 	subtitle.custom_minimum_size.y = sub_h
 	var needed: float = title.get_combined_minimum_size().y + sub_h + 2.0 * gap + current.shadow_offset
 	row.custom_minimum_size.y = maxf(ROW_HEIGHT, ceilf(needed))

@@ -34,7 +34,7 @@ var _rows: VBoxContainer = null
 var _text_box: Control = null
 var _step_text: String = ""
 var _reserve: PackedStringArray = PackedStringArray()
-var _font_size: int = 0
+var _variation: StringName = ThemeFactory.BODY
 var _capped: bool = false
 
 
@@ -156,12 +156,13 @@ func is_showing_wrong() -> bool:
 	return tag.visible
 
 
-## Sets the body text size and whether the title shows, sizes the text box
-## for width (the card's outer width), and returns the card's height. With
-## max_height, the text box shrinks so the card fits it, and the text scrolls.
-func configure(width: float, font_size: int, show_title: bool, max_height: float = INF) -> float:
-	_font_size = font_size
-	body.add_theme_font_size_override(&"font_size", font_size)
+## Sets the body text style (a label variation: BODY, BODY_SMALL or
+## BODY_SMALL_12) and whether the title shows, sizes the text box for width
+## (the card's outer width), and returns the card's height. With max_height,
+## the text box shrinks so the card fits it, and the text scrolls.
+func configure(width: float, variation: StringName, show_title: bool, max_height: float = INF) -> float:
+	_variation = variation
+	body.theme_type_variation = variation
 	title_label.visible = show_title
 	var box: StyleBox = get_theme_stylebox(&"panel")
 	var pad_x: float = box.get_content_margin(SIDE_LEFT) + box.get_content_margin(SIDE_RIGHT) if box != null else 0.0
@@ -187,22 +188,22 @@ func is_capped() -> bool:
 ## The height the text needs at this width: the step text, or the tag and
 ## the longest wrong tap text, whichever is taller.
 func text_area_height(width: float) -> float:
-	var tallest: float = text_height(body, _step_text, width, _font_size)
+	var tallest: float = text_height(body, _step_text, width, _variation)
 	var content: VBoxContainer = tag.get_parent() as VBoxContainer
 	var gap: float = float(content.get_theme_constant(&"separation")) if content != null else 0.0
 	var tag_h: float = tag.get_combined_minimum_size().y + gap
 	for text: String in _reserve:
-		tallest = maxf(tallest, tag_h + text_height(body, text, width, _font_size))
+		tallest = maxf(tallest, tag_h + text_height(body, text, width, _variation))
 	return ceilf(tallest)
 
 
-## How tall label would be with text wrapped at width, in its font at
-## font_size (0 means the label's theme size).
-static func text_height(label: Label, text: String, width: float, font_size: int) -> float:
-	var font: Font = label.get_theme_font(&"font")
+## How tall label would be with text wrapped at width, in the font, size and
+## line spacing of the label variation (empty means the label's own).
+static func text_height(label: Label, text: String, width: float, variation: StringName = &"") -> float:
+	var font: Font = label.get_theme_font(&"font", variation)
 	if font == null or text.is_empty():
 		return 0.0
-	var size_px: int = font_size if font_size > 0 else label.get_theme_font_size(&"font_size")
+	var size_px: int = label.get_theme_font_size(&"font_size", variation)
 	var paragraph: TextParagraph = TextParagraph.new()
 	paragraph.break_flags = TextServer.BREAK_MANDATORY | TextServer.BREAK_WORD_BOUND | TextServer.BREAK_ADAPTIVE
 	paragraph.width = maxf(1.0, width)
@@ -212,7 +213,7 @@ static func text_height(label: Label, text: String, width: float, font_size: int
 	for i: int in lines:
 		height += paragraph.get_line_size(i).y
 	# Label puts its line spacing between lines only; it may be negative.
-	height += float(label.get_theme_constant(&"line_spacing")) * float(maxi(lines - 1, 0))
+	height += float(label.get_theme_constant(&"line_spacing", variation)) * float(maxi(lines - 1, 0))
 	return ceilf(height)
 
 

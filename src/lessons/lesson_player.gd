@@ -26,11 +26,9 @@ const ControlMarks := preload("res://src/lessons/control_marks.gd")
 const TouchArea := preload("res://src/lessons/touch_area.gd")
 
 const NEXT_TEXT: String = "Next"
-const CLOSE_FACE: float = 32.0
-## The Next button's face height (DESIGN_SYSTEM.md 7.13).
-const NEXT_FACE: float = 56.0
-## The body text steps down to these sizes on short screens (4.8).
-const STEP_DOWN: Array[int] = [13, 12]
+## The body text steps down through these label variations on short
+## screens (4.8): 14, 13, then 12 dp.
+const STEP_DOWN: Array[StringName] = [ThemeFactory.BODY, ThemeFactory.BODY_SMALL, ThemeFactory.BODY_SMALL_12]
 ## The text steps down while the board would be under this share of its
 ## width-bound size (4.8).
 const STEP_DOWN_SHARE: float = 0.8
@@ -97,13 +95,14 @@ func ensure_built() -> void:
 	add_child(area)
 	area.controller.gate = _gate
 	area.controller.action_applied.connect(_on_action_applied)
+	area.pad.gui_input.connect(_on_pad_input)
 	marks = ControlMarks.new()
 	marks.name = "ControlMarks"
 	marks.pad = area.pad
 	add_child(marks)
 	card = Card.new()
 	add_child(card)
-	close_area = TouchArea.make(Icons.CLOSE, CLOSE_FACE, "Close") as TouchArea
+	close_area = TouchArea.make(Icons.CLOSE, Layout.CLOSE_FACE, "Close") as TouchArea
 	close_area.tapped.connect(close)
 	add_child(close_area)
 	_build_praise()
@@ -193,6 +192,47 @@ func _gate(action: BoardAction) -> bool:
 		LessonGoal.Verdict.WRONG:
 			_show_wrong(goal.wrong_text(action, session.board, session.selected))
 	return false
+
+
+## NumberPad drops two taps before they reach the gate: Undo while it is
+## off, and the mode button that is already on. In a lesson they are wrong
+## taps too (LESSONS.md section 8, items 2 and 4), so the player watches the
+## pad's input (its gui_input signal comes before the pad handles the tap)
+## and shows their text here. Every other tap goes through the gate.
+func _on_pad_input(event: InputEvent) -> void:
+	var at: Variant = _press_point(event)
+	if at != null:
+		dropped_pad_tap(area.pad.control_at(at as Vector2))
+
+
+## Shows the wrong tap text for control (a NumberPad name) when the pad
+## drops a tap on it. Nothing happens for a tap the pad passes on, while
+## the pad is locked, or once the answer is complete.
+func dropped_pad_tap(control: StringName) -> void:
+	if goal == null or session == null or area == null or area.pad.is_locked():
+		return
+	var pad: NumberPad = area.pad
+	var kind: int = -1
+	if control == NumberPad.UNDO and not pad.is_undo_enabled():
+		kind = BoardAction.Kind.UNDO
+	elif (control == NumberPad.PLACE and pad.mode() == GameSession.Mode.PLACE) 			or (control == NumberPad.CROSS_OUT and pad.mode() == GameSession.Mode.CROSS_OUT):
+		kind = BoardAction.Kind.MODE
+	if kind < 0 or goal.is_complete():
+		return
+	var action: BoardAction = BoardAction.create(kind)
+	_show_wrong(goal.wrong_text(action, session.board, session.selected))
+
+
+## Where a press lands, as NumberPad reads it: a left mouse press, or a touch
+## when touches do not also arrive as mouse presses. Null for anything else.
+static func _press_point(event: InputEvent) -> Variant:
+	var button: InputEventMouseButton = event as InputEventMouseButton
+	if button != null:
+		return button.position if button.pressed and button.button_index == MOUSE_BUTTON_LEFT else null
+	var touch: InputEventScreenTouch = event as InputEventScreenTouch
+	if touch != null and touch.pressed 			and not bool(ProjectSettings.get_setting("input_devices/pointing/emulate_mouse_from_touch", true)):
+		return touch.position
+	return null
 
 
 func _on_action_applied(_action: BoardAction, _result: ActionResult) -> void:
@@ -288,7 +328,7 @@ func _build_praise() -> void:
 	next_button.name = "Next"
 	next_button.theme_type_variation = ThemeFactory.BUTTON_PRIMARY
 	next_button.text = ThemeFactory.display_text(ThemeFactory.BUTTON_PRIMARY, NEXT_TEXT)
-	next_button.custom_minimum_size.y = NEXT_FACE
+	next_button.custom_minimum_size.y = Layout.BUTTON_TALL
 	next_button.focus_mode = Control.FOCUS_NONE
 	next_button.pressed.connect(press_next)
 	rows.add_child(next_button)
@@ -368,24 +408,22 @@ func _fit_card(current: GameSkin) -> void:
 	var width: float = maxf(0.0, minf(area.size.x - 2.0 * current.page_margin, Layout.COLUMN_MAX))
 	var width_bound: float = width - current.line_outer_w - current.shadow_offset
 	var gap: float = current.space_s
-	var sizes: Array[int] = [ThemeFactory.role_size(ThemeFactory.ROLE_BODY)]
-	sizes.append_array(STEP_DOWN)
-	var font_size: int = sizes[0]
+	var variation: StringName = STEP_DOWN[0]
 	var height: float = 0.0
 	var board: float = 0.0
-	for candidate: int in sizes:
-		font_size = candidate
-		height = card.configure(width, font_size, true)
+	for candidate: StringName in STEP_DOWN:
+		variation = candidate
+		height = card.configure(width, variation, true)
 		board = _board_for(height + gap)
 		if board >= STEP_DOWN_SHARE * width_bound:
 			break
 	var show_title: bool = true
 	if board < Layout.LESSON_TITLE_MIN_BOARD:
 		show_title = false
-		height = card.configure(width, font_size, false)
+		height = card.configure(width, variation, false)
 		board = _board_for(height + gap)
 	if board < Layout.LESSON_BOARD_FLOOR:
-		height = card.configure(width, font_size, show_title, height - (Layout.LESSON_BOARD_FLOOR - board))
+		height = card.configure(width, variation, show_title, height - (Layout.LESSON_BOARD_FLOOR - board))
 	_card_height = height
 	area.set_band_height(height + gap)
 
@@ -409,9 +447,9 @@ func _layout_praise() -> void:
 	var gap: float = current.space_s if current != null else 0.0
 	var check_w: float = (praise_card.get_node(^"Rows/Line/Check") as Control).get_combined_minimum_size().x
 	var text_w: float = keys.size.x - pad_x - check_w - gap
-	var text_h: float = Card.text_height(praise_label, praise_label.text, text_w, 0)
+	var text_h: float = Card.text_height(praise_label, praise_label.text, text_w)
 	praise_label.custom_minimum_size = Vector2(1.0, text_h)
-	var needed: float = pad_y + text_h + gap + NEXT_FACE
+	var needed: float = pad_y + text_h + gap + Layout.BUTTON_TALL
 	var height: float = maxf(keys.size.y, needed)
 	praise_card.size = Vector2(keys.size.x, height)
 	praise_card.position = Vector2(keys.position.x, keys.end.y - height)
