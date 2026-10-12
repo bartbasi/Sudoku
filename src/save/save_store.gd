@@ -7,9 +7,11 @@ extends RefCounted
 ## a file can create an object or run code. read() hands back the plain
 ## "data" value, and the caller's from_dict validates every field.
 ##
-## Writes are atomic: the text goes to path + ".tmp", the file is closed, and
-## then the temporary file is renamed over path. A crash in the middle leaves
-## the old file as it was. Only paths under user:// are allowed.
+## Writes are atomic: the text goes to path + ".tmp", the file is flushed and
+## closed, and then the temporary file is renamed over path. A crash in the
+## middle leaves the old file as it was. write() refuses anything larger
+## than read() accepts. Only paths under user:// are allowed. SaveWriter
+## runs write() on a worker thread for the puzzle in progress.
 ## Owner: ui-systems-dev.
 
 const FORMAT: int = 1
@@ -57,21 +59,34 @@ static func read(path: String, max_bytes: int) -> Variant:
 
 
 ## Writes {"format": 1, "data": data} to path atomically: path + ".tmp"
-## first, closed, then renamed over path. Returns false, and leaves the old
-## file in place, if anything fails.
-static func write(path: String, data: Dictionary) -> bool:
+## first, flushed and closed, then renamed over path. Returns false, and
+## leaves the old file in place, if anything fails, or if the text would be
+## larger than max_bytes: read() would drop such a file, so the older one
+## that it can still load is kept instead. Pass the same max_bytes the file
+## is read with. Safe to call from a worker thread.
+##
+## Durability: flush() hands Godot's buffer to the operating system before
+## the file closes, and the rename happens only after a clean close with no
+## error, so a crash or a kill of the app never leaves a half written file
+## under path. Godot has no call that forces the data onto the storage
+## device (fsync), so after a sudden power loss some file systems may still
+## lose the newest write; read() then rejects the damaged file and that part
+## falls back to its default.
+static func write(path: String, data: Dictionary, max_bytes: int = MAX_BYTES_PUZZLE) -> bool:
 	if not is_allowed_path(path):
 		return false
 	var folder: String = path.get_base_dir()
 	if not DirAccess.dir_exists_absolute(folder):
 		if DirAccess.make_dir_recursive_absolute(folder) != OK:
 			return false
-	var text: String = JSON.stringify({"format": FORMAT, "data": data}, "", true, true)
+	var bytes: PackedByteArray = JSON.stringify({"format": FORMAT, "data": data}, "", true, true).to_utf8_buffer()
+	if bytes.is_empty() or bytes.size() > max_bytes:
+		return false
 	var temp_path: String = path + TEMP_SUFFIX
 	var file: FileAccess = FileAccess.open(temp_path, FileAccess.WRITE)
 	if file == null:
 		return false
-	var stored: bool = file.store_string(text)
+	var stored: bool = file.store_buffer(bytes)
 	file.flush()
 	var error: Error = file.get_error()
 	file.close()

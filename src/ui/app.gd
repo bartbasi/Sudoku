@@ -58,8 +58,8 @@ var session: GameSession = null
 ## Folder of the four save files. Always under user://; tests use a folder
 ## of their own.
 var save_dir: String = "user://"
-## Generate puzzles on a worker thread. Tests turn it off, because they run
-## without frames.
+## Make puzzles and write the puzzle save on worker threads. Tests turn it
+## off, because they run without frames; then every save is written at once.
 var use_thread: bool = true
 ## The Skins and Audio services. Found at /root/Skins and /root/Audio when
 ## App enters the tree, unless a test set them first.
@@ -76,6 +76,11 @@ var _ready_puzzle: Puzzle = null
 var _holding: bool = false
 var _overlay: Control = null
 var _fallback_skins: Dictionary[StringName, GameSkin] = {}
+var _writer: SaveWriter = SaveWriter.new()
+## A save of the puzzle is waiting for the end of this frame.
+var _save_queued: bool = false
+## Focus was lost while a puzzle was being made: it opens paused (GDD 8).
+var _pause_on_arrival: bool = false
 
 
 func _ready() -> void:
@@ -96,6 +101,7 @@ func _ready() -> void:
 
 func _exit_tree() -> void:
 	_join_thread()
+	_stop_writer()
 
 
 func _process(_delta: float) -> void:
@@ -123,10 +129,13 @@ func _notification(what: int) -> void:
 		NOTIFICATION_APPLICATION_PAUSED, NOTIFICATION_APPLICATION_FOCUS_OUT, NOTIFICATION_WM_CLOSE_REQUEST:
 			save_all()
 			_pause_play_screen()
+			if is_generating():
+				_pause_on_arrival = true
 		NOTIFICATION_WM_GO_BACK_REQUEST:
 			go_back()
 		NOTIFICATION_PREDELETE:
 			_join_thread()
+			_stop_writer()
 
 
 # Loading and saving -----------------------------------------------------------
@@ -165,13 +174,50 @@ func path_of(file_name: String) -> String:
 	return save_dir.path_join(file_name)
 
 
-## Writes the puzzle in progress. Does nothing when there is none, and never
-## writes a completed session, so a finished puzzle cannot come back as
-## Continue (GDD 12, AT-51).
+## Writes the puzzle in progress now, after any save still being written.
+## Does nothing when there is none, and never writes a completed session, so
+## a finished puzzle cannot come back as Continue (GDD 12, AT-51).
 func save_session() -> void:
-	if session == null or session.is_completed:
+	_save_queued = false
+	if not has_puzzle_in_progress():
 		return
-	SaveStore.write(path_of(PUZZLE_FILE), session.to_dict())
+	_writer.write_now(path_of(PUZZLE_FILE), session.to_dict(), SaveStore.MAX_BYTES_PUZZLE)
+
+
+## A board change, mode switch or hint (GDD 14). With use_thread on, saves
+## are gathered to one per frame: at the end of the frame the session is
+## turned into data here, and the worker writes it, so a tap never waits for
+## the disk. A placement that closes a hint saves once. Without use_thread
+## the save is written at once.
+func request_session_save() -> void:
+	if not use_thread:
+		save_session()
+		return
+	if _save_queued:
+		return
+	_save_queued = true
+	_queued_session_save.call_deferred()
+
+
+func _queued_session_save() -> void:
+	if not _save_queued:
+		return
+	_save_queued = false
+	if has_puzzle_in_progress():
+		_writer.queue(path_of(PUZZLE_FILE), session.to_dict(), SaveStore.MAX_BYTES_PUZZLE)
+
+
+## True while a save of the puzzle waits for the end of the frame or for the
+## worker.
+func is_saving() -> bool:
+	return _save_queued or _writer.has_pending()
+
+
+## Writes any save still waiting and ends the save worker.
+func _stop_writer() -> void:
+	if _save_queued:
+		save_session()
+	_writer.stop()
 
 
 func save_all() -> void:
@@ -182,15 +228,15 @@ func save_all() -> void:
 
 
 func _save_settings() -> void:
-	SaveStore.write(path_of(SETTINGS_FILE), settings.to_dict())
+	SaveStore.write(path_of(SETTINGS_FILE), settings.to_dict(), SaveStore.MAX_BYTES_OTHER)
 
 
 func _save_stats() -> void:
-	SaveStore.write(path_of(STATS_FILE), stats.to_dict())
+	SaveStore.write(path_of(STATS_FILE), stats.to_dict(), SaveStore.MAX_BYTES_OTHER)
 
 
 func _save_lessons() -> void:
-	SaveStore.write(path_of(LESSONS_FILE), lessons.to_dict())
+	SaveStore.write(path_of(LESSONS_FILE), lessons.to_dict(), SaveStore.MAX_BYTES_OTHER)
 
 
 # The puzzle in progress -------------------------------------------------------
@@ -234,14 +280,19 @@ func start_new_puzzle(level: int) -> void:
 ## Stats do not change (GDD 13.2).
 func abandon_puzzle() -> void:
 	_set_session(null)
-	SaveStore.remove(path_of(PUZZLE_FILE))
+	_save_queued = false
+	_writer.remove(path_of(PUZZLE_FILE))
 	session_changed.emit(null)
 
 
 ## Call once the session has completed. In GDD 12 order: records the stats
-## (the New best bits come from the bests before this completion), saves
-## them, deletes the saved puzzle, drops the session, and returns what the
-## completion screen shows. Null if there is no completed session.
+## (the New best bits come from the bests before this completion), deletes
+## the saved puzzle, saves the stats, drops the session, and returns what
+## the completion screen shows. Null if there is no completed session.
+##
+## The saved puzzle goes before the stats are written: if the app dies in
+## between, the completion is not counted, but the puzzle cannot come back
+## one digit short and be counted twice (security review Low 5).
 func on_puzzle_completed() -> CompletionResult:
 	if session == null or not session.is_completed:
 		return null
@@ -253,8 +304,9 @@ func on_puzzle_completed() -> CompletionResult:
 	result.final_score = session.final_score()
 	result.hints_used = session.hints_bought
 	result.new_best = stats.record_completion(result.level, result.seconds, result.final_score)
+	_save_queued = false
+	_writer.remove(path_of(PUZZLE_FILE))
 	_save_stats()
-	SaveStore.remove(path_of(PUZZLE_FILE))
 	_set_session(null)
 	stats_changed.emit()
 	session_changed.emit(null)
@@ -269,6 +321,7 @@ func _finish_generation(puzzle: Puzzle) -> void:
 		created = GameSession.create(puzzle.id, puzzle.level, puzzle.givens, puzzle.solution, settings.auto_cross)
 	if created == null:
 		push_error("App: the puzzle could not be made")
+		_pause_on_arrival = false
 		_leave_overlay(leaving)
 		generation_finished.emit(null)
 		return
@@ -283,6 +336,9 @@ func _finish_generation(puzzle: Puzzle) -> void:
 	generation_finished.emit(created)
 	if _host != null:
 		goto(PLAY)
+		if _pause_on_arrival:
+			_pause_play_screen()
+	_pause_on_arrival = false
 	_leave_overlay(leaving)
 
 
@@ -307,15 +363,15 @@ func _session_links() -> Array[Array]:
 
 
 func _on_board_changed(_cells: PackedInt32Array) -> void:
-	save_session()
+	request_session_save()
 
 
 func _on_mode_changed(_mode: int) -> void:
-	save_session()
+	request_session_save()
 
 
 func _on_hint_changed(_hint: Hint) -> void:
-	save_session()
+	request_session_save()
 
 
 func _join_thread() -> void:

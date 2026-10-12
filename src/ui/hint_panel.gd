@@ -25,6 +25,9 @@ var max_height: float = INF:
 			max_height = value
 			fit_text()
 
+## The row with the tag and the lesson title.
+var top_row: HBoxContainer = null
+var tag_panel: PanelContainer = null
 var tag_label: Label = null
 var lesson_label: Label = null
 var text_label: Label = null
@@ -42,19 +45,19 @@ func setup(skin: GameSkin) -> void:
 	var left: VBoxContainer = UiKit.vbox(skin.space_xs)
 	left.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	columns.add_child(left)
-	var top: HBoxContainer = UiKit.hbox(skin.space_s)
-	left.add_child(top)
-	var tag: PanelContainer = UiKit.panel(ThemeFactory.HINT_TAG)
-	tag.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	top_row = UiKit.hbox(skin.space_s)
+	left.add_child(top_row)
+	tag_panel = UiKit.panel(ThemeFactory.HINT_TAG)
+	tag_panel.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	tag_label = UiKit.label(ThemeFactory.HINT_TAG_LABEL, "")
-	tag.add_child(tag_label)
-	top.add_child(tag)
+	tag_panel.add_child(tag_label)
+	top_row.add_child(tag_panel)
 	lesson_label = UiKit.label(ThemeFactory.CAPTION, "")
 	lesson_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	lesson_label.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	lesson_label.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
 	lesson_label.custom_minimum_size.x = 1.0
-	top.add_child(lesson_label)
+	top_row.add_child(lesson_label)
 	text_label = UiKit.label(ThemeFactory.BODY_SMALL, "", true)
 	text_label.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	text_label.resized.connect(_on_text_resized)
@@ -71,6 +74,10 @@ func setup(skin: GameSkin) -> void:
 func show_hint(hint: Hint) -> void:
 	UiKit.set_text(tag_label, hint.technique_name)
 	UiKit.set_text(lesson_label, hint.lesson_title)
+	# A hint with no technique name (the fallback, QA L3) shows no empty tag,
+	# and with no lesson title either, no empty row above the text.
+	tag_panel.visible = not hint.technique_name.is_empty()
+	top_row.visible = tag_panel.visible or not hint.lesson_title.is_empty()
 	UiKit.set_text(text_label, hint.text)
 	fit_text()
 	if not visible:

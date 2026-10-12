@@ -147,6 +147,43 @@ func test_a_file_over_the_size_limit_reads_null() -> void:
 	Fx.wipe(dir)
 
 
+## Security Low 2: write enforces the limit read enforces, so it never
+## writes a file the next launch would drop; the old file stays instead.
+func test_write_refuses_data_over_the_limit_and_keeps_the_old_file() -> void:
+	var dir: String = Fx.fresh_dir("store_write_limit")
+	var path: String = dir.path_join("a.json")
+	assert_true(SaveStore.write(path, {"pad": "old"}, 1000))
+	assert_false(SaveStore.write(path, {"pad": "x".repeat(2000)}, 1000), "over the limit")
+	var back: Variant = SaveStore.read(path, 1000)
+	assert_true(back is Dictionary and (back as Dictionary).get("pad") == "old", "the old file stays")
+	assert_false(FileAccess.file_exists(path + SaveStore.TEMP_SUFFIX), "no temp file")
+	# Exactly at the limit is written and reads back.
+	var text: String = JSON.stringify({"format": SaveStore.FORMAT, "data": {"pad": "y"}}, "", true, true)
+	var limit: int = text.to_utf8_buffer().size()
+	assert_true(SaveStore.write(path, {"pad": "y"}, limit), "at the limit")
+	assert_ne(SaveStore.read(path, limit), null)
+	assert_false(SaveStore.write(path, {"pad": "yy"}, limit), "one byte over")
+	Fx.wipe(dir)
+
+
+func test_write_counts_utf8_bytes_not_characters() -> void:
+	var dir: String = Fx.fresh_dir("store_write_utf8")
+	var path: String = dir.path_join("a.json")
+	# 300 two byte characters: 300 characters but over 600 bytes.
+	assert_false(SaveStore.write(path, {"pad": "é".repeat(300)}, 500))
+	assert_false(FileAccess.file_exists(path))
+	Fx.wipe(dir)
+
+
+func test_write_defaults_to_the_puzzle_limit() -> void:
+	var dir: String = Fx.fresh_dir("store_write_default")
+	var path: String = dir.path_join("a.json")
+	assert_false(SaveStore.write(path, {"pad": "x".repeat(SaveStore.MAX_BYTES_PUZZLE)}), "over 16 MiB")
+	assert_false(FileAccess.file_exists(path))
+	assert_true(SaveStore.write(path, {"pad": "x".repeat(1000)}))
+	Fx.wipe(dir)
+
+
 func test_deep_nesting_reads_null_or_plain_data_without_crashing() -> void:
 	var dir: String = Fx.fresh_dir("store_deep")
 	var path: String = dir.path_join("a.json")
