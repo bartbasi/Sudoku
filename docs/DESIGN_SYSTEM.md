@@ -606,11 +606,11 @@ Bart, Phase 6: split screen is allowed, and the game must lay out well in any wi
   board 345 + 7          16          side column 306           (inner top half, 690 by 400)
 ```
 
-**Which one.** Work out the play board both ways and take the larger; stacked on a tie:
+**Which one.** Work out the play board both ways and take the larger; stacked on a tie or near tie:
 
 - Stacked board: `Bs = min(min(W, COLUMN_MAX) - 7, H - 251)`, or 0 when `W < COLUMN_MIN`. 7 is the outer line (3) plus the shadow (4); 251 is the header row 48, `BAND_MIN` 48, the 7, `BOARD_GAP_MIN` 12 and the pad at its minimum, 3 keys of 40 and 2 gaps of 8, 136.
 - Side by side board: `Bw = min(H - 7, W - 7 - SIDE_GAP - COLUMN_MIN, COLUMN_MAX - 7)`, that is `min(H - 7, W - 327, 593)`, or 0 when H is under the side column's minimum, 48 + 48 + 136 = 232.
-- **Side by side when `Bw > Bs`**, otherwise stacked.
+- **Side by side when `Bw > Bs + 0.5`**, otherwise stacked. The 0.5 dp margin keeps rounding from picking side by side when the two boards are the same size (the tablet: both 593).
 - **Too small** when `H < CONTENT_MIN_H` or `max(Bs, Bw) < BOARD_MIN`.
 
 The breakpoints, in content box dp:
@@ -624,7 +624,7 @@ The breakpoints, in content box dp:
 
 `LESSON_BOARD_FLOOR` (220) stays for the stacked lesson screen, under `BOARD_MIN` on purpose: a window that can play can always show a lesson, because the lesson card can scroll.
 
-**The shared function.** `Layout.arrangement(content: Vector2, skin: GameSkin) -> int` returns `Layout.Arrangement.STACKED`, `SIDE` or `TOO_SMALL` by the rule above, with `Layout.stacked_board(content, skin)` and `Layout.side_board(content, skin)` beside it (the skin gives the outer line, the shadow and `space_s`). `tools/design/layout_model.gd` holds the reference version of all three; the code must give the same answers on every window in the table below.
+**The shared function.** `Layout.arrangement(content: Rect2, skin: GameSkin) -> int` (the content box; only its size is used) returns `Layout.Arrangement.STACKED`, `SIDE` or `TOO_SMALL` by the rule above, with `Layout.stacked_board(content, skin)` and `Layout.side_board(content, skin)` beside it (the skin gives the outer line, the shadow and `space_s`). `tools/design/layout_model.gd` holds the reference version of all three; the code must give the same answers on every window in the table below.
 
 #### The play screen, side by side
 
