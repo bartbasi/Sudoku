@@ -9,6 +9,10 @@ extends SceneTree
 ## build/lessons/lessons-list.png and build/lessons/lesson-short.png (the
 ## smallest screen, 320 by 568, where the text may scroll): screens at one
 ## pixel per dp, with a 32 dp notch inset and a 24 dp gesture bar inset.
+## Also build/lessons/lesson-344x882.png, lesson-690x829.png and
+## lesson-690x400.png: one lesson screen on the Fold5 windows of
+## DESIGN_SYSTEM.md 4.11 (the cover screen, the inner screen and its top
+## half, side by side), with the insets of the 4.11 table.
 ## Prints the board, band and text size of each. build/ is git ignored.
 
 const Lx := preload("res://tests/lessons/lesson_fixtures.gd")
@@ -27,6 +31,13 @@ const SHOTS: Array[Array] = [
 	[5, 5, [], ""],
 ]
 
+## The 4.11 windows: size, top inset, bottom inset.
+const WINDOW_SHOTS: Array[Array] = [
+	[Vector2i(344, 882), 32.0, 24.0],
+	[Vector2i(690, 829), 32.0, 24.0],
+	[Vector2i(690, 400), 32.0, 0.0],
+]
+
 var _started: bool = false
 
 
@@ -42,6 +53,9 @@ func _run() -> void:
 	for shot: Array in SHOTS:
 		await _capture_lesson(Vector2i(360, 800), shot, "lesson-%d.png" % int(shot[0]))
 	await _capture_lesson(Vector2i(320, 568), [4, 0, [], ""], "lesson-short.png")
+	for window: Array in WINDOW_SHOTS:
+		var screen: Vector2i = window[0]
+		await _capture_lesson(screen, [2, 1, [], ""], "lesson-%dx%d.png" % [screen.x, screen.y], float(window[1]), float(window[2]))
 	await _capture_list(Vector2i(360, 800))
 	quit(0)
 
@@ -53,14 +67,14 @@ func _resize(screen: Vector2i) -> void:
 	await process_frame
 
 
-func _capture_lesson(screen: Vector2i, shot: Array, file_name: String) -> void:
+func _capture_lesson(screen: Vector2i, shot: Array, file_name: String, top: float = TOP_INSET, bottom: float = BOTTOM_INSET) -> void:
 	await _resize(screen)
 	var skin: GameSkin = Lx.light()
 	var player: LessonPlayer = LessonPlayer.new()
 	player.skin = skin
 	player.theme = ThemeFactory.build(skin)
 	player.size = Vector2(screen)
-	player.safe_rect_override = Rect2(0.0, TOP_INSET, float(screen.x), float(screen.y) - TOP_INSET - BOTTOM_INSET)
+	player.safe_rect_override = Rect2(0.0, top, float(screen.x), float(screen.y) - top - bottom)
 	root.add_child(player)
 	player.start(Lx.lesson(int(shot[0])))
 	player.show_screen(int(shot[1]))

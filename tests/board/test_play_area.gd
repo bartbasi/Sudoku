@@ -109,8 +109,11 @@ func test_board_matches_layout_and_the_model() -> void:
 		assert_true(absf(zone.size.y - model.hint_panel) < TOLERANCE,
 			"%s: info zone %.2f, model hint panel %.2f" % [_name(screen), zone.size.y, model.hint_panel])
 		var faces_w: float = _pad_faces().size.x
-		assert_true(absf(faces_w - (model.content_w - skin.shadow_offset)) < TOLERANCE,
-			"%s: pad faces %.2f wide, model %.2f" % [_name(screen), faces_w, model.content_w - skin.shadow_offset])
+		assert_true(absf(faces_w - model.pad_w) < TOLERANCE,
+			"%s: pad faces %.2f wide, model %.2f" % [_name(screen), faces_w, model.pad_w])
+		var key: Vector2 = area.pad.control_rect_global(&"pad:1").size
+		assert_true(key.x <= Layout.KEY_ASPECT_MAX * key.y + 0.01,
+			"%s: digit keys %.1f by %.1f, flatter than KEY_ASPECT_MAX" % [_name(screen), key.x, key.y])
 		var square: Rect2 = area.view.board_square()
 		assert_eq(square.size.x, square.size.y, "cells are square")
 	_free()
@@ -194,6 +197,26 @@ func test_stacked_on_a_tablet() -> void:
 	assert_true(is_equal_approx(column.position.x, (1024.0 - Layout.COLUMN_MAX) * 0.5), "column centered")
 	assert_true(is_equal_approx(area.band_rect().size.y, Layout.BAND_MAX), "band grown to BAND_MAX")
 	assert_true(is_equal_approx(_key_height(), Layout.KEY_MAX))
+
+
+func test_pad_narrowed_on_the_full_inner_screen() -> void:
+	# DESIGN_SYSTEM.md 4.7 and 4.11: at 690 by 829 the keys stop at
+	# KEY_ASPECT_MAX (64 by 40), so the faces are 344 wide, centered in the column.
+	var skin: GameSkin = Fx.light()
+	_build(690.0, 829.0, 32.0, 24.0)
+	assert_eq(area.arrangement(), Layout.Arrangement.STACKED)
+	var key: Vector2 = area.pad.control_rect_global(&"pad:1").size
+	assert_true(absf(key.x - 64.0) < TOLERANCE and absf(key.y - 40.0) < TOLERANCE, "keys %s" % key)
+	var faces: Rect2 = _pad_faces()
+	assert_true(absf(faces.size.x - 344.0) < TOLERANCE, "pad faces %.2f wide" % faces.size.x)
+	var column: Rect2 = area.band_rect_global()
+	var left: float = faces.position.x - column.position.x
+	var right: float = column.end.x - (faces.end.x + skin.shadow_offset)
+	assert_true(absf(left - right) < 0.001, "pad centered in the column: %.2f left, %.2f right" % [left, right])
+	var board: Rect2 = area.view.get_global_rect()
+	assert_true(absf(board.get_center().x - (faces.position.x + (faces.size.x + skin.shadow_offset) * 0.5)) < 0.001,
+		"pad centered under the board")
+	_free()
 
 
 func test_side_by_side_inner_top_half() -> void:

@@ -397,7 +397,7 @@ What each screen gives and needs (face, then need, in dp):
 | 360 by 640 | 62.7 by 40; 27 by 36 | 116 by 40; 80 by 32 | 116 by 40; 111 by 32 | 54 by 40; 47 by 28 |
 | 360 by 800 (judged) | 62.7 by 64; 27 by 36 | 116 by 64; 80 by 32 | 116 by 64; 111 by 32 | 54 by 64; 47 by 28 |
 | 411 by 914 | 74 by 64; 27 by 36 | 133.3 by 64; 80 by 32 | 133.3 by 64; 111 by 32 | 62.6 by 64; 47 by 28 |
-| 1024 by 1366 tablet | 133.3 by 64; 27 by 36 | 160 by 64; 80 by 32 | 160 by 64; 111 by 32 | 76 by 64; 47 by 28 |
+| 1024 by 1366 tablet | 102.4 by 64; 27 by 36 | 160 by 64; 80 by 32 | 160 by 64; 111 by 32 | 76 by 64; 47 by 28 |
 
 The tightest fit is CROSS OUT, with 5 dp to spare on a 116 dp face; then the digit keys, with 4 dp in height on 40 dp faces. Touch areas do not change: every face plus the 8 dp gaps is at least 48 by 48. Before the fix, 26 pad labels on these five screens did not fit (`pad_fit.gd -- current`). Renders: [design/pad-fit.png](design/pad-fit.png) after, [design/pad-fit-current.png](design/pad-fit-current.png) before.
 
@@ -493,6 +493,7 @@ The same in every skin, so not skin tokens. They are the constants of the `Layou
 | `ACTION_RATIO` | 1.8 | Width of the pad's right column, as a multiple of a digit key's width |
 | `ACTION_MIN` | 116 | Narrowest right column (CROSS OUT must fit: it needs 111, 3.5) |
 | `ACTION_MAX` | 160 | Widest right column |
+| `KEY_ASPECT_MAX` | 1.6 | A digit key's face is never wider than this many times its height; the pad narrows and centers instead (4.7) |
 | `COLUMN_MAX` | 600 | Widest content column, centered, on tablets |
 | `HINT_FACE_W` | 64 | Width of the Hint button's face |
 | `ICON_FACE` | 40 | Face of every icon button (Pause, back, close on screens) and height of the header faces (Hint, time, score); its touch area is `TOUCH_MIN` |
@@ -546,6 +547,10 @@ This is the stacked arrangement. Wide and short windows put the pad beside the b
 
 Widths: the three digit columns, the `group_gap`, and the right column share the column width minus the shadow; the right column is `ACTION_RATIO` times a key's width, clamped to `ACTION_MIN` and `ACTION_MAX`.
 
+**The pad keeps its proportions** (Phase 6 fix). A digit key's face is never wider than `KEY_ASPECT_MAX` (1.6) times its height. When the column would make it wider, the pad gets narrower instead and is centered in its column, with its shadow, under the board's center: the pad's faces are `Layout.pad_faces_width(column_w, key_h, skin)` wide, that is the smaller of the column less the shadow and `3 k + 2 space_s + group_gap + clamp(ACTION_RATIO k, ACTION_MIN, ACTION_MAX)` with `k = KEY_ASPECT_MAX × key_h`. NumberPad then lays out its widths from that narrower width by the rule above, so the right column follows. 1.6 is just above the flattest key the phones give (62.7 by 40 at 360 by 640), so no phone changes; the full Fold5 inner screen (133 by 40 before, now 64 by 40, pad 344 wide) and the tablet (133 by 64, now 102.4 by 64, pad 503) do. The area left and right of a narrowed pad holds nothing tappable.
+
+**No board is traded for pad height.** On wide stacked windows the board stays as large as the height allows and the keys stay at what 4.7 gives them (40 dp on the Fold5 inner screen). Reasons: readability first, and the board is the game; touch areas are already 48 dp or more; every dp of key height costs 3 dp of board; and a width dependent key height would change `stacked_board`, and with it the arrangement rule and every breakpoint of 4.11. The narrowed pad at 64 by 40 is exactly the 360 by 640 phone's pad.
+
 ### 4.8 The lesson screen, and how it adapts
 
 The same stack, with no header row: the lesson card sits in PlayArea's band, and the band is as tall as the card. The card holds a top row (the lesson sticker, the step caption and the close button), the lesson title and the step text.
@@ -577,7 +582,7 @@ From `check_samples.gd`, with insets for a notch (24 to 32 dp) and a gesture bar
 | 360 by 640 | 325 (height-bound) | 36.1 | 11.0 dp | 96 | 63 by 40 | 116 |
 | 360 by 800 (judged) | 337 (width-bound) | 37.4 | 11.5 dp | 130 | 63 by 64 | 116 |
 | 411 by 914 (1080 by 2400 px) | 388 (width-bound) | 43.2 | 13.5 dp | 160 | 74 by 64 | 133 |
-| 1024 by 1366 tablet | 593 (width-bound) | 65.9 | 22.0 dp | 160 | 133 by 64 | 160 |
+| 1024 by 1366 tablet | 593 (width-bound) | 65.9 | 22.0 dp | 160 | 102 by 64 (pad 503 wide, centered) | 160 |
 
 Lesson screen boards: 220 dp at 320 by 568 (12 dp text, no title line, the text scrolls), 277 dp at 360 by 640, and the full width-bound board from 360 by 800 up.
 
@@ -633,7 +638,7 @@ The breakpoints, in content box dp:
 - **Header row, mirrored:** Pause at the left, next to the board; time and score centered; Hint at the right end. Hint must never sit next to the board, where a slip from a cell would buy a hint (the reason Hint moved in Phase 2). Next to the board, Pause is harmless: a slip there only pauses. Faces, guards and sizes are those of 7.5.
 - **Band:** the level sticker, `space_s` above the pad's left end, as it sits above the board when stacked.
 - **Hint panel and full board message:** they cover the side column's info zone (header row and band, down to `space_s` above the pad): the 7.6 rule in a different place. They never cover a cell. The panel is the side column's width, and its text steps down by the 7.6 rule (`ui_fit.gd` measures every hint text on every window below; side by side the longest need 12 dp, as at 320 by 568).
-- **Pad:** NumberPad does not change; it lays out in the side column's width with the 4.7 widths.
+- **Pad:** NumberPad does not change; it lays out in the side column's width with the 4.7 widths, including the `KEY_ASPECT_MAX` limit (never reached side by side: the side column is at most 360 and its keys at least 50.7 tall, so a key is at most 68 by 50.7, 1.34).
 - Touch areas stay at least 48 by 48. The pad is never narrower than at 320 by 568.
 
 #### The lesson player, side by side
@@ -668,8 +673,8 @@ Fold5 density is 2.625 (the cover is 904 by 2316 px, the inner screen 1812 by 21
 | Window | W by H | Bs (stacked) | Bw (side by side) | Result | Board, cell, candidates | Column, keys, info zone |
 | --- | --- | --- | --- | --- | --- | --- |
 | Cover, 344 by 882 | 328 by 810 | min(321, 810 - 251 = 559) = **321** | min(803, 328 - 327 = 1) = 1 | Stacked | 321 width-bound, 35.7, 11.0 dp | column 328; keys 57 by 64; info zone 160, gap 40, 37 spare above and below |
-| Inner, 690 by 829 | 674 by 757 | min(600 - 7 = 593, 757 - 251 = 506) = **506** | min(750, 674 - 327 = 347) = 347 | Stacked | 506 height-bound, 56.2, 18.7 dp | column 600; keys 133 by 40; info zone 96 |
-| Inner, taskbar shown | 674 by 733 | **482** | 347 | Stacked | 482, 53.6, 17.5 dp | as above |
+| Inner, 690 by 829 | 674 by 757 | min(600 - 7 = 593, 757 - 251 = 506) = **506** | min(750, 674 - 327 = 347) = 347 | Stacked | 506 height-bound, 56.2, 18.7 dp | column 600; keys 64 by 40 (were 133 by 40), pad 344 wide centered, right column 116; info zone 96 |
+| Inner, taskbar shown | 674 by 733 | **482** | 347 | Stacked | 482, 53.6, 17.5 dp | as above: keys 64 by 40, pad 344 |
 | Inner left or right half, 345 by 829 | 329 by 757 | min(322, 506) = **322** | min(750, 2) = 2 | Stacked | 322 width-bound, 35.8, 11.0 dp | column 329; keys 58 by 64; info zone 152 |
 | Inner top half, 690 by 400 (status bar) | 674 by 352 | min(593, 352 - 251 = 101) = 101 | min(345, 347) = **345** | Side by side | 345 height-bound, 38.3, 11.8 dp | side column 674 - 352 - 16 = 306; keys 50 by 64; info zone 144 (hint panel 136) |
 | Inner bottom half, 690 by 400 (gesture bar) | 674 by 360 | 109 | min(353, 347) = **347** | Side by side | 347 width-bound, 38.6, 12.2 dp | side column 304; keys 49 by 64; info zone 152; board centered, 3 above and below |
@@ -686,7 +691,7 @@ The lesson screen on the same windows: the cover and the inner halves keep the f
 
 **Readability.** The judgment stays at 360 dp wide (3.4) and does not move. On the windows Bart uses: 11.0 dp candidates on the cover screen and on an inner half (exactly the 11 dp floor, at 344 and 345 dp wide), 11.8 to 12.6 dp side by side on the inner screen, and 18.7 dp on the full inner screen. The smallest supported boards (240 dp, about 7.6 dp candidates) are like 320 by 568: they fit and work, and are not judged.
 
-Picture: [design/window-shapes.png](design/window-shapes.png), drawn by `tools/design/window_fit.gd` from the model. The faces are drawn at their real sizes; digits and labels are left out.
+Picture: [design/window-shapes.png](design/window-shapes.png), drawn by `tools/design/window_fit.gd` from the model. The faces are drawn at their real sizes, the digit keys in their Cross Out look with the fixed corner stripe; digits and labels are left out.
 
 ## 5. Theme styles
 
@@ -745,7 +750,7 @@ Controls:
 | `HINT_BUTTON` | "HintButton" | Button | as `BUTTON_PRIMARY`; holds the hint icon (20 dp, at the left) and two caption role lines, HINT and the cost, all in `button_primary_text`; padding 2 dp on every side, `h_separation` `space_xs` (3.6) |
 | `ICON_BUTTON` | "IconButton" | Button | as `BUTTON_SECONDARY`, a `Layout.ICON_FACE` (40 dp) square face, a 24 dp icon |
 | `PAD_KEY_PLACE` | "PadKeyPlace" | Button | `pad_key_place_bg` and `pad_key_place_text`, `radius_control`, pad_digit role with its trimmed line box (3.5), padding `space_xs` |
-| `PAD_KEY_CROSS` | "PadKeyCross" | Button | `pad_key_cross_bg` and `pad_key_cross_text`, and a stripe in `pad_key_cross_mark` across the top right corner, between 0.2 and 0.4 of the face width from the corner, drawn inside the outline |
+| `PAD_KEY_CROSS` | "PadKeyCross" | Button | `pad_key_cross_bg` and `pad_key_cross_text`, and a stripe in `pad_key_cross_mark` across the top right corner, from 10 to 20 dp from the corner along the top edge and down the right edge, drawn inside the outline. A fixed size on every key, never a share of the face (Phase 6 fix: as a share it became a long band on wide keys). It stays at least 4.9 dp clear of the digit's ink on the smallest key, 49.3 by 40 (`layout_model.gd` checks 2 dp on every window) |
 | `PAD_ACTION` | "PadAction" | Button | as `BUTTON_SECONDARY`; the icon over a caption in the pad_caption role (Undo, Erase); padding `space_xs` at the sides and 2 dp at the top and bottom; `icon_max_width` 20 and the icon fitted to the face (`expand_icon`, set by the pad), so it is 20 dp at most (3.5) |
 | `MODE_BUTTON` | "ModeButton" | Button (toggle) | normal: `mode_toggle_bg` and `mode_toggle_text`, raised; pressed: `mode_toggle_active_bg` and `mode_toggle_active_text`, sunk; icon and label on one line, the label in the mode role; padding `space_xs` on every side, `h_separation` `space_s` (3.5) |
 | `LIST_BUTTON` | "ListButton" | Button | as `BUTTON_SECONDARY`, content left aligned, padding `space_m` (level select and lesson rows) |

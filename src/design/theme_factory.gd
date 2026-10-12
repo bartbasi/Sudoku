@@ -156,8 +156,10 @@ const HUD_PAD_Y: float = 2.0
 ## HINT_BUTTON padding on every side (section 3.6).
 const HINT_BUTTON_PAD: float = 2.0
 const PAD_ACTION_PAD_Y: float = 2.0
-const STRIPE_NEAR: float = 0.2
-const STRIPE_FAR: float = 0.4
+## Cross Out key corner stripe, dp from the face's top right corner along the
+## top edge and down the right edge (section 5, PAD_KEY_CROSS). A fixed size.
+const STRIPE_NEAR: float = 10.0
+const STRIPE_FAR: float = 20.0
 const STAT_BAR_H: float = 16.0
 
 static var _fonts: Dictionary[StringName, FontVariation] = {}

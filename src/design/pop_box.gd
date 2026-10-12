@@ -28,9 +28,10 @@ const _CORNER_STEPS: int = 6
 @export var hatch_gap: float = 0.0
 
 @export var stripe: Color = CLEAR ## Cross Out key corner stripe; CLEAR means none.
-## The stripe runs between these shares of the face width from the top right corner.
-@export var stripe_near: float = 0.2
-@export var stripe_far: float = 0.4
+## The stripe runs between these distances, in dp, from the face's top right
+## corner, along the top edge and down the right edge.
+@export var stripe_near: float = 10.0
+@export var stripe_far: float = 20.0
 
 @export var bar: Color = CLEAR ## Bar along the left inside edge; CLEAR means none.
 @export var bar_w: float = 0.0
@@ -177,11 +178,10 @@ func _draw_hatch(item: RID, rect: Rect2, inner: PackedVector2Array) -> void:
 
 
 func _draw_stripe(item: RID, rect: Rect2, inner: PackedVector2Array) -> void:
-	var w: float = rect.size.x
 	var corner: Vector2 = Vector2(rect.end.x, rect.position.y)
 	var band: PackedVector2Array = PackedVector2Array([
-		corner + Vector2(-w * stripe_far, 0.0), corner + Vector2(-w * stripe_near, 0.0),
-		corner + Vector2(0.0, w * stripe_near), corner + Vector2(0.0, w * stripe_far),
+		corner + Vector2(-stripe_far, 0.0), corner + Vector2(-stripe_near, 0.0),
+		corner + Vector2(0.0, stripe_near), corner + Vector2(0.0, stripe_far),
 	])
 	for piece: PackedVector2Array in Geometry2D.intersect_polygons(band, inner):
 		_fill(item, piece, stripe)

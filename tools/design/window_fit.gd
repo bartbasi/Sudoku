@@ -4,8 +4,10 @@ extends SceneTree
 ## writes docs/design/window-shapes.png. One dp is one pixel times SCALE.
 ## Every window shows its safe insets in gray, the header row (Pause, time and
 ## score, Hint in the order the arrangement uses), the band with the level
-## sticker, the board with its box lines, and the pad; a window that is too
-## small shows the message instead.
+## sticker, the board with its box lines, and the pad in its Cross Out look
+## (ink keys with the pink corner stripe at its fixed dp size), centered in
+## its column when KEY_ASPECT_MAX narrows it; a window that is too small
+## shows the message instead.
 ##
 ##   timeout 300 godot --path . --script res://tools/design/window_fit.gd
 ##
@@ -132,7 +134,7 @@ class Sheet extends Control:
 			var band: Rect2 = Rect2(col_x, header.end.y, layout.content_w, layout.info_zone - LayoutModel.HEADER_ROW)
 			_band(band)
 			_board(Rect2(col_x + (layout.content_w - block) * 0.5, band.end.y, block, block))
-			_pad(Rect2(col_x, band.end.y + block + layout.gap, layout.content_w, keys_h), layout)
+			_pad(_pad_rect(col_x, band.end.y + block + layout.gap, layout, keys_h), layout)
 		else:
 			var left: float = box.x + layout.spare_x * 0.5
 			var board_y: float = box.y + (layout.content.y - block) * 0.5
@@ -143,7 +145,7 @@ class Sheet extends Control:
 			_header(header, true)
 			var band: Rect2 = Rect2(side_x, header.end.y, layout.content_w, layout.info_zone - LayoutModel.HEADER_ROW)
 			_band(band)
-			_pad(Rect2(side_x, band.end.y, layout.content_w, keys_h), layout)
+			_pad(_pad_rect(side_x, band.end.y, layout, keys_h), layout)
 
 	## Hint, time, score and Pause faces, 40 dp tall; Hint at the far end
 	## from the board when side by side.
@@ -175,10 +177,17 @@ class Sheet extends Control:
 			draw_line(b.position + Vector2(0.0, i * cell), b.position + Vector2(side, i * cell), color, w)
 		draw_rect(b, skin.line_outer, false, skin.line_outer_w)
 
+	## The pad's faces, pad_w wide, centered in the column with the shadow.
+	func _pad_rect(column_x: float, top: float, layout: LayoutModel.StackLayout, keys_h: float) -> Rect2:
+		var block: float = layout.pad_w + skin.shadow_offset
+		return Rect2(column_x + (layout.content_w - block) * 0.5, top, layout.pad_w, keys_h)
+
 	func _pad(rect: Rect2, layout: LayoutModel.StackLayout) -> void:
 		var gap: float = skin.space_s
 		for i: int in 9:
-			_face(Rect2(rect.position.x + float(i % 3) * (layout.key_w + gap), rect.position.y + float(i / 3) * (layout.key_h + gap), layout.key_w, layout.key_h), skin.pad_key_place_bg)
+			var key: Rect2 = Rect2(rect.position.x + float(i % 3) * (layout.key_w + gap), rect.position.y + float(i / 3) * (layout.key_h + gap), layout.key_w, layout.key_h)
+			_face(key, skin.pad_key_cross_bg)
+			_stripe(key)
 		var right: float = rect.position.x + 3.0 * layout.key_w + 2.0 * gap + skin.group_gap
 		_face(Rect2(right, rect.position.y, layout.action_w, layout.key_h), skin.mode_toggle_active_bg)
 		_face(Rect2(right, rect.position.y + layout.key_h + gap, layout.action_w, layout.key_h), skin.mode_toggle_bg)
@@ -186,6 +195,21 @@ class Sheet extends Control:
 		var bottom: float = rect.position.y + 2.0 * (layout.key_h + gap)
 		_face(Rect2(right, bottom, half, layout.key_h), skin.button_bg)
 		_face(Rect2(right + half + gap, bottom, half, layout.key_h), skin.button_bg)
+
+	## The Cross Out corner stripe: STRIPE_NEAR to STRIPE_FAR dp from the top
+	## right corner, inside the outline.
+	func _stripe(face: Rect2) -> void:
+		var o: float = skin.outline_w
+		var corner: Vector2 = Vector2(face.end.x, face.position.y)
+		var band: PackedVector2Array = PackedVector2Array([
+			corner + Vector2(-LayoutModel.STRIPE_FAR, 0.0), corner + Vector2(-LayoutModel.STRIPE_NEAR, 0.0),
+			corner + Vector2(0.0, LayoutModel.STRIPE_NEAR), corner + Vector2(0.0, LayoutModel.STRIPE_FAR),
+		])
+		var inner: PackedVector2Array = PackedVector2Array([
+			face.position + Vector2(o, o), Vector2(face.end.x - o, face.position.y + o), face.end - Vector2(o, o), Vector2(face.position.x + o, face.end.y - o),
+		])
+		for piece: PackedVector2Array in Geometry2D.intersect_polygons(band, inner):
+			draw_colored_polygon(piece, skin.pad_key_cross_mark)
 
 	## A Pop face: hard shadow, fill, outline.
 	func _face(face: Rect2, fill: Color) -> void:

@@ -2,7 +2,7 @@ class_name LessonPlayer
 extends Control
 ## Plays one lesson on the real board (docs/ARCHITECTURE.md section 10,
 ## docs/LESSONS.md sections 2 and 8, GDD 15.4, the look in DESIGN_SYSTEM.md
-## 4.8 and 7.13). Scene: scenes/lessons/lesson_player.tscn.
+## 4.8, 4.11 and 7.13). Scene: scenes/lessons/lesson_player.tscn.
 ##
 ## Each screen gets a fresh lesson session (LessonScreen.build_session:
 ## Auto Cross off, no timer, score or hints) on the shared PlayArea. The
@@ -92,6 +92,7 @@ func ensure_built() -> void:
 	area = PlayArea.new()
 	area.name = "PlayArea"
 	area.skin = skin
+	area.header_height = 0.0
 	add_child(area)
 	area.controller.gate = _gate
 	area.controller.action_applied.connect(_on_action_applied)
@@ -384,9 +385,11 @@ func _layout() -> void:
 	page.size = size
 	if current == null:
 		return
+	# PlayArea takes the whole safe rect and keeps page_margin inside it on
+	# every side; a lesson has no header row (4.11).
 	var safe: Rect2 = _safe_rect()
-	area.position = Vector2(safe.position.x, safe.position.y + current.page_margin)
-	area.size = Vector2(safe.size.x, maxf(0.0, safe.size.y - current.page_margin))
+	area.position = safe.position
+	area.size = safe.size
 	_fit_card(current)
 	var band: Rect2 = area.band_rect()
 	_stop(_shake)
@@ -407,13 +410,22 @@ func _layout() -> void:
 		_layout_praise()
 
 
-## Sizes the card and the band to the text (DESIGN_SYSTEM.md 4.8): the text
-## steps down from 14 to 13 to 12 dp while the board would be under 80
-## percent of its width-bound size; then the title hides while the board
-## would be under LESSON_TITLE_MIN_BOARD; and the board never goes under
-## LESSON_BOARD_FLOOR: past that the card stops growing and the text scrolls.
-## The band is the card plus a space_s gap above the board.
+## Sizes the card and the band to the text, by the arrangement PlayArea
+## picks (DESIGN_SYSTEM.md 4.8 and 4.11). The band is the card plus a
+## space_s gap: above the board when stacked, above the pad side by side.
 func _fit_card(current: GameSkin) -> void:
+	if area.arrangement() == Layout.Arrangement.SIDE:
+		_fit_card_side(current)
+	else:
+		_fit_card_stacked(current)
+
+
+## Stacked (4.8): the text steps down from 14 to 13 to 12 dp while the board
+## would be under 80 percent of its width-bound size; then the title hides
+## while the board would be under LESSON_TITLE_MIN_BOARD; and the board never
+## goes under LESSON_BOARD_FLOOR: past that the card stops growing and the
+## text scrolls. The too small arrangement lays out the same way, clamped.
+func _fit_card_stacked(current: GameSkin) -> void:
 	var width: float = maxf(0.0, minf(area.size.x - 2.0 * current.page_margin, Layout.COLUMN_MAX))
 	var width_bound: float = width - current.line_outer_w - current.shadow_offset
 	var gap: float = current.space_s
@@ -437,6 +449,33 @@ func _fit_card(current: GameSkin) -> void:
 	area.set_band_height(height + gap)
 
 
+## Side by side (4.11): the card is the side column's width and as tall as
+## its text, up to the content height minus the pad at its minimum and the
+## space_s gap above the pad. Past that, in order: the text steps down from
+## 14 to 13 to 12 dp, the title hides, the text scrolls. The board does not
+## depend on the card here.
+func _fit_card_side(current: GameSkin) -> void:
+	var gap: float = current.space_s
+	area.set_band_height(0.0)
+	var width: float = area.band_rect().size.x
+	var content_h: float = maxf(0.0, area.size.y - 2.0 * current.page_margin)
+	var pad_min: float = 3.0 * Layout.KEY_MIN + 2.0 * gap
+	var max_height: float = maxf(0.0, content_h - pad_min - gap)
+	var variation: StringName = STEP_DOWN[0]
+	var height: float = 0.0
+	for candidate: StringName in STEP_DOWN:
+		variation = candidate
+		height = card.configure(width, variation, true)
+		if height <= max_height:
+			break
+	if height > max_height:
+		height = card.configure(width, variation, false)
+	if height > max_height:
+		height = card.configure(width, variation, false, max_height)
+	_card_height = height
+	area.set_band_height(height + gap)
+
+
 func _board_for(band_height: float) -> float:
 	area.set_band_height(band_height)
 	return area.view.board_square().size.x
@@ -456,7 +495,10 @@ func _layout_praise() -> void:
 	var gap: float = current.space_s if current != null else 0.0
 	var check_w: float = (praise_card.get_node(^"Rows/Line/Check") as Control).get_combined_minimum_size().x
 	var text_w: float = keys.size.x - pad_x - check_w - gap
-	var text_h: float = Card.text_height(praise_label, praise_label.text, text_w)
+	# The praise steps down with the card's text, so on short screens it
+	# does not grow up over the board (7.13: the board stays in view).
+	praise_label.theme_type_variation = card.body.theme_type_variation
+	var text_h: float = Card.text_height(praise_label, praise_label.text, text_w, praise_label.theme_type_variation)
 	praise_label.custom_minimum_size = Vector2(1.0, text_h)
 	var needed: float = pad_y + text_h + gap + Layout.BUTTON_TALL
 	var height: float = maxf(keys.size.y, needed)

@@ -26,6 +26,10 @@ const ACTION_RATIO: float = 1.8
 const ACTION_MIN: float = 116.0
 ## Widest right column.
 const ACTION_MAX: float = 160.0
+## A digit key's face is never wider than this many times its height. When
+## the column would make it wider, the pad narrows and is centered in its
+## column (DESIGN_SYSTEM.md 4.7).
+const KEY_ASPECT_MAX: float = 1.6
 ## Widest content column, centered, on tablets.
 const COLUMN_MAX: float = 600.0
 ## Width of the Hint button's face.
@@ -106,6 +110,16 @@ static func arrangement(content: Rect2, skin: GameSkin) -> int:
 	if maxf(stacked, side) < BOARD_MIN - 0.01:
 		return Arrangement.TOO_SMALL
 	return Arrangement.SIDE if side > stacked + 0.5 else Arrangement.STACKED
+
+
+## The width of the pad's faces in a column this wide with keys this tall:
+## the column minus the shadow, but never so wide that a digit key is wider
+## than KEY_ASPECT_MAX times its height (DESIGN_SYSTEM.md 4.7).
+static func pad_faces_width(column_w: float, key_h: float, skin: GameSkin) -> float:
+	var full: float = maxf(0.0, column_w - skin.shadow_offset)
+	var key_w: float = KEY_ASPECT_MAX * key_h
+	var widest: float = 3.0 * key_w + 2.0 * skin.space_s + skin.group_gap + clampf(ACTION_RATIO * key_w, ACTION_MIN, ACTION_MAX)
+	return minf(full, widest)
 
 
 ## What the board block adds past the cells: the outer line and the shadow.

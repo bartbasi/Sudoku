@@ -26,6 +26,18 @@ const KEY_MAX: float = 64.0
 const ACTION_RATIO: float = 1.8 ## Right column width as a multiple of a digit key's width.
 const ACTION_MIN: float = 116.0
 const ACTION_MAX: float = 160.0
+## A digit key's face is never wider than this many times its height. When
+## the column would make it wider, the pad narrows and is centered in its
+## column (DESIGN_SYSTEM.md 4.7, Phase 6 fix). 1.6 is just above the flattest
+## key the phones give, 62.7 by 40 at 360 by 640.
+const KEY_ASPECT_MAX: float = 1.6
+## Cross Out key corner stripe, dp from the face's top right corner along the
+## top edge and down the right edge (DESIGN_SYSTEM.md section 5). A fixed size,
+## never a share of the face. Not a Layout constant: only ThemeFactory reads it.
+const STRIPE_NEAR: float = 10.0
+const STRIPE_FAR: float = 20.0
+## Smallest gap from the stripe to the digit's ink on any key face.
+const STRIPE_INK_CLEAR: float = 2.0
 const COLUMN_MAX: float = 600.0 ## Widest content column, on tablets.
 const HINT_FACE_W: float = 64.0
 const ICON_FACE: float = 40.0 ## Pause, back, close: face; touch 48.
@@ -85,6 +97,8 @@ class StackLayout extends RefCounted:
 	var key_h: float
 	var key_w: float
 	var action_w: float
+	var pad_w: float ## Width of the pad's faces, without the shadow; centered in the column.
+	var stripe_clear: float ## Smallest gap from the Cross Out stripe to a digit's ink, dp.
 	var spare: float ## Height left after the stack, split above and below it.
 	var spare_x: float ## Side by side: width left after board, gap and side column, split left and right.
 	var header_fits: bool
@@ -382,6 +396,26 @@ static func _pad_and_checks(out: StackLayout, skin: GameSkin, zone_min: float) -
 	if out.action_w < ACTION_MIN or out.action_w > ACTION_MAX:
 		out.action_w = clampf(out.action_w, ACTION_MIN, ACTION_MAX)
 		out.key_w = (rest - out.action_w) / 3.0
+	var full_w: float = 3.0 * out.key_w + 2.0 * skin.space_s + skin.group_gap + out.action_w
+	out.pad_w = pad_faces_width(out.content_w, out.key_h, skin)
+	if out.pad_w < full_w - 0.01:
+		# Narrowed: the widths follow from the pad's own width, as NumberPad
+		# lays them out.
+		var narrow_rest: float = out.pad_w - 2.0 * skin.space_s - skin.group_gap
+		out.key_w = narrow_rest / (3.0 + ACTION_RATIO)
+		out.action_w = ACTION_RATIO * out.key_w
+		if out.action_w < ACTION_MIN or out.action_w > ACTION_MAX:
+			out.action_w = clampf(out.action_w, ACTION_MIN, ACTION_MAX)
+			out.key_w = (narrow_rest - out.action_w) / 3.0
+	if out.key_w > KEY_ASPECT_MAX * out.key_h + 0.01:
+		out.problems.append("digit keys %.1f x %.1f, flatter than %.1f" % [out.key_w, out.key_h, KEY_ASPECT_MAX])
+	if out.pad_w > faces + 0.01:
+		out.problems.append("pad %.1f dp wide, column faces %.1f" % [out.pad_w, faces])
+	out.stripe_clear = stripe_clearance(Vector2(out.key_w, out.key_h))
+	if STRIPE_FAR > minf(out.key_w, out.key_h) - skin.outline_w:
+		out.problems.append("Cross Out stripe (%.0f dp) runs off a %.1f x %.1f key" % [STRIPE_FAR, out.key_w, out.key_h])
+	if out.stripe_clear < STRIPE_INK_CLEAR - 0.01:
+		out.problems.append("Cross Out stripe is %.1f dp from a digit on a %.1f x %.1f key" % [out.stripe_clear, out.key_w, out.key_h])
 	var header: float = HINT_FACE_W + HEADER_GUARD + TIME_MIN_W + skin.space_s + SCORE_MIN_W + HEADER_GUARD + ICON_FACE
 	out.header_fits = header <= faces
 	if out.board <= 0.0:
@@ -399,6 +433,36 @@ static func _pad_and_checks(out: StackLayout, skin: GameSkin, zone_min: float) -
 		out.problems.append("column %.0f dp, under COLUMN_MIN" % out.content_w)
 	if out.hint_panel < 88.0 - 0.01 and zone_min == INFO_ZONE_MIN:
 		out.problems.append("hint panel is %.0f dp tall, needs 88" % out.hint_panel)
+
+
+## Width of the pad's faces (without the shadow) in a column column_w wide
+## with keys key_h tall: the column less the shadow, or narrower when that
+## would make a digit key wider than KEY_ASPECT_MAX times its height. The
+## reference for Layout.pad_faces_width (DESIGN_SYSTEM.md 4.7).
+static func pad_faces_width(column_w: float, key_h: float, skin: GameSkin) -> float:
+	var full: float = maxf(0.0, column_w - skin.shadow_offset)
+	var key_w: float = KEY_ASPECT_MAX * key_h
+	var widest: float = 3.0 * key_w + 2.0 * skin.space_s + skin.group_gap + clampf(ACTION_RATIO * key_w, ACTION_MIN, ACTION_MAX)
+	return minf(full, widest)
+
+
+## The smallest gap, in dp, between the Cross Out stripe's far edge and the
+## ink of any digit 1 to 9 on a key face of this size. The digit is set in
+## the pad_digit role and centered by its advance; its ink sits 0.7 dp below
+## the face's center (DESIGN_SYSTEM.md 3.5). Distance is measured the way the
+## stripe is: along the top edge plus down the right edge from the corner.
+static func stripe_clearance(face: Vector2) -> float:
+	var font: Font = ThemeFactory.role_font(ThemeFactory.ROLE_PAD_DIGIT)
+	var size: int = ThemeFactory.role_size(ThemeFactory.ROLE_PAD_DIGIT)
+	var worst: float = INF
+	for digit: int in range(1, 10):
+		var text: String = str(digit)
+		var box: Rect2 = Fonts.ink_box(font, size, text)
+		var advance: float = font.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, size).x
+		var ink_right: float = face.x * 0.5 - advance * 0.5 + box.end.x
+		var ink_top: float = face.y * 0.5 + 0.7 - box.size.y * 0.5
+		worst = minf(worst, (face.x - ink_right) + ink_top - STRIPE_FAR)
+	return worst
 
 
 ## Candidate font size in device pixels for a board of the given side (dp) at

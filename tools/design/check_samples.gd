@@ -421,9 +421,9 @@ func _check_final_layout() -> void:
 			var px3: int = LayoutModel.candidate_px(layout.board, 3.0, skin)
 			var dp2: float = float(px2) / 2.0
 			var dp3: float = float(px3) / 3.0
-			print("  %-34s %-6s board %5.1f (%s), cell %4.1f, candidates %4.1f / %4.1f, info zone %5.1f, hint panel %5.1f, keys %4.1f x %4.1f, right column %5.1f, gap %4.1f, spare %5.1f" % [
+			print("  %-34s %-6s board %5.1f (%s), cell %4.1f, candidates %4.1f / %4.1f, info zone %5.1f, hint panel %5.1f, keys %4.1f x %4.1f, right column %5.1f, pad %5.1f, stripe clear %3.1f, gap %4.1f, spare %5.1f" % [
 				screen.label, kind, layout.board, "width" if layout.board_width_bound else "height", layout.cell(), dp2, dp3,
-				layout.info_zone, layout.hint_panel, layout.key_w, layout.key_h, layout.action_w, layout.gap, layout.spare])
+				layout.info_zone, layout.hint_panel, layout.key_w, layout.key_h, layout.action_w, layout.pad_w, layout.stripe_clear, layout.gap, layout.spare])
 			if kind == "lesson":
 				print("  %-34s        lesson text %d dp, title %s, %s" % ["", int(LayoutModel.lesson_text_size),
 					"shown" if LayoutModel.lesson_title_shown else "hidden",
@@ -460,9 +460,9 @@ func _check_windows(skin: GameSkin) -> void:
 					print("  %-34s        shows the too small message" % "")
 				continue
 			var px: int = LayoutModel.candidate_px(layout.board, screen.density, skin)
-			print("  %-34s %-6s board %5.1f (%s), cell %4.1f, candidates %4.1f dp, info zone %5.1f, hint panel %5.1f, column %5.1f, keys %4.1f x %4.1f, right column %5.1f, gap %4.1f, spare %5.1f%s" % [
+			print("  %-34s %-6s board %5.1f (%s), cell %4.1f, candidates %4.1f dp, info zone %5.1f, hint panel %5.1f, column %5.1f, keys %4.1f x %4.1f, right column %5.1f, pad %5.1f, stripe clear %3.1f, gap %4.1f, spare %5.1f%s" % [
 				"", kind, layout.board, "width" if layout.board_width_bound else "height", layout.cell(), float(px) / screen.density,
-				layout.info_zone, layout.hint_panel, layout.content_w, layout.key_w, layout.key_h, layout.action_w, layout.gap, layout.spare,
+				layout.info_zone, layout.hint_panel, layout.content_w, layout.key_w, layout.key_h, layout.action_w, layout.pad_w, layout.stripe_clear, layout.gap, layout.spare,
 				", spare width %.1f, menu halves %.1f" % [layout.spare_x, layout.menu_w] if layout.arrangement == LayoutModel.Arrangement.SIDE else ""])
 			if kind == "lesson":
 				print("  %-34s        lesson text %d dp, title %s, %s" % ["", int(LayoutModel.lesson_text_size),

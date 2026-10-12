@@ -16,6 +16,10 @@ class_name PlayArea extends Control
 ## half of what is left grows the band up to BAND_MAX and the rest grows the
 ## gap up to BOARD_GAP_MAX; anything still left goes equally above and below.
 ##
+## In both arrangements the pad's digit keys are never wider than
+## KEY_ASPECT_MAX times their height: on wide columns the pad narrows and is
+## centered in its column (DESIGN_SYSTEM.md 4.7).
+##
 ## SIDE: the board at the left, as large as Layout.side_board gives, centered
 ## vertically when its width limits it; SIDE_GAP; then the side column,
 ## COLUMN_MIN to SIDE_MAX wide, holding the header row, the band and the pad.
@@ -210,14 +214,20 @@ func _layout_side(current: GameSkin, content: Rect2) -> void:
 	_place_pad(current, side_x, _band.end.y, side_w, key_h)
 
 
-## The pad's faces fill the column from x to x + width, from top down: three
-## rows of key_h with space_s between them. The pad's rect is the faces grown
-## by half a key gap, so every touch area reaches 48 dp.
+## The pad in a column from x to x + width, from top down: three rows of
+## key_h with space_s between them. Its faces are as wide as the column
+## allows, but no wider than keys of KEY_ASPECT_MAX times key_h need
+## (Layout.pad_faces_width); a narrowed pad is centered in the column. The
+## pad's rect is the faces and their shadow grown by half a key gap, so every
+## touch area reaches 48 dp.
 func _place_pad(current: GameSkin, x: float, top: float, width: float, key_h: float) -> void:
 	var gap_s: float = current.space_s
 	var inset: float = gap_s * 0.5
-	pad.position = Vector2(x - inset, top - inset)
-	pad.size = Vector2(width + 2.0 * inset, 3.0 * key_h + 2.0 * gap_s + 2.0 * inset)
+	var faces_w: float = Layout.pad_faces_width(width, key_h, current)
+	var block: float = faces_w + current.shadow_offset
+	var left: float = x + (width - block) * 0.5
+	pad.position = Vector2(left - inset, top - inset)
+	pad.size = Vector2(block + 2.0 * inset, 3.0 * key_h + 2.0 * gap_s + 2.0 * inset)
 
 
 func _on_skin_changed(_skin: GameSkin) -> void:

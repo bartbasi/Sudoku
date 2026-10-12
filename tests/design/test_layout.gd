@@ -7,7 +7,7 @@ extends "res://tests/unit_test.gd"
 const DesignDoc := preload("res://tests/design/design_doc.gd")
 const LayoutModel := preload("res://tools/design/layout_model.gd")
 const SKIN_PATHS: Array[String] = ["res://src/skins/pop_light.tres", "res://src/skins/pop_dark.tres"]
-const WINDOW_CONSTANTS: Array[String] = ["COLUMN_MIN", "SIDE_MAX", "SIDE_GAP", "BOARD_MIN", "CONTENT_MIN_H"]
+const WINDOW_CONSTANTS: Array[String] = ["COLUMN_MIN", "SIDE_MAX", "SIDE_GAP", "BOARD_MIN", "CONTENT_MIN_H", "KEY_ASPECT_MAX"]
 
 
 func test_constants_match_section_4_6() -> void:
@@ -16,7 +16,7 @@ func test_constants_match_section_4_6() -> void:
 	if tables.is_empty():
 		return
 	var rows: Array = tables[0]
-	assert_eq(rows.size(), 27, "section 4.6 lists 27 Layout constants")
+	assert_eq(rows.size(), 28, "section 4.6 lists 28 Layout constants")
 	var map: Dictionary = _number_constants()
 	for cells: PackedStringArray in rows:
 		var constant: String = DesignDoc.code(cells[0])
@@ -89,6 +89,39 @@ func test_window_shapes_match_the_design_model() -> void:
 				assert_eq(kind, expected, "pinned arrangement, " + label)
 			checked += 1
 		assert_eq(checked, windows.size(), "every window checked, " + path)
+
+
+## On every screen and window the model checks, in both skins, play and
+## lesson layouts: Layout.pad_faces_width gives the model's pad width.
+func test_pad_faces_width_matches_the_design_model() -> void:
+	for path: String in SKIN_PATHS:
+		var skin: GameSkin = load(path) as GameSkin
+		var windows: Array = []
+		windows.append_array(LayoutModel.screens())
+		windows.append_array(LayoutModel.window_screens())
+		windows.append_array(LayoutModel.supported_windows(skin))
+		var checked: int = 0
+		for screen: RefCounted in windows:
+			for out: RefCounted in [LayoutModel.play(screen, skin), LayoutModel.lesson(screen, skin)]:
+				if out.get("arrangement") == LayoutModel.Arrangement.TOO_SMALL:
+					continue
+				var column_w: float = out.get("content_w")
+				var key_h: float = out.get("key_h")
+				var label: String = "%s, %s" % [screen.get("label"), path.get_file()]
+				var ours: float = Layout.pad_faces_width(column_w, key_h, skin)
+				assert_eq(ours, LayoutModel.pad_faces_width(column_w, key_h, skin), "pad faces width, " + label)
+				assert_eq(ours, out.get("pad_w"), "pad width of the model's layout, " + label)
+				checked += 1
+		assert_true(checked > 0, "some layouts checked, " + path)
+
+
+func test_pad_never_makes_a_key_flatter_than_the_cap() -> void:
+	var skin: GameSkin = load(SKIN_PATHS[0]) as GameSkin
+	var wide: float = Layout.pad_faces_width(600.0, Layout.KEY_MIN, skin)
+	assert_true(wide < 600.0 - skin.shadow_offset, "a wide column narrows the pad")
+	var narrow: float = Layout.pad_faces_width(Layout.COLUMN_MIN, Layout.KEY_MAX, skin)
+	assert_eq(narrow, Layout.COLUMN_MIN - skin.shadow_offset, "a narrow column keeps the full width")
+	assert_eq(Layout.pad_faces_width(0.0, Layout.KEY_MIN, skin), 0.0, "never negative")
 
 
 ## Layout's number constants; the Arrangement enum is not a table row.

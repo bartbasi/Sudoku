@@ -163,7 +163,8 @@ func test_cross_out_keys_carry_the_stripe_and_place_keys_do_not() -> void:
 		var cross: PopBox = theme.get_stylebox(&"normal", ThemeFactory.PAD_KEY_CROSS) as PopBox
 		var place: PopBox = theme.get_stylebox(&"normal", ThemeFactory.PAD_KEY_PLACE) as PopBox
 		assert_eq(cross.stripe, skin.pad_key_cross_mark, "stripe color")
-		assert_true(cross.stripe_near >= 0.2 and cross.stripe_far <= 0.4 and cross.stripe_near < cross.stripe_far, "stripe between 0.2 and 0.4")
+		assert_eq(cross.stripe_near, 10.0, "stripe starts 10 dp from the corner")
+		assert_eq(cross.stripe_far, 20.0, "stripe ends 20 dp from the corner")
 		assert_eq(place.stripe.a, 0.0, "Place keys have no stripe")
 
 
