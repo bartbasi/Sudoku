@@ -30,7 +30,9 @@ extends RefCounted
 ##   reading order of the pivot's peers.
 ##
 ## Use grade() for a whole puzzle. For one step at a time (hints), call
-## load_givens() or load_state(), then find_step() and read the step. The
+## load_givens() or load_state(), then find_step() and read the step, with
+## step_group(), step_second_group(), step_pattern_cells() and
+## step_pattern_digits() for what makes it. The
 ## generator's removal checks use solves(), a faster yes or no with the same
 ## techniques. Instances are not shared: create one per thread.
 
@@ -77,6 +79,12 @@ var _step_digit: int = 0
 var _elim_cells: PackedInt32Array = PackedInt32Array()
 var _elim_masks: PackedInt32Array = PackedInt32Array()
 var _elim_count: int = 0
+## What makes the step, for hint texts (see step_group() and the functions
+## after it). Recorded only when a step is found.
+var _step_group: int = -1
+var _step_second_group: int = -1
+var _pattern_cells: PackedInt32Array = PackedInt32Array()
+var _pattern_digits: int = 0
 
 ## Totals since the last load.
 var _counts: PackedInt32Array = PackedInt32Array()
@@ -237,6 +245,38 @@ func step_eliminations() -> PackedInt32Array:
 		out.append(_elim_cells[k])
 		out.append(_elim_masks[k])
 	return out
+
+
+## The group the step is about, as an index into Tables.UNITS (0 to 8 boxes,
+## 9 to 17 rows, 18 to 26 columns), or -1:
+## - last empty cell, hidden single, the pairs and triples: the group searched;
+## - pointing: the box; claiming: the row or column;
+## - X-Wing and Swordfish: the first base line (a row or a column);
+## - naked single, Y-Wing, XYZ-Wing: -1.
+func step_group() -> int:
+	return _step_group
+
+
+## The second group of a step, or -1: for pointing the row or column it lies
+## in, for claiming the box, for X-Wing and Swordfish the first cross line.
+func step_second_group() -> int:
+	return _step_second_group
+
+
+## The cells that make the pattern, empty for singles:
+## - pointing and claiming: the cells of step_group() where the digit can go;
+## - pairs and triples: the two or three cells;
+## - X-Wing and Swordfish: the cells on the base lines where the digit can go;
+## - Y-Wing and XYZ-Wing: the pivot, then the two wings.
+func step_pattern_cells() -> PackedInt32Array:
+	return _pattern_cells.duplicate()
+
+
+## The digits of the pattern as a mask (bit d - 1 for digit d), 0 when there
+## are none: the digit for a hidden single, pointing, claiming and the fish,
+## the two or three digits of a pair or triple, and z for Y-Wing and XYZ-Wing.
+func step_pattern_digits() -> int:
+	return _pattern_digits
 
 
 func is_solved() -> bool:
@@ -409,6 +449,40 @@ func _clear_step() -> void:
 	_step_cell = -1
 	_step_digit = 0
 	_elim_count = 0
+	_step_group = -1
+	_step_second_group = -1
+	_pattern_digits = 0
+	if not _pattern_cells.is_empty():
+		_pattern_cells.clear()
+
+
+## Records the cells of group where bit is a candidate as the pattern.
+func _record_pattern_in_group(group: int, bit: int) -> void:
+	var base: int = group * 9
+	for k: int in 9:
+		var i: int = Tables.UNITS[base + k]
+		if _cand[i] & bit:
+			_pattern_cells.append(i)
+	_pattern_digits = bit
+
+
+## Records the pattern of a naked pair or triple, Y-Wing or XYZ-Wing.
+func _record_set(group: int, cells: Array[int], digits_mask: int) -> void:
+	_step_group = group
+	for i: int in cells:
+		_pattern_cells.append(i)
+	_pattern_digits = digits_mask
+
+
+## Records the pattern of a hidden pair or triple: cell_bits are positions in
+## the group.
+func _record_hidden_set(group: int, cell_bits: int, digits_mask: int) -> void:
+	_step_group = group
+	var base: int = group * 9
+	for k: int in 9:
+		if cell_bits & (1 << k):
+			_pattern_cells.append(Tables.UNITS[base + k])
+	_pattern_digits = digits_mask
 
 
 func _place(cell: int, digit: int) -> void:
@@ -457,6 +531,7 @@ func _find_last_empty_cell() -> bool:
 			var mask: int = cand[i]
 			if Tables.POPCOUNT[mask] == 1:
 				_record_placement(i, mask)
+				_step_group = g
 				return true
 			break
 	return false
@@ -485,6 +560,8 @@ func _find_hidden_single() -> bool:
 			var i: int = units[base + k]
 			if cand[i] & bit:
 				_record_placement(i, bit)
+				_step_group = g
+				_pattern_digits = bit
 				return true
 	return false
 
@@ -546,6 +623,7 @@ func _find_pointing() -> bool:
 			elif row_only2 & bit:
 				line = 2
 			if line >= 0 and _eliminate_in_group_outside_box(9 + first_row + line, b, bit):
+				_record_pointing(b, 9 + first_row + line, bit)
 				return true
 			line = -1
 			if col_only0 & bit:
@@ -555,8 +633,15 @@ func _find_pointing() -> bool:
 			elif col_only2 & bit:
 				line = 2
 			if line >= 0 and _eliminate_in_group_outside_box(18 + first_col + line, b, bit):
+				_record_pointing(b, 18 + first_col + line, bit)
 				return true
 	return false
+
+
+func _record_pointing(box: int, line_group: int, bit: int) -> void:
+	_step_group = box
+	_step_second_group = line_group
+	_record_pattern_in_group(box, bit)
 
 
 func _eliminate_in_group_outside_box(group: int, box: int, bit: int) -> bool:
@@ -605,6 +690,9 @@ func _find_claiming() -> bool:
 				if not in_line and (cand[i] & bit) != 0:
 					_record(i, bit)
 			if _elim_count > 0:
+				_step_group = g
+				_step_second_group = box
+				_record_pattern_in_group(g, bit)
 				return true
 	return false
 
@@ -633,6 +721,7 @@ func _find_naked_pair() -> bool:
 			for b: int in range(a + 1, n):
 				var cell_b: int = list[b]
 				if cand[cell_b] == mask and _eliminate_seen_by_all(cell_a, cell_b, -1, mask):
+					_record_set(g, [cell_a, cell_b], mask)
 					return true
 	return false
 
@@ -668,6 +757,7 @@ func _find_hidden_pair() -> bool:
 					if extra != 0:
 						_record(i, extra)
 				if _elim_count > 0:
+					_record_hidden_set(g, cells_a, keep)
 					return true
 	return false
 
@@ -700,6 +790,7 @@ func _find_naked_triple() -> bool:
 				for c: int in range(b + 1, n):
 					var mask: int = mask_ab | cand[list[c]]
 					if popcount[mask] == 3 and _eliminate_seen_by_all(list[a], list[b], list[c], mask):
+						_record_set(g, [list[a], list[b], list[c]], mask)
 						return true
 	return false
 
@@ -745,6 +836,7 @@ func _find_hidden_triple() -> bool:
 						if extra != 0:
 							_record(i, extra)
 					if _elim_count > 0:
+						_record_hidden_set(g, cells_abc, keep)
 						return true
 	return false
 
@@ -768,6 +860,7 @@ func _x_wing_in(line_pos: PackedInt32Array, d: int, base_is_row: bool) -> bool:
 			continue
 		for l2: int in range(l1 + 1, 9):
 			if line_pos[base + l2] == cross and _eliminate_fish(cross, (1 << l1) | (1 << l2), 1 << d, base_is_row):
+				_record_fish(cross, (1 << l1) | (1 << l2), 1 << d, base_is_row)
 				return true
 	return false
 
@@ -796,6 +889,7 @@ func _find_y_wing() -> bool:
 			for b: int in range(a + 1, 20):
 				var wing_b: int = peers[base + b]
 				if cand[wing_b] == wanted and _eliminate_seen_by_all(wing_a, wing_b, -1, z):
+					_record_set(-1, [p, wing_a, wing_b], z)
 					return true
 	return false
 
@@ -833,6 +927,7 @@ func _swordfish_in(line_pos: PackedInt32Array, d: int, base_is_row: bool) -> boo
 					continue
 				var lines: int = (1 << list[a]) | (1 << list[b]) | (1 << list[c])
 				if _eliminate_fish(cross, lines, 1 << d, base_is_row):
+					_record_fish(cross, lines, 1 << d, base_is_row)
 					return true
 	return false
 
@@ -859,6 +954,7 @@ func _find_xyz_wing() -> bool:
 				if popcount[mask_b] != 2 or (mask_b & ~pivot) != 0 or mask_b == mask_a:
 					continue
 				if _eliminate_seen_by_all(p, wing_a, wing_b, mask_a & mask_b):
+					_record_set(-1, [p, wing_a, wing_b], mask_a & mask_b)
 					return true
 	return false
 
@@ -914,6 +1010,20 @@ func _eliminate_fish(cross: int, base_lines: int, bit: int, base_is_row: bool) -
 			if cand[i] & bit:
 				_record(i, bit)
 	return _elim_count > 0
+
+
+## Records a fish: the groups of the first base and cross lines, and the
+## cells on the base lines where the digit can go, in reading order.
+func _record_fish(cross: int, base_lines: int, bit: int, base_is_row: bool) -> void:
+	var first_base: int = Tables.LOWEST_DIGIT[base_lines & -base_lines] - 1
+	var first_cross: int = Tables.LOWEST_DIGIT[cross & -cross] - 1
+	_step_group = (9 if base_is_row else 18) + first_base
+	_step_second_group = (18 if base_is_row else 9) + first_cross
+	_pattern_digits = bit
+	for i: int in Tables.CELL_COUNT:
+		var line: int = Tables.ROW_OF[i] if base_is_row else Tables.COL_OF[i]
+		if (base_lines & (1 << line)) != 0 and (_cand[i] & bit) != 0:
+			_pattern_cells.append(i)
 
 
 ## Fills _group_pos for every group, once per search.

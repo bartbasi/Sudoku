@@ -179,7 +179,7 @@ func _build_lesson() -> void:
 
 
 func _build_stats() -> void:
-	var stats: SampleState.Stats = SampleState.stats()
+	var stats: SampleState.SampleStats = SampleState.stats()
 	var row1: Rect2 = Rect2(0.0, _top + _sp * 0.5, _w, Kit.MIN_TOUCH)
 	_round_button(Rect2(0.0, row1.position.y, Kit.MIN_TOUCH, Kit.MIN_TOUCH), Icons.BACK, "Back")
 	var title_x: float = Kit.MIN_TOUCH - _m + _sp * 0.5

@@ -198,7 +198,7 @@ func _check_values() -> void:
 	_expect(done.points_after_hints == points - done.hints_used * points / 5, "completion: points after hints (GDD 9.2)")
 	_expect(done.time_bonus == expected_bonus, "completion: time bonus (GDD 9.2)")
 	_expect(done.score == done.points_after_hints + done.time_bonus, "completion: score is points plus bonus")
-	var stats: SampleState.Stats = SampleState.stats()
+	var stats: SampleState.SampleStats = SampleState.stats()
 	_expect(stats.levels.size() == 5, "stats: five levels")
 	for row: SampleState.LevelStats in stats.levels:
 		_expect(POINTS.has(row.level_name), "stats: unknown level %s" % row.level_name)
@@ -416,7 +416,7 @@ func _check_final_layout() -> void:
 	print("Final layout, play and lesson screens (dp; candidates in dp at density 2 and 3)")
 	for screen: LayoutModel.Screen in LayoutModel.screens():
 		for kind: String in ["play", "lesson"]:
-			var layout: LayoutModel.Layout = LayoutModel.play(screen, skin) if kind == "play" else LayoutModel.lesson(screen, skin)
+			var layout: LayoutModel.StackLayout = LayoutModel.play(screen, skin) if kind == "play" else LayoutModel.lesson(screen, skin)
 			var px2: int = LayoutModel.candidate_px(layout.board, 2.0, skin)
 			var px3: int = LayoutModel.candidate_px(layout.board, 3.0, skin)
 			var dp2: float = float(px2) / 2.0

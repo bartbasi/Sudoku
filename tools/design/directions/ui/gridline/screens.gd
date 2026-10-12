@@ -136,7 +136,7 @@ func _build_lesson() -> void:
 
 
 func _build_stats() -> void:
-	var stats: SampleState.Stats = SampleState.stats()
+	var stats: SampleState.SampleStats = SampleState.stats()
 	var band: float = _title_band("Stats", Icons.BACK, "Back")
 	# The ruled table: one row per level, every other row tinted.
 	var headers: Array[String] = ["Level", "Started", "Done", "Best", "Average", "Best score"]

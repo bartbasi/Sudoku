@@ -9,7 +9,8 @@ extends RefCounted
 ## 2. Removal pass: try every given once, in a random order. A removal stays
 ##    if the technique solver can still finish the board using only the
 ##    techniques of the target level and below. A board the techniques can
-##    finish has exactly one solution.
+##    finish has exactly one solution. Beginner and Easy stop removing once
+##    the board is down to their givens floor (GDD 11.4).
 ## 3. Grade the result with every technique, in the GDD's fixed order. Keep
 ##    it if it grades at the target level (Beginner also needs a hidden
 ##    single) and the backtracking Solver confirms one solution.
@@ -23,6 +24,8 @@ extends RefCounted
 
 const Tables := preload("res://src/puzzles/grid_tables.gd")
 const LEVEL_COUNT: int = 5
+## The fewest givens a puzzle of each level keeps (GDD 11.4). 0 is no floor.
+const GIVENS_FLOOR: PackedInt32Array = [36, 32, 0, 0, 0]
 
 
 ## The puzzle for level (0 Beginner to 4 Expert) and seed (0 to 2^32 - 1).
@@ -115,20 +118,27 @@ static func _fill(cells: PackedInt32Array, used: PackedInt32Array, rng: SeededRn
 
 
 ## Tries to remove every given once, in a random order, keeping each removal
-## the techniques of the target level and below can still solve.
+## the techniques of the target level and below can still solve. Stops once
+## only the level's givens floor is left.
 static func _removal_pass(givens: PackedInt32Array, target: int, rng: SeededRng, solver: TechniqueSolver) -> void:
 	var order: PackedInt32Array = PackedInt32Array()
 	order.resize(Tables.CELL_COUNT)
 	for i: int in Tables.CELL_COUNT:
 		order[i] = i
 	rng.shuffle(order)
+	var floor_count: int = GIVENS_FLOOR[target]
+	var left: int = Tables.CELL_COUNT
 	for i: int in order:
+		if left <= floor_count:
+			return
 		var digit: int = givens[i]
 		if digit == 0:
 			continue
 		givens[i] = 0
 		solver.load_givens(givens)
-		if not solver.solves(target):
+		if solver.solves(target):
+			left -= 1
+		else:
 			givens[i] = digit
 
 

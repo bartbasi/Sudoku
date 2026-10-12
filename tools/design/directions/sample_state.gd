@@ -117,7 +117,7 @@ class BoardState extends RefCounted:
 
 
 ## A hint as the player sees it (GDD 10.2).
-class Hint extends RefCounted:
+class SampleHint extends RefCounted:
 	var technique: String
 	var text: String ## One or two sentences.
 	var lesson: String ## "Lesson: Hidden single", or "" when the technique has no lesson.
@@ -159,7 +159,7 @@ class LevelStats extends RefCounted:
 
 
 ## The stats screen (GDD 13).
-class Stats extends RefCounted:
+class SampleStats extends RefCounted:
 	var levels: Array[LevelStats] = []
 	var lessons_completed: int
 	var lessons_total: int
@@ -181,7 +181,7 @@ class StateBoard extends RefCounted:
 	var title: String
 	var notes: Array[String] = []
 	var board: BoardState
-	var hint: Hint ## The hint on screen for this board, or null.
+	var hint: SampleHint ## The hint on screen for this board, or null.
 
 
 # The play board: a mid-puzzle board from a Medium-style puzzle with one
@@ -350,8 +350,8 @@ static func hint_board() -> BoardState:
 	return board
 
 
-static func hint_for_hint_board() -> Hint:
-	var hint: Hint = Hint.new()
+static func hint_for_hint_board() -> SampleHint:
+	var hint: SampleHint = SampleHint.new()
 	hint.technique = "Hidden single"
 	hint.text = "In this box, 1 fits in only one cell. It goes here."
 	hint.lesson = "Lesson: Hidden single"
@@ -369,8 +369,8 @@ static func conflict_board() -> BoardState:
 	return board
 
 
-static func hint_for_conflict_board() -> Hint:
-	var hint: Hint = Hint.new()
+static func hint_for_conflict_board() -> SampleHint:
+	var hint: SampleHint = SampleHint.new()
 	hint.technique = "Wrong digit"
 	hint.text = "This %d is not right. Erase it and look again." % WRONG_DIGIT
 	hint.lesson = ""
@@ -439,8 +439,8 @@ static func lesson_step() -> LessonStep:
 	return step
 
 
-static func stats() -> Stats:
-	var result: Stats = Stats.new()
+static func stats() -> SampleStats:
+	var result: SampleStats = SampleStats.new()
 	result.levels = [
 		_level("Beginner", 12, 12, 3 * 60 + 48, 5 * 60 + 10, 152),
 		_level("Easy", 24, 22, 6 * 60 + 2, 8 * 60 + 40, 299),

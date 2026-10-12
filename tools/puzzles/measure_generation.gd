@@ -77,8 +77,15 @@ func _run() -> int:
 	return 0 if failures == 0 else 1
 
 
-## Exactly one solution, the stored solution, and graded at its level.
+## Exactly one solution, the stored solution, the givens floor (GDD 11.4),
+## and graded at its level.
 func _check(puzzle: Puzzle, level: int) -> bool:
+	var givens: int = 0
+	for value: int in puzzle.givens:
+		if value != 0:
+			givens += 1
+	if givens < PuzzleGenerator.GIVENS_FLOOR[level]:
+		return false
 	if Solver.count_solutions(puzzle.givens, 2) != 1:
 		return false
 	if Solver.solve(puzzle.givens) != puzzle.solution:

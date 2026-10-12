@@ -1,8 +1,8 @@
 # Sudoku: Design System
 
-Owner: senior-graphic-designer. Status: Phase 2, 2026-10-11; Phase 3 addition 2026-10-12, the hint cross chip (Bart, Hard Stop 2; sections 1, 2.7 to 2.9); 2026-10-12, the SUDOKU wordmark and the icon placeholder (sections 7.1, 7.2 and 9); 2026-10-12, the final app icon, Ring, made bolder (sections 7.1 and 9). This is the contract the artists and developers build Phase 3 from. If something you need is missing or would force a guess, ask the senior-graphic-designer through the Development Manager; do not invent a value locally.
+Owner: senior-graphic-designer. Status: Phase 2, 2026-10-11; Phase 3 addition 2026-10-12, the hint cross chip (Bart, Hard Stop 2; sections 1, 2.7 to 2.9); 2026-10-12, the SUDOKU wordmark and the icon placeholder (sections 7.1, 7.2 and 9). This is the contract the artists and developers build Phase 3 from. If something you need is missing or would force a guess, ask the senior-graphic-designer through the Development Manager; do not invent a value locally.
 
-Bart's Hard Stop 1 decisions behind it: direction Pop, with the Phase 2 fixes from [design/ranking.md](design/ranking.md); v1 ships two skins, Pop light (the default) and Pop dark; candidate ring layout A, reading rows; Godot's built-in font, no font files; a digit crossed by hand is drawn on top of its X with a thin outline; the game fits and works at 320 by 568 dp and readability is judged at 360 dp wide; an app icon whose background follows Pop's palette; "New best time" and "New best score" on the completion screen. The game is called Sudoku for now, a placeholder name Bart may change. The app icon is Ring (section 9).
+Bart's Hard Stop 1 decisions behind it: direction Pop, with the Phase 2 fixes from [design/ranking.md](design/ranking.md); v1 ships two skins, Pop light (the default) and Pop dark; candidate ring layout A, reading rows; Godot's built-in font, no font files; a digit crossed by hand is drawn on top of its X with a thin outline; the game fits and works at 320 by 568 dp and readability is judged at 360 dp wide; an app icon whose background follows Pop's palette; "New best time" and "New best score" on the completion screen. The game is called Sudoku for now, a placeholder name Bart may change. The app icon is being redesigned (section 9).
 
 Read with docs/GDD.md (every state that needs a style), docs/ARCHITECTURE.md (section 6 GameSkin and BoardPainter, section 7 ThemeFactory, Icons and Motion, section 8 PlayArea and ScreenMetrics) and docs/LESSONS.md. The Phase 1 record is [design/direction-pop.md](design/direction-pop.md); its values are superseded by this document.
 
@@ -596,7 +596,7 @@ Sketches are at 360 by 800 dp, the judged screen, with a 32 dp notch inset and a
 ```
 
 - **Wordmark.** One word, SUDOKU, on one sticker: a `CELEBRATE_STICKER` panel (pink `celebrate_bg`, outline, hard shadow, `radius_control`) holding a `CELEBRATE_DISPLAY` label (display role, capitals, `celebrate_text`), tilted counterclockwise by `sticker_tilt` and centered in the column. The source string is "Sudoku"; the display role sets it in capitals. Its face is about 184 by 52 dp (the word about 168 dp wide at 44 dp, plus the sticker padding); with the tilt and the shadow it takes about 66 dp of height. It reuses the SOLVED! look, so its contrast is already checked (`celebrate_text` on `celebrate_bg`, both skins). It is not tappable.
-- **Hero.** The app icon's foreground, Ring (section 9), drawn in code by `app_icon.gd` `draw_foreground`: the white cell sticker with its ink outline and hard shadow, the nine Heavy candidates and the two magenta X, straight on the lemon page. It reads at both ends of its range: at 64 dp the candidates are about 11 dp Heavy, larger than on the board; at 200 dp they are about 34 dp. Checked on `build/icon_options/ring-final-sheet.png` (last row). The hero is a square box, centered. The foreground's art sits inside the 66 dp safe zone of a 108 dp layer, so the painter passes `draw_foreground` a rect 108/66 times the box side, centered on the box; the art then fills the box. No background layer and no tile: the art sits straight on `page_bg`. It is not tappable.
+- **Hero.** The app icon's foreground, drawn in code by `app_icon.gd` `draw_foreground`, whichever icon Bart picks (section 9). The hero is a square box, centered. The foreground's art sits inside the 66 dp safe zone of a 108 dp layer, so the painter passes `draw_foreground` a rect 108/66 times the box side, centered on the box; the art then fills the box. No background layer and no tile: the art sits straight on `page_bg`. It is not tappable.
 - Buttons are full width with 12 dp gaps and sit at the bottom: 4 rows of 56, 3 gaps of 12 and the 4 dp shadow, 264 dp in all. The wordmark sits at the top. The hero takes the height between them less a `space_xl` (24 dp) gap above and below it, clamped to 64 to 200 dp, and is centered in that space when it stops at 200.
 - With no puzzle in progress there is no CONTINUE, and NEW PUZZLE becomes primary.
 - At 360 by 800 (32 dp notch, 24 dp gesture bar): 744 safe, 728 inside the margins; 728 minus 66, 264 and 48 leaves 350, so the hero is 200 dp.
@@ -805,76 +805,7 @@ Each row: the lesson number on a 36 dp `STICKER`, the title in heading style and
 
 ## 9. App icon and boot background
 
-The app icon is **Ring** (Bart, 2026-10-12): one empty cell as a Pop sticker, with the nine candidates around its inside edge in ring layout A and two of them crossed out with the magenta hand X. Bart's one change was "make the small one bolder", and this spec is the bolder version. The reference drawing is `tools/design/icon_options/option_ring.gd` (it uses `icon_common.gd`); `src/design/app_icon.gd` (ui-motion-artist) ports it exactly, with the same four draw functions and `foreground_outline` (ARCHITECTURE section 7), so the main menu hero (7.1) follows with no other change. Ring as Bart saw it is kept in `option_ring_original.gd` for comparison only. Renders (never committed): `timeout 120 godot --path . --script res://tools/design/icon_options/render_icons.gd` writes `build/icon_options/ring-final-*.png` and `ring-final-sheet.png`.
-
-### 9.1 What made it bolder, and why there is one look
-
-A launcher icon is about 48 dp on every phone, roughly 7 to 8 mm, whatever its pixel count. The 48 px renders on a laptop are about that physical size, so their "cell with specks" is what people would see on a home screen. A pixel size threshold would not help: an xxxhdpi launcher draws 192 px at the same 48 dp. So the icon has **one look at every size**, and that look is bolder for everyone:
-
-| | Ring as picked | Ring final | Why |
-| --- | --- | --- | --- |
-| Sticker half side | 0.64 R | 0.685 R | More white cell, still inside the safe zone |
-| Sticker corner | 0.14 R | 0.20 R | Rounder corners let the square grow inside the circle |
-| Outline | 0.06 R | 0.07 R | The cell edge holds at 48 dp |
-| Ring inset (from the outline's inner edge) | 9 percent of the face side, about 0.12 R | 0.09 R | Digits closer to the edge, as on the board |
-| Candidate weight | Semibold (embolden 0) | Heavy (embolden 0.9) | Strokes survive the downscale |
-| Gap between candidates | 0.40 of the font size | 0.32 | Bigger digits; the four across the top still read as four |
-| Font size at a 48 dp launcher icon | about 6 dp | about 7.5 dp, Heavy | Digits read as digits, not dots |
-| X half span, stroke | 0.42 and 0.13 of the font size | 0.45 and 0.22 | The magenta X is the second thing you see after the cell |
-| Crossed digits | 3 and 7 | 3 and 8 | Away from the corners, so the longer X never touches the outline |
-
-R is the safe zone radius. The background is unchanged.
-
-### 9.2 Geometry
-
-All values are shares of the adaptive layer side L (the 108 dp layer; `rect` of `draw_background`, `draw_foreground` and `draw_monochrome`), with the safe zone radius R = 33/108 L = 0.3056 L given too. Pixel values are not rounded unless stated.
-
-| Part | Value |
-| --- | --- |
-| Safe zone radius R | 0.3056 L, centered |
-| Visible area | the middle 72/108 = 0.6667 L |
-| Face center | layer center minus (0.04 R, 0.04 R) = minus (0.0122 L, 0.0122 L), so face and shadow together are centered |
-| Sticker half side, on the outline's center line | 0.685 R = 0.2093 L (outer edge of the outline 0.72 R = 0.2200 L) |
-| Sticker corner radius, on the outline's center line | 0.20 R = 0.0611 L (outer edge 0.235 R; face inner corner 0.165 R) |
-| Outline | 0.07 R = 0.0214 L, at least 1 px, centered on the half side line |
-| Hard shadow | the outline's outer shape in ink, offset (0.08 R, 0.08 R) = (0.0244 L, 0.0244 L) down and right, drawn first |
-| Ring box | a centered square inside the face, side 2 times (0.685 minus 0.035 minus 0.09) R = 1.12 R = 0.3422 L; its edge is 0.09 R inside the outline's inner edge |
-| Candidate font size | `roundi(min(box / 3.28, box / 2.98))` = `roundi(box / 3.28)` = about 0.3415 R = 0.1043 L; 3.28 is 4 digits of 0.58 plus 3 gaps of 0.32, 2.98 is 3 rows of 0.78 plus 2 gaps of 0.32 |
-| Digit ink, Heavy, shares of the font size s | width 0.58 (the widest, the 4, is 0.60), height 0.78 above the baseline |
-| Rows | 1 2 3 4 / 5 (open) 6 / 7 8 9. Row r of 3 has its ink center at y = box top + 0.39 s + r (box minus 0.78 s) / 2 |
-| Columns | in a row of n digits, digit i has its ink center at x = box left + 0.29 s + i (box minus 0.58 s) / (n minus 1). The middle row counts as n = 3 with its middle slot empty: the 5 at the left edge, the 6 at the right edge |
-| Drawing a digit | baseline x = center x minus half the string advance at s; baseline y = center y + 0.39 s |
-| Crossed candidates | 3 and 8 |
-| Hand X | two lines through the digit center, half span 0.45 s on each axis, stroke 0.22 s (at least 1 px), antialiased, plain ends |
-| Crossed digit outline | `roundi(0.08 s)`, at least 1 px, in white |
-| Monochrome frame | the outline alone, no fill, no shadow, stroke 1.4 times the outline (0.098 R = 0.0299 L, rounded to whole px, at least 1), its center line on the 0.685 R half side, corner radius 0.20 R + half the stroke on the outer edge; same face center |
-| Farthest point drawn | foreground 0.980 R (the shadow's far corner), monochrome 0.991 R (the frame's top left corner); both inside R. Checked on pixels by `render_icons.gd` |
-
-The full legacy icon: a rounded square over the whole rect, corner radius 0.22 of its side, Pop blue; the grid lines on its thirds; then the same art drawn into the layer whose visible area is the rect (layer side = rect side times 108/72, centered).
-
-### 9.3 Colors and weights
-
-| Part | Color | Pop token |
-| --- | --- | --- |
-| Background layer | `#1A40D9` | `button_primary_bg` |
-| Background grid lines, on the thirds of the visible area, 1.5 percent of the visible side wide (1 percent of L), at least 1 px | `#4362E0` | quiet blue, icon only |
-| Sticker face | `#FFFFFF` | `cell_bg` |
-| Outline and hard shadow | `#111111` | `outline`, `shadow` |
-| Open candidates | `#111111`, Godot's built-in font, `FontVariation` embolden 0.9 (Heavy, section 3.1) | `digit_given` |
-| Hand X | `#D1005A` | `cross_mark_hand` |
-| Crossed digit | `#111111` drawn over its X, with a `#FFFFFF` outline (as on the board, 2.4) | |
-| Monochrome layer | one opaque color, `#FFFFFF`: the frame, the seven open digits and the two X. A crossed digit is not drawn in monochrome, only its X, so the two do not merge into one blob | |
-
-Draw order, foreground: shadow, outline, face, then per candidate in reading order the X and its outlined digit, or the plain digit.
-
-### 9.4 Porting notes for app_icon.gd
-
-- `foreground_outline` and the safe zone test: digits are text and have no vertices. The farthest digit ink (the corner of the 1) is about 0.85 R from the center and the X ends stay within about 0.7 R, so the points that matter are the shadow corner and the frame corner. Include the X end points and the sticker shapes in `foreground_outline`.
-- The font size is an int (`draw_string`), rounded from the float; positions use the float box, so the layout stays centered at every size.
-- No size threshold and no second look. Do not swap to a simpler drawing below some pixel size.
-
-### 9.5 Boot background
-
+- The app icon is a placeholder until Bart picks one of three options drawn in code (prototypes in `tools/design/icon_options/`, rendered by `tools/design/icon_options/render_icons.gd` to `build/icon_options/`, never committed). The placeholder in `src/design/app_icon.gd` (ui-motion-artist): a tile in Pop blue **`#1A40D9`** (`button_primary_bg`) with a quiet 3 by 3 grid of lines in **`#4362E0`**; foreground, a white rounded square holding a 3 by 3 box outline with a lemon center cell. No food, no letters. Whichever option Bart picks keeps the Pop blue background and the `app_icon.gd` functions (ARCHITECTURE section 7), so the main menu hero (7.1) follows it with no other change. The Phase 1 to-do in docs/ASSETS.md about the grid line weight still applies.
 - Boot background (ARCHITECTURE section 13): `#FFEB8F`, Pop light's `page_bg`, so the first frame matches the main menu. platform-dev sets it.
 
 ## 10. Checks and studies

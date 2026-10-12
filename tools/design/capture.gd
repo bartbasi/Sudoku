@@ -9,7 +9,7 @@ extends SceneTree
 ##   timeout 300 godot --path . --script res://tools/design/capture.gd -- placeholder
 ##   timeout 300 godot --path . --script res://tools/design/capture.gd -- screens rings --direction=pebble --font=inter
 ##
-## Targets (any number; default: screens place states rings icon):
+## Targets (any number; default: screens place states rings):
 ##   screens      <direction>-<screen>.png for play, lesson, stats, complete,
 ##                plus <direction>-play-dark.png (15 files for 3 directions)
 ##   place        <direction>-play-place.png: play with the pad and the
@@ -27,7 +27,9 @@ extends SceneTree
 ##                same name with "-inter" before ".png"
 ##   icon         app-icon-512.png, app-icon-48.png, and the adaptive layers
 ##                with the safe zone drawn on: app-icon-adaptive-432.png,
-##                app-icon-monochrome-432.png
+##                app-icon-monochrome-432.png. Not a default target: the app
+##                icon is being redesigned (DESIGN_SYSTEM.md section 9); the
+##                options render with tools/design/icon_options/render_icons.gd
 ##   placeholder  placeholder.png and placeholder-dark.png from this tool's
 ##                own test scene, and placeholder-icon-* from a stub icon, to
 ##                prove the icon path. Written to user://capture_test/ (Godot's
@@ -63,7 +65,7 @@ const PLACEHOLDER_ICON_PATH: String = "res://tools/design/placeholder/placeholde
 ## taller than a phone screen. Pebble's sheet is the tallest (about 2710).
 const STATE_SHEET_SIZE: Vector2i = Vector2i(1080, 2720)
 
-const DEFAULT_TARGETS: Array[String] = ["screens", "place", "states", "rings", "icon"]
+const DEFAULT_TARGETS: Array[String] = ["screens", "place", "states", "rings"]
 const ALL_TARGETS: Array[String] = ["screens", "place", "states", "rings", "compare", "icon", "placeholder"]
 
 ## The font comparison's single-direction ring close-ups: the same crop as

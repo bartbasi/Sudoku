@@ -19,8 +19,7 @@ Sudoku (working name in older docs: bartssudoku; Bart may choose a final name la
 
 - 2026-10-12: The game is named Sudoku: the name under the icon, the menu title and the Android package com.bartbasi.sudoku. It is a placeholder; Bart may pick a better name later. Nothing in this project refers to any other app or business. docs/BRIEF.md keeps its original wording.
 - Git author for this repo is Bart Basi <331822203+bartbasi@users.noreply.github.com> (set in the repo's own git config).
-- App icon: drawn in code (src/design/). It becomes PNG only at build time and is never committed as an image.
-- 2026-10-12: The app icon is option 1, Ring (one cell with its candidate ring, two candidates crossed in magenta, on the Pop blue tile), for every form: full icon, Android adaptive layers and the monochrome themed icon. It is drawn in one bolder look at every size, with 3 and 8 crossed (Bart approved the final sheet).
+- App icon: drawn in code (src/design/). It becomes PNG only at build time and is never committed as an image. A neutral placeholder is in use until Bart picks one of three options from the senior graphic designer.
 - 2026-10-11: The Hard Stop 1 font comparison shows the team's top-ranked direction in Godot's default font and in Inter (SIL Open Font License). The Inter files live only in build/font_compare/, which git ignores. Nothing in the game references them.
 - 2026-10-11: Progress is reported in phase status messages.
 - 2026-10-11, Hard Stop 1 (Bart approved every recommendation):

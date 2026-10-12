@@ -34,6 +34,27 @@ func test_sample_expert() -> void:
 		check_puzzle(PuzzleGenerator.generate(4, seed_value), 4, seed_value)
 
 
+## GDD AT-68 on a small sample: every Beginner and Easy puzzle keeps its
+## floor and still grades at its level. tools/puzzles/measure_generation.gd
+## checks the full 200 seeds per level.
+func test_givens_floor_beginner() -> void:
+	for seed_value: int in range(10, 22):
+		var puzzle: Puzzle = PuzzleGenerator.generate(0, seed_value)
+		check_puzzle(puzzle, 0, seed_value)
+		assert_true(KnownPuzzles.count_givens(puzzle.givens) >= KnownPuzzles.GIVENS_FLOOR[0], "Beginner seed %d floor" % seed_value)
+
+
+func test_givens_floor_easy() -> void:
+	for seed_value: int in range(10, 18):
+		var puzzle: Puzzle = PuzzleGenerator.generate(1, seed_value)
+		check_puzzle(puzzle, 1, seed_value)
+		assert_true(KnownPuzzles.count_givens(puzzle.givens) >= KnownPuzzles.GIVENS_FLOOR[1], "Easy seed %d floor" % seed_value)
+
+
+func test_floor_matches_the_gdd() -> void:
+	assert_eq(PuzzleGenerator.GIVENS_FLOOR, KnownPuzzles.GIVENS_FLOOR)
+
+
 func test_same_level_and_seed_give_the_same_puzzle() -> void:
 	for level: int in [0, 2, 3]:
 		var a: Puzzle = PuzzleGenerator.generate(level, 4242)
@@ -47,6 +68,7 @@ func test_same_level_and_seed_give_the_same_puzzle() -> void:
 func test_known_puzzles_are_reproduced_exactly() -> void:
 	# If this fails, the generator changed and old IDs would give different
 	# puzzles. That needs a new PuzzleId version, not a new golden value.
+	# (1.0.1 was replaced once, for the givens floor, before anything shipped.)
 	var beginner: Puzzle = PuzzleGenerator.generate(0, 1)
 	assert_eq(beginner.givens, KnownPuzzles.BEGINNER_1_GIVENS, "1.0.1 givens")
 	var expert: Puzzle = PuzzleGenerator.generate(4, KnownPuzzles.EXPERT_SEED)

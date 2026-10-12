@@ -145,7 +145,7 @@ func _build_lesson() -> void:
 
 
 func _build_stats() -> void:
-	var stats: SampleState.Stats = SampleState.stats()
+	var stats: SampleState.SampleStats = SampleState.stats()
 	var row1: Rect2 = Rect2(_m, _top + _sp * 0.5, _cw, Kit.MIN_TOUCH)
 	_square_button(Rect2(_m - (Kit.MIN_TOUCH - _face_side()) * 0.5, row1.position.y, Kit.MIN_TOUCH, Kit.MIN_TOUCH), Icons.BACK, "Back")
 	var title_x: float = _m + _face_side() + _sp * 1.5

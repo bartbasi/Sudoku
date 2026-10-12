@@ -52,7 +52,7 @@ class Screen extends RefCounted:
 
 
 ## The result of laying out one screen.
-class Layout extends RefCounted:
+class StackLayout extends RefCounted:
 	var screen: Screen
 	var content_w: float
 	var info_zone: float
@@ -93,7 +93,7 @@ static func _screen(label: String, w: float, h: float, top: float, bottom: float
 
 
 ## The play screen: info zone (header row and band), board, gap, controls.
-static func play(screen: Screen, skin: GameSkin) -> Layout:
+static func play(screen: Screen, skin: GameSkin) -> StackLayout:
 	return _stack(screen, skin, INFO_ZONE_MIN, INFO_ZONE_MAX)
 
 
@@ -109,8 +109,8 @@ static var lesson_text_size: float = 0.0
 static var lesson_title_shown: bool = true
 
 
-static func lesson(screen: Screen, skin: GameSkin) -> Layout:
-	var result: Layout = null
+static func lesson(screen: Screen, skin: GameSkin) -> StackLayout:
+	var result: StackLayout = null
 	var width_bound: float = minf(screen.w - 2.0 * skin.page_margin, COLUMN_MAX) - skin.line_outer_w - skin.shadow_offset
 	lesson_scrolls = false
 	lesson_title_shown = true
@@ -141,8 +141,8 @@ static func _card_height(screen: Screen, skin: GameSkin, body: float, with_title
 	return 2.0 * skin.space_m + LESSON_TOP_ROW + skin.space_s + title + block.y + skin.shadow_offset + skin.space_s
 
 
-static func _stack(screen: Screen, skin: GameSkin, zone_min: float, zone_max: float) -> Layout:
-	var out: Layout = Layout.new()
+static func _stack(screen: Screen, skin: GameSkin, zone_min: float, zone_max: float) -> StackLayout:
+	var out: StackLayout = StackLayout.new()
 	out.screen = screen
 	var margin: float = skin.page_margin
 	out.content_w = minf(screen.w - 2.0 * margin, COLUMN_MAX)

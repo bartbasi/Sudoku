@@ -143,6 +143,8 @@ const SKIN_RULES: Array = [
 	["hint_target_mark", DIGIT_FILLS, 3.0, "hint target bracket"],
 	["hint_reason_mark", DIGIT_FILLS, 3.0, "hint reason tick, lesson mark"],
 	["hint_reason_mark", ["page_bg"], 3.0, "lesson mark around a control"],
+	["hint_cross_bg", RING_FILLS, 3.0, "hint cross chip"],
+	["cell_bg", ["hint_cross_bg"], 4.5, "candidate on a hint cross chip"],
 	["conflict_mark", ["cell_conflict_bg", "cell_selected_bg", "surface_bg"], 3.0, "conflict bar, board message mark"],
 	["line_box", DIGIT_FILLS, 3.0, "box line"],
 	["line_outer", DIGIT_FILLS + ["page_bg"], 3.0, "outer line"],
@@ -182,6 +184,7 @@ const SKIN_TOLD_APART: Array = [
 	["hint_target_mark", ["line_box", "line_outer"], 0.3, "hint target bracket"],
 	["hint_reason_mark", ["line_box", "line_outer"], 0.3, "hint reason tick"],
 	["cross_mark_auto", ["cross_mark_hand"], 0.3, "Auto Cross slash and hand X"],
+	["hint_cross_bg", ["candidate_crossed", "cross_mark_hand", "cross_mark_auto", "conflict_mark", "digit_conflict", "cell_conflict_bg", "cell_same_digit_bg"], 0.3, "hint cross chip"],
 	["cell_selected_bg", ["cell_peer_bg"], 0.15, "selected fill and peer fill"],
 ]
 
@@ -200,6 +203,10 @@ const CANDIDATE_INK_FLOOR_DP: float = 8.5
 const MIN_KNOCKOUT_PX: float = 1.0
 const MIN_RING_CLEARANCE_DP: float = 1.0 ## Ring box clear of the frame and hint marks.
 const MIN_RING_LINE_CLEARANCE_DP: float = 0.5 ## Ring box clear of the outer line.
+## Hint cross chips (DESIGN_SYSTEM.md 2.7) on the judged screen.
+const MIN_CHIP_PAD_PX: float = 1.0 ## Chip above and below the slot box.
+const MIN_CHIP_GAP_PX: float = 1.0 ## Between chips in neighboring rows.
+const MIN_CHIP_CLEARANCE_DP: float = 0.5 ## Chip clear of the frame and hint marks.
 
 
 func _initialize() -> void:
@@ -282,12 +289,18 @@ func _run_final_skins() -> Vector2i:
 		if skin == null:
 			print("")
 			continue
+		var known: PackedStringArray = Palettes.skin_tokens()
 		for rule: Array in SKIN_RULES:
 			var fg_name: String = rule[0]
 			var bg_names: Array = rule[1]
 			var target: float = rule[2]
 			var kind: String = rule[3]
 			for bg_name: String in bg_names:
+				if not known.has(fg_name) or not known.has(bg_name):
+					total += 1
+					failed += 1
+					print("  FAIL  %s or %s is not a GameSkin property (%s)" % [fg_name, bg_name, kind])
+					continue
 				var fg: Color = skin.get(fg_name)
 				var bg: Color = skin.get(bg_name)
 				var ratio: float = contrast(fg, bg)
@@ -301,6 +314,11 @@ func _run_final_skins() -> Vector2i:
 			var minimum: float = rule[2]
 			var what: String = rule[3]
 			for name_b: String in others:
+				if not known.has(name_a) or not known.has(name_b):
+					total += 1
+					failed += 1
+					print("  FAIL  %s or %s is not a GameSkin property (%s)" % [name_a, name_b, what])
+					continue
 				var distance: float = color_distance(skin.get(name_a), skin.get(name_b))
 				var apart: bool = distance >= minimum
 				total += 1
@@ -384,6 +402,9 @@ func _check_skin_sizes() -> PackedStringArray:
 			problems.append("%s differs between the skins; the size checks assume one value" % token)
 	var board_dp: float = JUDGED_DP_WIDTH - 2.0 * s.page_margin - s.shadow_offset - s.line_outer_w
 	var font: Font = Fonts.get_font(Fonts.Weight.SEMIBOLD)
+	var has_chip_pad: bool = Palettes.skin_tokens().has("hint_cross_pad")
+	if not has_chip_pad:
+		problems.append("hint_cross_pad is not a GameSkin property")
 	for density: float in JUDGED_DENSITIES:
 		var ring_px: float = (board_dp / 9.0 - 2.0 * s.ring_inset) * density
 		var size_px: int = RingLayouts.fit_font_size(RingLayouts.Layout.ROWS, ring_px, font)
@@ -391,6 +412,8 @@ func _check_skin_sizes() -> PackedStringArray:
 		var ink_dp: float = Fonts.digit_cell(font, size_px).y / density
 		print("  density %.3f: board %.1f dp, cell %.2f dp, candidates %d px = %.2f dp (floor %.1f), tallest digit %.2f dp" % [
 			density, board_dp, board_dp / 9.0, size_px, size_dp, CANDIDATE_FLOOR_DP, ink_dp])
+		if has_chip_pad:
+			problems.append_array(_check_chip(s, density, ring_px, size_px, font))
 		if ink_dp < CANDIDATE_INK_FLOOR_DP:
 			problems.append("the tallest candidate digit is %.2f dp at density %.3f, below the %.1f dp floor" % [ink_dp, density, CANDIDATE_INK_FLOOR_DP])
 		if size_dp < CANDIDATE_FLOOR_DP:
@@ -423,6 +446,33 @@ func _check_skin_sizes() -> PackedStringArray:
 	var box_cell_dp: float = s.line_box_w / s.line_cell_w
 	print("  box line %.1f dp / cell line %.1f dp = %.1f; Cross Out frame: corner dash %.2f, gap %.2f, middle dash %.2f of the side" % [
 		s.line_box_w, s.line_cell_w, box_cell_dp, corner_dash, s.selection_gap, s.selection_mid_dash])
+	return problems
+
+
+## The hint cross chip at one density: the slot box, full width, grown above
+## and below by hint_cross_pad times the candidate font size (2.7). It must
+## grow by at least a pixel, keep chips in neighboring rows apart, and clear
+## the selection frame and the hint marks on the cell edge.
+func _check_chip(s: GameSkin, density: float, ring_px: float, size_px: int, font: Font) -> PackedStringArray:
+	var problems: PackedStringArray = PackedStringArray()
+	var pad: float = s.get("hint_cross_pad")
+	var pad_px: float = pad * float(size_px)
+	var slot: Vector2 = Fonts.digit_cell(font, size_px)
+	var rows: float = float(RingLayouts.rows(RingLayouts.Layout.ROWS).size())
+	var row_gap_px: float = (ring_px - rows * slot.y) / (rows - 1.0)
+	var chip_gap_px: float = row_gap_px - 2.0 * pad_px
+	var edge_in_px: float = maxf(s.selection_frame_w, s.hint_mark_w) * 0.5 * density
+	var clearance_dp: float = (s.ring_inset * density - edge_in_px - pad_px) / density
+	var top_row: PackedInt32Array = RingLayouts.rows(RingLayouts.Layout.ROWS)[0]
+	var side_gap_px: float = (ring_px - float(top_row.size()) * slot.x) / float(top_row.size() - 1)
+	print("    hint cross chip %.0f by %.1f px: pad %.2f px, %.2f px between rows, %.2f px between top row chips, %.2f dp clear of the frame and marks" % [
+		slot.x, slot.y + 2.0 * pad_px, pad_px, chip_gap_px, side_gap_px, clearance_dp])
+	if pad_px < MIN_CHIP_PAD_PX:
+		problems.append("hint cross chip grows %.2f px at density %.3f, needs %.1f px" % [pad_px, density, MIN_CHIP_PAD_PX])
+	if chip_gap_px < MIN_CHIP_GAP_PX:
+		problems.append("hint cross chips in neighboring rows are %.2f px apart at density %.3f, need %.1f px" % [chip_gap_px, density, MIN_CHIP_GAP_PX])
+	if clearance_dp < MIN_CHIP_CLEARANCE_DP:
+		problems.append("hint cross chip clears the frame and marks by %.2f dp at density %.3f, needs %.1f dp" % [clearance_dp, density, MIN_CHIP_CLEARANCE_DP])
 	return problems
 
 

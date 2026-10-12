@@ -87,6 +87,7 @@ class_name GameSkin extends Resource
 @export var selection_frame_cross: Color
 @export var hint_target_mark: Color
 @export var hint_reason_mark: Color
+@export var hint_cross_bg: Color
 @export var conflict_mark: Color
 
 @export_group("Board shape")
@@ -109,6 +110,7 @@ class_name GameSkin extends Resource
 @export var hint_mark_w: float
 @export var hint_bracket_len: float
 @export var hint_tick_len: float
+@export var hint_cross_pad: float
 @export var conflict_bar_w: float
 @export var conflict_bar_len: float
 @export var conflict_bar_y: float

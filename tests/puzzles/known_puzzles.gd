@@ -5,6 +5,10 @@ extends RefCounted
 ## tests do not depend on the generator, and test_generator.gd can check that
 ## the generator still makes exactly these (puzzle IDs must never change).
 
+## The givens floor per level (GDD 11.4), written out so the test does not
+## read it from the generator.
+const GIVENS_FLOOR: PackedInt32Array = [36, 32, 0, 0, 0]
+
 ## What each level needs at least one of (GDD 11.2).
 const NEEDS: Array = [
 	[&"hidden_single"],
@@ -14,17 +18,18 @@ const NEEDS: Array = [
 	[&"swordfish", &"xyz_wing"],
 ]
 
-## PuzzleGenerator.generate(0, 1).givens, ID "1.0.1".
+## PuzzleGenerator.generate(0, 1).givens, ID "1.0.1", with the givens floor
+## of GDD 11.4 (replaced once, when the floor was added in Phase 3).
 const BEGINNER_1_GIVENS: PackedInt32Array = [
-	9, 0, 0, 0, 7, 0, 0, 0, 0,
+	9, 0, 0, 0, 7, 0, 5, 0, 2,
 	0, 0, 0, 0, 5, 4, 0, 0, 9,
 	7, 0, 0, 0, 0, 0, 1, 0, 3,
-	0, 8, 0, 5, 0, 0, 4, 0, 0,
-	0, 0, 3, 9, 0, 1, 2, 7, 5,
-	0, 0, 0, 0, 0, 0, 0, 0, 0,
-	0, 1, 2, 4, 0, 0, 0, 0, 0,
-	4, 0, 0, 0, 0, 0, 0, 0, 7,
-	5, 0, 0, 0, 3, 0, 8, 0, 0,
+	0, 8, 0, 5, 0, 0, 4, 9, 1,
+	0, 4, 3, 9, 8, 1, 2, 7, 5,
+	0, 0, 0, 0, 0, 0, 0, 0, 8,
+	0, 1, 2, 4, 0, 7, 0, 5, 0,
+	4, 0, 0, 0, 1, 0, 0, 0, 7,
+	5, 0, 0, 0, 3, 6, 8, 0, 0,
 ]
 
 ## PuzzleGenerator.generate(4, EXPERT_SEED), ID "1.4.1". It needs one
@@ -83,3 +88,11 @@ static func is_valid_solution(grid: PackedInt32Array) -> bool:
 				return false
 			seen |= 1 << digit
 	return true
+
+
+static func count_givens(givens: PackedInt32Array) -> int:
+	var count: int = 0
+	for value: int in givens:
+		if value != 0:
+			count += 1
+	return count
