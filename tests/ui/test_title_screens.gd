@@ -1,0 +1,401 @@
+extends "res://tests/unit_test.gd"
+## The title screen, Info and About (GDD 15.0 to 15.6, AT-72 to AT-78,
+## ARCHITECTURE section 11): every start opens the title screen; PLAY shows
+## the lesson offer once, resumes the puzzle in progress or starts one at
+## the last level started; Back rules; Info shows the GDD 15.5 text word for
+## word; About shows the version, the copyright line and the engine's own
+## notices. Built with an AppService that is not an autoload.
+
+const Fx := preload("res://tests/save/save_fixtures.gd")
+const InfoScreen := preload("res://src/ui/info_screen.gd")
+const AboutScreen := preload("res://src/ui/about_screen.gd")
+
+var _dirs: Array[String] = []
+var _hosts: Array[Control] = []
+
+
+func _app(dir: String = "") -> AppService:
+	if dir == "":
+		dir = Fx.fresh_dir("title")
+		_dirs.append(dir)
+	var app: AppService = AppService.new()
+	app.save_dir = dir
+	app.use_thread = false
+	app.load_all()
+	return app
+
+
+func _attach(app: AppService) -> void:
+	var host: Control = Control.new()
+	host.theme = ThemeFactory.build(app.current_skin())
+	host.size = Vector2(360, 800)
+	(Engine.get_main_loop() as SceneTree).root.add_child(host)
+	_hosts.append(host)
+	app.attach_host(host)
+
+
+func _free_all(apps: Array[AppService]) -> void:
+	for host: Control in _hosts:
+		if is_instance_valid(host):
+			host.get_parent().remove_child(host)
+			host.free()
+	_hosts.clear()
+	for app: AppService in apps:
+		app.free()
+	for dir: String in _dirs:
+		Fx.wipe(dir)
+	_dirs.clear()
+
+
+## Every label under node, in tree order.
+func _labels(node: Node) -> Array[Label]:
+	var found: Array[Label] = []
+	for child: Node in node.get_children():
+		if child is Label:
+			found.append(child as Label)
+		found.append_array(_labels(child))
+	return found
+
+
+func _texts(node: Node) -> PackedStringArray:
+	var texts: PackedStringArray = PackedStringArray()
+	for label: Label in _labels(node):
+		texts.append(label.text)
+	return texts
+
+
+# The title screen and PLAY ------------------------------------------------------
+
+func test_attach_host_opens_the_title_screen_every_time() -> void:
+	# AT-72: with or without a puzzle, offer answered or not.
+	var app: AppService = _app()
+	_attach(app)
+	assert_eq(app.current_screen(), AppService.TITLE)
+	var title: Control = app.current_screen_node()
+	assert_eq((title.get(&"play_button") as Button).text, "PLAY")
+	assert_eq((title.get(&"info_button") as Button).text, "INFO")
+	assert_eq((title.get(&"about_button") as Button).text, "ABOUT")
+	assert_eq((title.get(&"play_button") as Button).theme_type_variation, ThemeFactory.BUTTON_PRIMARY)
+	assert_true(title.find_child("Wordmark", true, false) != null, "the wordmark")
+	assert_true(title.find_child("Hero", true, false) != null, "the hero")
+	assert_true(title.find_child("Continue", true, false) == null, "no Continue")
+	app.answer_first_launch()
+	app.start_new_puzzle(Levels.MEDIUM)
+	app.save_all()
+	var again: AppService = _app(app.save_dir)
+	_attach(again)
+	assert_eq(again.current_screen(), AppService.TITLE, "a puzzle in progress still opens the title screen")
+	_free_all([app, again])
+
+
+func test_play_with_the_offer_unanswered_pushes_it_and_back_returns_unanswered() -> void:
+	# AT-73, GDD 15.3.
+	var app: AppService = _app()
+	_attach(app)
+	(app.current_screen_node().get(&"play_button") as Button).pressed.emit()
+	assert_eq(app.current_screen(), AppService.FIRST_LAUNCH, "the offer shows")
+	assert_false(app.has_puzzle_in_progress())
+	app.go_back()
+	assert_eq(app.current_screen(), AppService.TITLE, "Back returns to the title screen")
+	assert_true(app.current_screen_node().visible)
+	assert_false(app.settings.first_launch_answered, "not answered")
+	app.play_now()
+	assert_eq(app.current_screen(), AppService.FIRST_LAUNCH, "it shows again on the next PLAY")
+	_free_all([app])
+
+
+func test_skip_answers_and_plays_a_new_easy_puzzle() -> void:
+	var app: AppService = _app()
+	_attach(app)
+	app.play_now()
+	(app.current_screen_node().get(&"skip_button") as Button).pressed.emit()
+	assert_true(app.settings.first_launch_answered)
+	assert_eq(app.current_screen(), AppService.PLAY, "no main menu in between")
+	assert_eq(app.session.level, Levels.EASY)
+	assert_eq(app.session.score(), 200)
+	assert_eq(app.session.elapsed_seconds(), 0)
+	assert_eq(app.stats.started(Levels.EASY), 1)
+	_free_all([app])
+
+
+func test_skip_with_a_puzzle_in_progress_resumes_it() -> void:
+	var app: AppService = _app()
+	app.start_new_puzzle(Levels.HARD)
+	var session: GameSession = app.session
+	_attach(app)
+	app.play_now()
+	(app.current_screen_node().get(&"skip_button") as Button).pressed.emit()
+	assert_eq(app.current_screen(), AppService.PLAY)
+	assert_eq(app.session, session, "the same puzzle")
+	assert_eq(app.stats.started(Levels.HARD), 1, "no new start")
+	_free_all([app])
+
+
+func test_play_resumes_the_puzzle_in_progress() -> void:
+	# AT-74: the same cell, mode and time, no new start, after a restart too.
+	var app: AppService = _app()
+	app.answer_first_launch()
+	app.start_new_puzzle(Levels.MEDIUM)
+	var session: GameSession = app.session
+	var cells: PackedInt32Array = Fx.empty_cells(session)
+	session.select(cells[0])
+	session.set_mode(GameSession.Mode.CROSS_OUT)
+	session.add_time(120.0)
+	_attach(app)
+	assert_eq(app.current_screen(), AppService.TITLE)
+	app.play_now()
+	assert_eq(app.current_screen(), AppService.PLAY)
+	assert_eq(app.session, session)
+	assert_eq(app.stats.started(Levels.MEDIUM), 1)
+	app.save_all()
+	var again: AppService = _app(app.save_dir)
+	_attach(again)
+	again.play_now()
+	assert_eq(again.current_screen(), AppService.PLAY)
+	assert_eq(again.session.puzzle_id, session.puzzle_id)
+	assert_eq(again.session.selected, cells[0])
+	assert_eq(again.session.mode, GameSession.Mode.CROSS_OUT)
+	assert_eq(again.session.elapsed_seconds(), 120)
+	assert_eq(again.stats.started(Levels.MEDIUM), 1, "a resume is not a start")
+	_free_all([app, again])
+
+
+func test_play_with_none_starts_at_the_last_level_started() -> void:
+	# AT-75 (App), with use_thread off.
+	var app: AppService = _app()
+	app.answer_first_launch()
+	_attach(app)
+	app.play_now()
+	assert_eq(app.session.level, Levels.EASY, "Easy the first time")
+	app.abandon_puzzle()
+	app.start_new_puzzle(Levels.BEGINNER)
+	Fx.solve(app.session)
+	app.on_puzzle_completed()
+	assert_false(app.has_puzzle_in_progress())
+	var again: AppService = _app(app.save_dir)
+	_attach(again)
+	assert_eq(again.settings.last_level, Levels.BEGINNER, "saved with the settings")
+	var started: int = again.stats.started(Levels.BEGINNER)
+	again.play_now()
+	assert_eq(again.current_screen(), AppService.PLAY)
+	assert_eq(again.session.level, Levels.BEGINNER)
+	assert_eq(again.session.score(), 100)
+	assert_eq(again.session.elapsed_seconds(), 0)
+	assert_eq(again.stats.started(Levels.BEGINNER), started + 1)
+	_free_all([app, again])
+
+
+func test_start_new_puzzle_updates_and_saves_the_last_level() -> void:
+	var app: AppService = _app()
+	assert_eq(app.settings.last_level, Levels.EASY)
+	app.start_new_puzzle(Levels.HARD)
+	assert_eq(app.settings.last_level, Levels.HARD)
+	var saved: Settings = Settings.from_dict(SaveStore.read(app.path_of(AppService.SETTINGS_FILE), SaveStore.MAX_BYTES_OTHER))
+	assert_eq(saved.last_level, Levels.HARD, "saved at once")
+	app.start_new_puzzle(42)
+	assert_eq(app.settings.last_level, Levels.HARD, "an invalid level changes nothing")
+	app.abandon_puzzle()
+	app.reset_stats()
+	assert_eq(app.settings.last_level, Levels.HARD, "abandon and Reset Stats keep it")
+	_free_all([app])
+
+
+func test_play_is_ignored_while_a_puzzle_is_being_made() -> void:
+	var app: AppService = _app()
+	app.answer_first_launch()
+	_attach(app)
+	app.use_thread = true
+	app.play_now()
+	assert_true(app.is_generating())
+	app.play_now()
+	app.go_back()
+	assert_eq(app.current_screen(), AppService.TITLE, "nothing else happened")
+	var waited: int = 0
+	while app.get(&"_thread") != null and waited < 20000:
+		OS.delay_msec(5)
+		waited += 5
+		app.call(&"_process", 0.0)
+	# Let the making a puzzle card's minimum time pass.
+	var overlay: Control = app.get(&"_overlay") as Control
+	if overlay != null:
+		overlay.call(&"step", Motion.MAKING_DELAY)
+		overlay.call(&"step", Motion.MAKING_MIN)
+	app.call(&"_process", 0.0)
+	assert_eq(app.current_screen(), AppService.PLAY)
+	assert_eq(app.stats.started(Levels.EASY), 1, "one tap, one puzzle")
+	_free_all([app])
+
+
+# Back ------------------------------------------------------------------------------
+
+func test_back_on_the_main_menu_alone_opens_the_title_screen() -> void:
+	# AT-76.
+	var app: AppService = _app()
+	app.answer_first_launch()
+	app.start_new_puzzle(Levels.EASY)
+	_attach(app)
+	app.goto(AppService.MAIN_MENU)
+	app.goto(AppService.STATS)
+	app.go_back()
+	assert_eq(app.current_screen(), AppService.MAIN_MENU, "Back on Stats returns to the main menu")
+	app.go_back()
+	assert_eq(app.current_screen(), AppService.TITLE, "Back on the main menu opens the title screen")
+	assert_eq(app.current_screen_node().get_parent(), _hosts[0])
+	assert_true(app.has_puzzle_in_progress(), "the puzzle stays")
+	app.play_now()
+	assert_eq(app.current_screen(), AppService.PLAY)
+	_free_all([app])
+
+
+func test_back_on_the_title_screen_saves_to_quit() -> void:
+	# GDD 15.0: Back on the title screen closes the app, with everything
+	# saved. Outside the scene tree the quit itself cannot run; the save can.
+	var app: AppService = _app()
+	_attach(app)
+	app.start_new_puzzle(Levels.EASY)
+	app.goto(AppService.TITLE)
+	SaveStore.remove(app.path_of(AppService.PUZZLE_FILE))
+	app.settings.sound = false
+	app.go_back()
+	assert_eq(app.current_screen(), AppService.TITLE, "no screen opens: the app closes")
+	var again: AppService = _app(app.save_dir)
+	assert_false(again.settings.sound, "settings saved")
+	assert_true(again.has_puzzle_in_progress(), "the puzzle saved")
+	_free_all([app, again])
+
+
+func test_info_and_about_open_over_the_title_screen_and_back_returns() -> void:
+	var app: AppService = _app()
+	_attach(app)
+	for pair: Array in [[&"info_button", AppService.INFO], [&"about_button", AppService.ABOUT]]:
+		(app.current_screen_node().get(pair[0]) as Button).pressed.emit()
+		assert_eq(app.current_screen(), pair[1])
+		app.go_back()
+		assert_eq(app.current_screen(), AppService.TITLE, "Android Back returns from %s" % pair[1])
+		assert_true(app.current_screen_node().visible)
+		(app.current_screen_node().get(pair[0]) as Button).pressed.emit()
+		var back: Control = app.current_screen_node().find_child("Back", true, false) as Control
+		(back.get(&"button") as Button).pressed.emit()
+		assert_eq(app.current_screen(), AppService.TITLE, "the back button returns from %s" % pair[1])
+	_free_all([app])
+
+
+# Info ---------------------------------------------------------------------------------
+
+## GDD 15.5 as [heading, [paragraph, ...]]: from the first bold heading to
+## the "Decision:" note after the text, with the bracketed numbers removed.
+func _gdd_info() -> Array[Array]:
+	var text: String = FileAccess.get_file_as_string("res://docs/GDD.md")
+	var sections: Array[Array] = []
+	var inside: bool = false
+	for raw: String in text.split("\n"):
+		var line: String = raw.strip_edges()
+		if line.begins_with("### 15.5"):
+			inside = true
+			continue
+		if not inside:
+			continue
+		if line.begins_with("Decision:") or line.begins_with("### "):
+			break
+		if line.begins_with("**"):
+			var end: int = line.find("**", 2)
+			assert_true(line.substr(end + 2).strip_edges().begins_with("["), "GDD heading has its bracketed numbers: %s" % line)
+			sections.append([line.substr(2, end - 2), []])
+		elif line != "" and not sections.is_empty():
+			(sections.back()[1] as Array).append(line)
+	return sections
+
+
+func test_info_text_is_gdd_15_5_word_for_word() -> void:
+	var gdd: Array[Array] = _gdd_info()
+	assert_eq(gdd.size(), 15, "fifteen headings in the GDD")
+	assert_eq(InfoScreen.SECTIONS.size(), gdd.size())
+	for i: int in mini(gdd.size(), InfoScreen.SECTIONS.size()):
+		assert_eq(InfoScreen.SECTIONS[i][0], gdd[i][0], "heading %d" % i)
+		assert_eq(InfoScreen.SECTIONS[i][1], gdd[i][1], "paragraphs of %s" % gdd[i][0])
+
+
+func test_info_shows_every_heading_in_order_and_no_bracketed_numbers() -> void:
+	var app: AppService = _app()
+	_attach(app)
+	app.goto(AppService.INFO)
+	var screen: Control = app.current_screen_node()
+	var cards: Array[PanelContainer] = screen.get(&"cards")
+	assert_eq(cards.size(), 15)
+	var headings: PackedStringArray = ["How to play", "Getting around", "The board", "The candidate ring",
+		"Place and Cross out", "Erase and Undo", "Auto Cross", "Mistakes", "Timer and pause", "Score",
+		"Hints", "Levels", "Finishing and stats", "Lessons", "Settings"]
+	for i: int in mini(cards.size(), headings.size()):
+		var labels: Array[Label] = _labels(cards[i])
+		assert_eq(labels[0].theme_type_variation, ThemeFactory.HEADING)
+		assert_eq(labels[0].text, ThemeFactory.display_text(ThemeFactory.HEADING, headings[i]))
+		for label: Label in labels:
+			assert_true(label == labels[0] or label.theme_type_variation == ThemeFactory.BODY, "paragraphs in BODY")
+			assert_eq(label.autowrap_mode, TextServer.AUTOWRAP_WORD_SMART, "every label wraps")
+	for text: String in _texts(screen):
+		assert_false(text.contains("["), "no bracketed numbers: %s" % text.left(40))
+		assert_false(text.contains("—") or text.contains("--"), "no em dash or double hyphen")
+	var scroll: ScrollContainer = screen.get(&"scroll")
+	assert_eq(scroll.horizontal_scroll_mode, ScrollContainer.SCROLL_MODE_DISABLED, "never sideways")
+	assert_eq(scroll.scroll_vertical, 0, "opens at the top")
+	_free_all([app])
+
+
+# About ----------------------------------------------------------------------------------
+
+func test_about_shows_version_copyright_and_the_engine_notices() -> void:
+	var app: AppService = _app()
+	_attach(app)
+	app.goto(AppService.ABOUT)
+	var screen: Control = app.current_screen_node()
+	var version: String = str(ProjectSettings.get_setting("application/config/version", ""))
+	assert_ne(version, "", "the project has a version")
+	var card: Node = screen.find_child("Card", true, false)
+	var card_texts: PackedStringArray = _texts(card)
+	assert_eq(card_texts, PackedStringArray([
+		ThemeFactory.display_text(ThemeFactory.TITLE, "Sudoku"),
+		ThemeFactory.display_text(ThemeFactory.CAPTION, "Version " + version),
+		"Copyright 2026 Bart Basi. All rights reserved.",
+		"Sudoku is free. It works offline, with no ads and no accounts, and it collects no data. Everything you do stays on this device.",
+		"Made with the Godot Engine.",
+	]), "GDD 15.6 items 1 to 5 in order")
+	assert_false(bool(screen.call(&"is_complete")), "the notice blocks wait for the frames after the first")
+	screen.call(&"build_all_notices")
+	assert_true(bool(screen.call(&"is_complete")))
+	var notices: Node = screen.get(&"notices")
+	var texts: PackedStringArray = _texts(notices)
+	assert_eq(texts[0], ThemeFactory.display_text(ThemeFactory.HEADING, "Open source notices"), "the heading first")
+	var shown: String = " ".join(texts)
+	# The engine's own license, with only white space changed.
+	var license: String = " ".join(AboutScreen.notice_paragraphs(Engine.get_license_text()))
+	assert_true(license.length() > 100)
+	assert_true(shown.contains(license), "the Godot license as the engine gives it")
+	assert_true(_squash(shown).contains(_squash(Engine.get_license_text())), "every word of it, in order")
+	for entry: Dictionary in Engine.get_copyright_info():
+		assert_true(texts.has(ThemeFactory.display_text(ThemeFactory.CAPTION, str(entry["name"]))), "component %s" % entry["name"])
+	var licenses: Dictionary = Engine.get_license_info()
+	for key: Variant in licenses.keys():
+		assert_true(_squash(shown).contains(_squash(str(licenses[key]))), "license %s in full" % key)
+	assert_false(shown.to_lower().contains("github"), "no GitHub address")
+	var scroll: ScrollContainer = screen.get(&"scroll")
+	for label: Label in _labels(scroll):
+		assert_eq(label.autowrap_mode, TextServer.AUTOWRAP_WORD_SMART, "every label wraps")
+		assert_eq(label.custom_minimum_size.x, 1.0, "and is never wider than the page")
+		assert_eq(label.mouse_filter, Control.MOUSE_FILTER_IGNORE, "nothing is a link")
+	assert_eq(scroll.horizontal_scroll_mode, ScrollContainer.SCROLL_MODE_DISABLED, "never sideways")
+	_free_all([app])
+
+
+## text with all white space removed, to compare words in order.
+func _squash(text: String) -> String:
+	var out: String = text
+	for space: String in [" ", "\n", "\r", "\t"]:
+		out = out.replace(space, "")
+	return out
+
+
+func test_notice_paragraphs_join_lines_and_keep_dividers() -> void:
+	var text: String = "First line\n  goes on here.\n\nSecond one.\n--------\nThird\r\npart.\n\n\n"
+	var got: PackedStringArray = AboutScreen.notice_paragraphs(text)
+	assert_eq(got, PackedStringArray(["First line goes on here.", "Second one.", "--------", "Third part."]))
+	assert_eq(AboutScreen.notice_paragraphs(""), PackedStringArray())

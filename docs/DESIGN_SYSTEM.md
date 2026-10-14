@@ -1,6 +1,6 @@
 # Sudoku: Design System
 
-Owner: senior-graphic-designer. Status: Phase 2, 2026-10-11; Phase 3 addition 2026-10-12, the hint cross chip (Bart, Hard Stop 2; sections 1, 2.7 to 2.9); 2026-10-12, the SUDOKU wordmark and the icon placeholder (sections 7.1, 7.2 and 9); 2026-10-12, the final app icon, Ring, made bolder (sections 7.1 and 9); 2026-10-12, number pad labels fit their faces down to 320 by 568 dp (sections 3.2, 3.5, 4.6, 5 and 10); 2026-10-12, Phase 4: the header row, Continue and the hint panel fit their design, the making a puzzle wait, the lesson card's wrong tap tag and height, and which sizes are Layout constants (sections 1, 3.2, 3.6, 4.6, 4.8, 5, 6, 7 and 10); 2026-10-12, Phase 6: window shapes for foldables and split screen, side by side and too small (sections 4.7, 4.8, 4.9, 4.11, 7.6 and 10). This is the contract the artists and developers build Phase 3 from. If something you need is missing or would force a guess, ask the senior-graphic-designer through the Development Manager; do not invent a value locally.
+Owner: senior-graphic-designer. Status: Phase 2, 2026-10-11; Phase 3 addition 2026-10-12, the hint cross chip (Bart, Hard Stop 2; sections 1, 2.7 to 2.9); 2026-10-12, the SUDOKU wordmark and the icon placeholder (sections 7.1, 7.2 and 9); 2026-10-12, the final app icon, Ring, made bolder (sections 7.1 and 9); 2026-10-12, number pad labels fit their faces down to 320 by 568 dp (sections 3.2, 3.5, 4.6, 5 and 10); 2026-10-12, Phase 4: the header row, Continue and the hint panel fit their design, the making a puzzle wait, the lesson card's wrong tap tag and height, and which sizes are Layout constants (sections 1, 3.2, 3.6, 4.6, 4.8, 5, 6, 7 and 10); 2026-10-12, Phase 6: window shapes for foldables and split screen, side by side and too small (sections 4.7, 4.8, 4.9, 4.11, 7.6 and 10); 2026-10-14, the title screen, Info and About (Bart, title screen; sections 4.6, 4.9, 4.11, 7.15 to 7.17). This is the contract the artists and developers build Phase 3 from. If something you need is missing or would force a guess, ask the senior-graphic-designer through the Development Manager; do not invent a value locally.
 
 Bart's Hard Stop 1 decisions behind it: direction Pop, with the Phase 2 fixes from [design/ranking.md](design/ranking.md); v1 ships two skins, Pop light (the default) and Pop dark; candidate ring layout A, reading rows; Godot's built-in font, no font files; a digit crossed by hand is drawn on top of its X with a thin outline; the game fits and works at 320 by 568 dp and readability is judged at 360 dp wide; an app icon whose background follows Pop's palette; "New best time" and "New best score" on the completion screen. The game is called Sudoku for now, a placeholder name Bart may change. The app icon is Ring (section 9).
 
@@ -498,7 +498,7 @@ The same in every skin, so not skin tokens. They are the constants of the `Layou
 | `HINT_FACE_W` | 64 | Width of the Hint button's face |
 | `ICON_FACE` | 40 | Face of every icon button (Pause, back, close on screens) and height of the header faces (Hint, time, score); its touch area is `TOUCH_MIN` |
 | `CLOSE_FACE` | 32 | Face of the close button on the hint panel and the lesson card; touch area `TOUCH_MIN` |
-| `BUTTON_TALL` | 56 | Face height of full width buttons: main menu, pause menu, completion, the first launch offer, the lesson NEXT button |
+| `BUTTON_TALL` | 56 | Face height of full width buttons: title screen, main menu, pause menu, completion, the first launch offer, the lesson NEXT button |
 | `TIME_MIN_W` | 80 | Narrowest time block (it grows to fit 1:02:05) |
 | `SCORE_MIN_W` | 60 | Narrowest score block |
 | `HEADER_GUARD` | 12 | Smallest gap between Hint and the time block, and between the score block and Pause |
@@ -566,11 +566,11 @@ Side by side (4.11) the card sits in the side column, with a simpler rule; see 4
 ### 4.9 Every other screen
 
 - Title row (`HEADER_ROW`): a back or close icon button at the left, the title in title style beside it.
-- Lists (level select, stats, lessons list, settings) scroll when they do not fit; the title row stays put. At 360 by 800 dp every list fits without scrolling except stats.
+- Lists (level select, stats, lessons list, settings) and the two text screens (Info, About) scroll when they do not fit; the title row stays put. At 360 by 800 dp every list fits without scrolling except stats; Info and About always scroll.
 - Dialogs: centered, at most 328 dp wide and at least 16 dp from the safe area's sides, over the scrim.
 - Full screen overlays (the pause menu, the first launch offer) fill the screen in `page_bg` and center their content in the safe area.
 - The same `COLUMN_MAX` and centering apply on tablets.
-- In wide and short windows the main menu, the first launch offer, the pause menu and the completion screen split into two halves; lists and dialogs do not change (4.11).
+- In wide and short windows the title screen, the main menu, the first launch offer, the pause menu and the completion screen split into two halves; lists, the text screens and dialogs do not change (4.11).
 
 ### 4.10 Sizes on the screens we design for
 
@@ -651,10 +651,11 @@ The breakpoints, in content box dp:
 
 Every screen reads the same arrangement. Stacked, every screen is as in section 7. Side by side:
 
+- **Title screen:** as the main menu below, with its three buttons (196 dp) on the right; see 7.15.
 - **Main menu and first launch offer:** two halves of the column `min(W, COLUMN_MAX)`, `space_xl` apart. Left: the wordmark at the top and the hero under it, filling the height left (64 to 200, 7.1). Right: the buttons (on the first launch offer, the card and its two buttons), centered vertically. At the inner top half the halves are 288 wide; the left has 352 - 66 - 48 = 238 for the hero, so it is 200; the buttons take 264 of 352.
 - **Pause menu:** two halves the same way. Left: PAUSED, the level sticker and the paused time (about 118). Right: RESUME, SETTINGS and MENU (196), centered.
 - **Completion:** two halves. Left: the starburst with SOLVED! and the level sticker, shrinking to the height. Right: the receipt, then PLAY AGAIN and MENU pinned at the bottom. When the receipt with both NEW BEST labels does not fit above the buttons, the receipt scrolls; the buttons never move.
-- **Lists** (level select, stats, settings, lessons list): no change. One column `min(W, COLUMN_MAX)` wide, the title row fixed, the list scrolls (all four already scroll).
+- **Lists** (level select, stats, settings, lessons list) **and the text screens** (Info, About): no change. One column `min(W, COLUMN_MAX)` wide, the title row fixed, the list scrolls (all six scroll).
 - **Dialogs** (7.4, the Reset dialog of 7.11, the making a puzzle card of 7.14): no change in either arrangement; centered, at most 328 wide. A dialog card is never taller than the content box: if it would be, its text scrolls and its buttons stay in view. At the smallest supported height, 264, the tallest one (7.4: three lines of text and two 48 dp buttons) needs about 215.
 
 #### Smaller than that: the too small message
@@ -1061,6 +1062,126 @@ A new puzzle is made on a worker thread after the player picks a level (level se
 4. **When the puzzle is ready**: if the card has shown for less than `MAKING_MIN` (400 ms), wait until it has; then the play screen comes in (`SCREEN_IN`) while the card and scrim go (`Motion.disappear`). The timer starts when the board first appears (GDD 8), so none of this counts.
 
 Every color here is a pair the checker already holds (`sticker_text` on `sticker_bg`, `text` on `surface_bg`). The hero rocks by rotating its Control; it redraws nothing, so it costs nothing at 60 fps.
+
+### 7.15 Title screen
+
+Bart, 2026-10-14: every app start opens the title screen. PLAY goes straight into a puzzle (ARCHITECTURE `App.play_now`), INFO and ABOUT open the two text screens below. Android Back on the title screen closes the app; Back on the main menu now opens the title screen.
+
+```
+┌──────────────────────────────────────┐ safe top + 8
+│                                      │
+│         ╔══════════════╗             │ SUDOKU: the main menu's wordmark
+│         ║   SUDOKU     ║             │ (7.1), unchanged
+│         ╚══════════════╝             │
+│                                      │ 24
+│            ┌────────┐                │ hero: the main menu's hero (7.1),
+│            │  icon  │                │ 64 to 200 square, centered
+│            └────────┘                │
+│                                      │ 24
+│ [ PLAY                             ] │ BUTTON_PRIMARY, BUTTON_TALL 56
+│ [ INFO                             ] │ BUTTON_SECONDARY, 56, gaps 12
+│ [ ABOUT                            ] │ BUTTON_SECONDARY, 56
+└──────────────────────────────────────┘ safe bottom - 8
+```
+
+- **Built from the main menu's parts, nothing new.** A `HalvesBox` made exactly as the main menu makes it (`stacked_mode` FILL_FIRST, `side_gap` `space_xl`), in the screen's `ScreenColumn`. First part: the main menu's brand, the wordmark (`CELEBRATE_STICKER` holding `CELEBRATE_DISPLAY`, tilted `sticker_tilt`) over the hero (`HeroIcon`, gap `space_xl`), the same code as 7.1. Second part: the three buttons in a VBox, `space_m` apart, with room for the shadow under the last one (`UiKit.with_shadow_room`), as on the main menu.
+- **Buttons.** Full column width, `Layout.BUTTON_TALL` (56) faces, `space_m` (12) gaps: PLAY in `BUTTON_PRIMARY`, then INFO and ABOUT in `BUTTON_SECONDARY`. Labels: the source strings are "Play", "Info" and "About" in sentence case; the button role sets them in capitals at display time (3.1), so they read PLAY, INFO and ABOUT, as Bart wrote them. No icons. The stack is 3 rows of 56, 2 gaps of 12 and the 4 dp shadow: 196 dp.
+- PLAY is the one primary button, because it is what nearly every visit is for. It always says PLAY, with or without a puzzle in progress: the title screen shows no level or time (that stays Continue on the main menu).
+- Nothing else on the screen is tappable: no back button, no settings. Back is Android Back.
+- **Stacked heights.** The hero takes the height the wordmark (66) and the buttons (196) leave, less a `space_xl` gap above and below it (48), clamped to 64 to 200 dp and centered when it stops at 200.
+  - 360 by 800 (32 dp notch, 24 dp gesture bar): 728 inside the margins; 728 minus 66, 196 and 48 leaves 418, so the hero is 200, with 109 dp of page above and below it.
+  - 320 by 568, the same insets: 496 inside the margins; 496 minus 66, 196 and 48 leaves 186, so the hero is 186 dp. Everything fits.
+- **Side by side** (4.11): the main menu's halves. Left: the wordmark at the top and the hero under it. Right: the three buttons, centered vertically. Inner top half (674 by 352): halves 288 wide, the hero 200 (238 available), the buttons 196 of 352. At the smallest supported height, 264: the hero is 264 minus 66 and 48, 150 dp, and the buttons 196 of 264. Buttons are at least 271 dp wide at the narrowest side by side window (567 dp), so the labels have room to spare.
+- Too small windows get the too small layer (4.11), as every screen.
+- **Motion.** No entrance animation on app start: the screen is there on the first frame after the boot background. The buttons press as every button (4.2). Info and About come in with `SCREEN_IN` and leave with `SCREEN_OUT`, as every pushed screen.
+- **Colors.** Every pair is one the main menu already uses and the checker already holds: `celebrate_text` on `celebrate_bg`, `button_primary_text` on `button_primary_bg`, `button_text` on `button_bg`, the hero's own colors on `page_bg`.
+
+### 7.16 Info
+
+A text screen that explains the game: scoring, the time bonus, hints and their cost, every control, the candidate ring, Cross Out, Auto Cross, mistakes, levels and stats (Bart, 2026-10-14). The words, the order of the sections and their titles are the lead-game-designer's (GDD); this section gives only the layout.
+
+```
+│ [<]  INFO                              │ title row 48, as Stats
+│                                        │ 8
+│ ┌────────────────────────────────────┐ │ one CARD per section, gaps 12
+│ │ THE CANDIDATE RING                 │ │ HEADING
+│ │                                    │ │ 8
+│ │ Every empty cell shows the nine    │ │ BODY, wrapped
+│ │ digits around its edge...          │ │
+│ │                                    │ │ 8
+│ │ A second paragraph.                │ │ BODY
+│ └────────────────────────────────────┘ │
+│ ┌────────────────────────────────────┐ │
+│ │ SCORING                            │ │
+│ │ ...                                │ │
+│ └────────────────────────────────────┘ │
+│ ...                                    │ the list scrolls
+```
+
+- **Title row:** the one Stats and Settings use, `UiKit.title_row("Info", space_s, back)`: the back `ICON_BUTTON` (40 dp face, 48 dp touch area) and the title in `TITLE`, reading INFO. The back button and Android Back both return to the title screen.
+- **Under it,** `space_s` below, a `ScrollContainer` filling the rest of the column, built as on Stats: `horizontal_scroll_mode` disabled, so nothing ever scrolls sideways. In it, a VBox of `CARD`s, `space_m` apart, with the shadow room under the last card, exactly as the stats list.
+- **Each section is one `CARD`:** the section title in `HEADING` (capitals; the source string in sentence case), then `space_s`, then the section's paragraphs in `BODY`, one label per paragraph, `space_s` apart. Every label wraps (`UiKit.label(variation, text, true)`: smart word wrap, minimum width 1). A paragraph may be a single line, such as one control and what it does; there is no inline bold or other mixed style inside a label.
+- **Names of controls** in the text are written as the button shows them in sentence case ("Cross Out", "Undo"), so the player can match them; the GDD owns the words.
+- **Widths.** At 320 by 568 the column is 304 dp and a card's text is about 272 dp wide (the card less its outline, padding and shadow), about 40 characters of 14 dp body a line. On wider screens the column grows to `COLUMN_MAX` (600) and is centered.
+- **Side by side** (4.11): no change. The column is `min(W, COLUMN_MAX)`, the title row stays, the list scrolls. At the smallest supported height, 264, the list gets 264 minus 48 and 8, 208 dp.
+- It opens at the top each time.
+- **Colors:** `text` on `surface_bg` (body, heading), `text` on `page_bg` (title). All held by the checker.
+
+### 7.17 About
+
+The game name and version, Bart's copyright line, a short paragraph (free, offline, collects nothing), then the open source notices for Godot and what it ships, read from the engine at run time (ARCHITECTURE: `Engine.get_license_text()`, `Engine.get_copyright_info()`, `Engine.get_license_info()`; no notice text is copied into the repo). The words other than the engine's are the lead-game-designer's (GDD); the copyright line is Bart's, exactly: "Copyright 2026 Bart Basi. All rights reserved."
+
+```
+│ [<]  ABOUT                             │ title row 48, as Stats
+│                                        │ 8
+│ ┌────────────────────────────────────┐ │ CARD
+│ │ SUDOKU                             │ │ TITLE
+│ │ VERSION 1.0                        │ │ CAPTION
+│ │                                    │ │ 8
+│ │ Copyright 2026 Bart Basi. All      │ │ BODY_SMALL
+│ │ rights reserved.                   │ │
+│ │                                    │ │ 8
+│ │ Sudoku is free and works offline.  │ │ BODY
+│ │ It collects nothing.               │ │
+│ └────────────────────────────────────┘ │
+│                                        │ 24
+│ OPEN SOURCE NOTICES                    │ HEADING, on the page
+│ This game is made with Godot...        │ BODY_SMALL
+│                                        │ 24
+│ GODOT ENGINE                           │ CAPTION
+│ Copyright (c) 2014-present Godot       │ BODY_SMALL_12, the MIT text
+│ Engine contributors...                 │
+│ ────────────────────────────────────── │ RULE, 24 above and below
+│ THIRD PARTY COMPONENTS                 │ HEADING
+│ FREETYPE                               │ CAPTION, 12 above each component
+│ Copyright 1996-2024, David Turner...   │ BODY_SMALL_12, one line per holder
+│ License: FTL                           │ BODY_SMALL_12
+│ ...                                    │
+│ ────────────────────────────────────── │ RULE
+│ LICENSES                               │ HEADING
+│ APACHE-2.0                             │ CAPTION
+│ Apache License, Version 2.0...         │ BODY_SMALL_12, one label per paragraph
+│ ...                                    │ the page scrolls
+```
+
+- **Title row:** as Info, `UiKit.title_row("About", space_s, back)`, reading ABOUT. Back returns to the title screen. Under it, `space_s` below, the same `ScrollContainer` as Info (horizontal scrolling disabled) holding one VBox.
+- **The card** (`CARD`, full list width, shadow room under it as on Info): the name "Sudoku" in `TITLE` (capitals: SUDOKU); under it, with no gap, "Version 1.0" in `CAPTION`, the version from `ProjectSettings` `application/config/version`; then `space_s` and the copyright line in `BODY_SMALL`; then `space_s` and the short paragraph in `BODY`. All wrap.
+- **The notices** sit on the page under the card, not in a card: they are far too long for one, and a card thousands of dp tall reads as a wall. Their labels line up with the card's face: the same left edge, and the list width less `shadow_offset` at the right. Top to bottom, `space_xl` under the card:
+  1. "Open source notices" in `HEADING`, then `space_xs` and a one or two sentence lead in `BODY_SMALL` (GDD words).
+  2. `space_xl`, then "Godot Engine" in `CAPTION`, `space_xs`, and `Engine.get_license_text()` in `BODY_SMALL_12`.
+  3. A `RULE` with `space_xl` above and below, then a heading in `HEADING` for the component list (GDD words, for example "Third party components"). Then, for each entry of `Engine.get_copyright_info()` in the engine's order, `space_m` above it: its name in `CAPTION`, `space_xs`, then for each of its parts, in `BODY_SMALL_12`, one line per copyright holder, "Copyright " followed by the engine's string, and a last line "License: " followed by the license name. The parts' file lists are left out: they are source paths, meaningless to a player, and the copyright and license lines carry the notice.
+  4. A `RULE` the same way, a heading in `HEADING` for the license texts (GDD words, for example "Licenses"), then for each entry of `Engine.get_license_info()`, `space_m` above it: the license name in `CAPTION`, `space_xs`, and its full text in `BODY_SMALL_12`.
+- **Every line wraps; nothing scrolls sideways.** Every label wraps with smart word wrap and a minimum width of 1 (`UiKit.label(variation, text, true)`), and fills the width (size flags expand fill). Smart word wrap also breaks inside a word that is longer than the line. That matters here: three of the license texts (glslang, FTL and MPL-2.0) hold divider lines of 80 hyphens, about 480 dp at 12 dp, and some lines hold long web addresses; they break across lines instead of widening the page.
+- **Paragraphs, not the engine's line breaks.** The engine's license texts are hard wrapped at 66 to 82 characters for an 80 column terminal. On a 300 dp line (about 45 characters at 12 dp) every one of those lines would wrap again into one long and one short line, a ragged column that is hard to read. So the screen splits each text into paragraphs at blank lines and, inside a paragraph, joins the lines with a single space. A line with no letter or digit in it (a divider) stays a paragraph of its own. Only white space changes; every word of the notice shows, in order. Each paragraph is its own label, `space_s` apart.
+- **Type.** Headings in `HEADING` (16 dp Heavy capitals), names in `CAPTION` (10 dp Heavy capitals, `text_muted`), notice text in `BODY_SMALL_12` (12 dp Semibold, line height 1.3, `text`). The three differ by size, weight and capitals, not by color alone. 12 dp is the hint panel's step down size, readable at arm's length and small enough that the notices are not endless; it is fixed here, never stepped.
+- **Size and speed.** Godot 4.7.2 gives about 77,000 characters of license text (19 licenses), 102 components and the 1,100 character MIT text (measured from the 4.7.2 editor binary; the export template ships fewer modules and may list fewer). At 320 dp wide that is roughly 35,000 dp of page, about 50 screen heights. Two rules keep it at 60 fps:
+  - One label per paragraph, never one label for a whole license or the whole page. The renderer then skips labels that are off screen, and no single label holds hundreds of lines.
+  - The card and the notices heading are built with the screen; the notice blocks are built after the screen's first frame, a few at a time over the following frames, appended at the bottom. The screen slides in (`SCREEN_IN`) without a dropped frame, and Back works at once. Nobody reaches the bottom before the list is complete.
+- It opens at the top each time.
+- **Side by side** (4.11): no change, as Info.
+- **Colors:** `text` and `text_muted` on `page_bg` (both held by the checker; `text_muted` on `page_bg` is already used by the SKIN caption on Settings), `text` on `surface_bg` inside the card, `outline` for the rules.
+
+**Styles for 7.15 to 7.17.** All exist today; no new theme style is needed: `CELEBRATE_STICKER`, `CELEBRATE_DISPLAY`, `BUTTON_PRIMARY`, `BUTTON_SECONDARY`, `ICON_BUTTON` (inside `UiKit.title_row`), `TITLE`, `HEADING`, `BODY`, `BODY_SMALL`, `BODY_SMALL_12`, `CAPTION`, `CARD`, `RULE`, `PAGE`. Layout constants: `BUTTON_TALL`, `HEADER_ROW`, `ICON_FACE`, `TOUCH_MIN`, `COLUMN_MAX`. The scroll bar is the one the other lists use today.
 
 ## 8. Two color decisions
 

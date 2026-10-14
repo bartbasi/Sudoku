@@ -253,10 +253,13 @@ func test_too_small_over_settings_from_the_pause_menu() -> void:
 func test_back_elsewhere_does_what_the_screen_underneath_does() -> void:
 	var parts: Array = _app(_cover())
 	var app: AppService = parts[0]
+	app.goto(AppService.MAIN_MENU)
 	app.goto(AppService.LEVEL_SELECT)
 	app.apply_window(_cover_half().safe)
 	app.go_back()
 	assert_eq(app.current_screen(), AppService.MAIN_MENU, "Back closes the level select as usual")
+	app.go_back()
+	assert_eq(app.current_screen(), AppService.TITLE, "Back on the main menu opens the title screen")
 	assert_true(app.too_small_layer() != null, "the layer still shows")
 	_teardown(parts)
 

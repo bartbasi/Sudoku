@@ -26,7 +26,11 @@ Section 8 lists these rules as decided, with their sources.
 
 - A Lessons screen lists every lesson in order, with its number, title and subtitle, and shows which ones the player has finished.
 - Every lesson is open from the start. Any lesson can be played again at any time.
-- On first launch, before the main menu, the game offers lesson 1. The player can start it or skip it. Skip opens the main menu. Lesson 1 stays on the Lessons screen for later (GDD 15.3).
+- The game offers lesson 1 the first time the player taps PLAY on the title screen (GDD 15.0 and 15.3). The offer reads "New to Sudoku? Lesson 1 shows you how to play." Its buttons are Start lesson and Skip.
+- Start lesson opens lesson 1 over the main menu, so leaving the lesson shows the main menu.
+- Skip goes straight into a puzzle, just like PLAY: the puzzle in progress if there is one, else a new puzzle at the last level started (Easy the first time).
+- Either answer is final, and the offer never shows again. Android Back on the offer returns to the title screen without answering it, so the next PLAY shows the offer again. So does the next PLAY if the app closes before the player answers.
+- Lesson 1 stays on the Lessons screen for later.
 
 ## 4. Outline
 
@@ -106,7 +110,7 @@ Checked by hand: every row, every column and every box of this grid holds 1 to 9
 
 **Screens:** 6.
 
-**Uses from earlier lessons:** nothing. This is the first lesson, and the game offers it on first launch (GDD 15.3).
+**Uses from earlier lessons:** nothing. This is the first lesson, and the game offers it the first time the player taps PLAY on the title screen (GDD 15.3).
 
 **Mode:** Place on every screen. Lesson 1 does not explain the mode switch; lesson 2 does.
 

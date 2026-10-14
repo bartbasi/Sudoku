@@ -28,6 +28,8 @@ class Harness extends RefCounted:
 	var dir: String = ""
 	var skins: Node = null
 	var audio: Node = null
+	## The screen attach_host opened: the title screen (GDD 15.0).
+	var opened_on: StringName = &""
 
 	## The screen on top.
 	func top() -> Control:
@@ -47,9 +49,20 @@ static func new_dir(tag: String) -> String:
 	return Fx.fresh_dir("integration_%s" % tag)
 
 
+## Builds the app on dir and leaves it on the main menu, where most flows
+## start. The app opens on the title screen (opened_on); from there the main
+## menu is the pause menu's Menu away, so this goes to it directly.
+static func open_app(dir: String) -> Harness:
+	var h: Harness = open_app_on_title(dir)
+	if h.screen_name() == AppService.TITLE:
+		h.app.goto(AppService.MAIN_MENU)
+		fit(h)
+	return h
+
+
 ## Builds the app on dir, as the game does at startup: load every save file,
 ## apply sound and skin, then attach the host, which opens the first screen.
-static func open_app(dir: String) -> Harness:
+static func open_app_on_title(dir: String) -> Harness:
 	var h: Harness = Harness.new()
 	h.dir = dir
 	h.skins = root().get_node(^"Skins")
@@ -72,6 +85,7 @@ static func open_app(dir: String) -> Harness:
 	root().add_child(host)
 	h.host = host
 	app.attach_host(host)
+	h.opened_on = app.current_screen()
 	fit(h)
 	return h
 

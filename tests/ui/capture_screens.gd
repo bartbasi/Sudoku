@@ -5,12 +5,16 @@ extends SceneTree
 ##   timeout 300 godot --path . --script res://tests/ui/capture_screens.gd
 ##   timeout 300 godot --path . --script res://tests/ui/capture_screens.gd -- 320x568
 ##   timeout 300 godot --path . --script res://tests/ui/capture_screens.gd -- windows
+##   timeout 300 godot --path . --script res://tests/ui/capture_screens.gd -- title <folder>
 ##
 ## Writes build/ui/<size>-<skin>-<screen>.png. Saves go to
 ## user://ui_capture/, which is wiped first, so real saves are untouched.
 ## "windows" captures the main menu, play, pause and completion on the
 ## DESIGN_SYSTEM.md 4.11 windows in WINDOW_SIZES, then the too small layer
 ## at TOO_SMALL_SIZE, resizing one window as a fold or a split screen would.
+## "title" captures the title screen (Pop light and Pop dark), Info at the
+## top and About at the top and partway into the notices, on TITLE_SIZES,
+## into the folder given (absolute), or build/ui/ when none is.
 
 const OUT_DIR: String = "res://build/ui/"
 const SAVE_DIR: String = "user://ui_capture"
@@ -19,8 +23,13 @@ const SAVE_DIR: String = "user://ui_capture"
 const WINDOW_SIZES: Array[Vector2i] = [Vector2i(344, 882), Vector2i(690, 829), Vector2i(345, 829), Vector2i(690, 400)]
 const TOO_SMALL_SIZE: Vector2i = Vector2i(344, 430)
 
+## 360 by 800 and 320 by 568 stacked, 690 by 400 side by side.
+const TITLE_SIZES: Array[Vector2i] = [Vector2i(360, 800), Vector2i(320, 568), Vector2i(690, 400)]
+
 var _size: Vector2i = Vector2i(360, 800)
 var _windows: bool = false
+var _title: bool = false
+var _out_dir: String = OUT_DIR
 var _app: AppService = null
 var _skins: Node = null
 
@@ -29,6 +38,12 @@ func _initialize() -> void:
 	var args: PackedStringArray = OS.get_cmdline_user_args()
 	if args.size() > 0 and args[0] == "windows":
 		_windows = true
+	elif args.size() > 0 and args[0] == "title":
+		_title = true
+		if args.size() > 1:
+			_out_dir = args[1].replace("\\", "/")
+			if not _out_dir.ends_with("/"):
+				_out_dir += "/"
 	elif args.size() > 0 and args[0].contains("x"):
 		var parts: PackedStringArray = args[0].split("x")
 		_size = Vector2i(parts[0].to_int(), parts[1].to_int())
@@ -36,7 +51,7 @@ func _initialize() -> void:
 
 
 func _run() -> void:
-	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(OUT_DIR))
+	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(_out_dir))
 	_wipe(SAVE_DIR)
 	DirAccess.make_dir_recursive_absolute(SAVE_DIR)
 	root.size = _size
@@ -67,6 +82,11 @@ func _run() -> void:
 	if _windows:
 		await _run_windows()
 		return
+	if _title:
+		await _run_title()
+		return
+	await _shot("light", "title")
+	_app.play_now()
 	await _shot("light", "first_launch")
 
 	_app.answer_first_launch()
@@ -197,6 +217,33 @@ func _run_windows() -> void:
 	quit(0)
 
 
+## The title screen in both skins, Info at the top, About at the top and
+## partway into the notices, on each of TITLE_SIZES.
+func _run_title() -> void:
+	for window: Vector2i in TITLE_SIZES:
+		_resize(window)
+		for skin_id: StringName in [&"pop_light", &"pop_dark"]:
+			_app.set_skin(skin_id)
+			_app.goto(AppService.TITLE)
+			await _shot(String(skin_id).trim_prefix("pop_"), "title")
+		_app.set_skin(&"pop_light")
+		_app.goto(AppService.TITLE)
+		_app.goto(AppService.INFO)
+		await _shot("light", "info")
+		_app.go_back()
+		_app.goto(AppService.ABOUT)
+		await _shot("light", "about")
+		var about: Control = _app.current_screen_node()
+		var scroll: ScrollContainer = about.get(&"scroll") as ScrollContainer
+		await _settle()
+		var notices: Control = about.get(&"notices") as Control
+		scroll.scroll_vertical = int(notices.get_global_rect().position.y - scroll.get_global_rect().position.y) + 600
+		await _shot("light", "about_notices")
+		_app.go_back()
+	_wipe(SAVE_DIR)
+	quit(0)
+
+
 ## Gives the window a new size, as a fold or a split screen divider would.
 ## App hears size_changed and re-checks the arrangement.
 func _resize(window: Vector2i) -> void:
@@ -226,7 +273,7 @@ func _shot(skin_name: String, screen: String) -> void:
 	await _settle()
 	await RenderingServer.frame_post_draw
 	var image: Image = root.get_texture().get_image()
-	var path: String = OUT_DIR + "%dx%d-%s-%s.png" % [_size.x, _size.y, skin_name, screen]
+	var path: String = _out_dir + "%dx%d-%s-%s.png" % [_size.x, _size.y, skin_name, screen]
 	image.save_png(ProjectSettings.globalize_path(path))
 	print("wrote ", path)
 

@@ -30,6 +30,8 @@ The runner exits with 0 when every test passes and 1 otherwise.
 
 The debug APK is built and installed from Git Bash on Windows. The Android export preset is in `export_presets.cfg` (preset "Android", package `com.bartbasi.sudoku`, arm64-v8a, no permissions).
 
+The game version is set in two places that must always match: `application/config/version` in `project.godot` (shown on the About screen) and `version/name` in `export_presets.cfg` (the Android version name). When the version changes, change both together, and raise `version/code` in `export_presets.cfg` too.
+
 ### One time setup
 
 1. Install the Godot 4.7.2 export templates (Godot editor: Editor > Manage Export Templates > Download and Install).

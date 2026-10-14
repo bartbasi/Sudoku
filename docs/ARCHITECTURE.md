@@ -239,8 +239,10 @@ var sound: bool = true
 var skin_id: StringName = &"pop_light"
 var auto_cross: bool = false
 var first_launch_answered: bool = false
+var last_level: int = Levels.EASY                    # the level of the last puzzle started; PLAY starts here (Bart 2026-10-14)
 func to_dict() -> Dictionary
 static func from_dict(data: Variant) -> Settings     # an invalid field takes its default; never null
+                                                     # (last_level must be an int, or a float with no fraction, inside Levels.is_valid)
 
 class_name Stats extends RefCounted                   # GDD 13
 const NEW_BEST_TIME := 1
@@ -660,9 +662,20 @@ func answer_first_launch() -> void
 func save_session() -> void
 func goto(screen: StringName, payload: Variant = null) -> void
 func go_back() -> void
+func play_now() -> void                             # PLAY on the title screen (GDD 15.0): first launch offer if not yet
+                                                    # answered; else the puzzle in progress (goto PLAY); else
+                                                    # start_new_puzzle(settings.last_level). Ignored while generating.
+
+const TITLE: StringName = &"title"                  # scenes/ui/title_screen.tscn, a root screen; attach_host opens it
+const INFO: StringName = &"info"                    # scenes/ui/info_screen.tscn, pushed over the title screen
+const ABOUT: StringName = &"about"                  # scenes/ui/about_screen.tscn, pushed over the title screen
 ```
 
-Screens (scenes/ui, one scene and script each): main menu, level select, play (HUD, PlayArea, pause menu, hint panel, full board message, new puzzle confirm), completion, stats, settings (sound, skin picker, Auto Cross, Reset Stats with confirmation), first launch offer. The lessons list and lesson player are lessons-dev's scenes, opened through `App.goto(&"lessons")` and `App.goto(&"lesson", lesson)`.
+`start_new_puzzle(level)` sets `settings.last_level = level` and saves the settings when it starts generating. Back on the main menu when it is the only screen opens the title screen (`goto(TITLE)`); Back on the title screen saves and quits. The first launch offer's Skip calls `answer_first_launch()` and then `play_now()`. The first launch offer is no longer a root screen: `play_now()` pushes it over the title screen, so Back on it returns to the title screen without answering (GDD 15.3).
+
+The About screen reads the version from `ProjectSettings` `application/config/version` and the open source notices from `Engine.get_license_text()`, `Engine.get_copyright_info()` and `Engine.get_license_info()` at run time; no notice text is copied into the repo.
+
+Screens (scenes/ui, one scene and script each): title (PLAY, INFO, ABOUT), info, about, main menu, level select, play (HUD, PlayArea, pause menu, hint panel, full board message, new puzzle confirm), completion, stats, settings (sound, skin picker, Auto Cross, Reset Stats with confirmation), first launch offer. The lessons list and lesson player are lessons-dev's scenes, opened through `App.goto(&"lessons")` and `App.goto(&"lesson", lesson)`.
 
 The play screen drives the timer: it calls `session.add_time(delta)` in `_process` while the puzzle screen is showing and neither the pause menu nor another screen covers it. The hint panel and the full board message do not stop the timer (GDD 8). The Hint button calls `NextStep.find(session.solution, session.board)` and then `session.buy_hint(hint)` (section 5 if `find` runs on a worker thread).
 
@@ -729,7 +742,8 @@ Rules (security, checked by the security reviewer):
 - **New puzzle:** level select -> confirm dialog if one is in progress (Start new calls `App.abandon_puzzle`) -> `App.start_new_puzzle` -> worker thread `PuzzleSource.get_puzzle` -> `GameSession.create` with `settings.auto_cross` -> `Stats.record_start` -> save -> play screen.
 - **Hint:** Hint button (enabled only when `can_buy_hint`) -> `NextStep.find` -> `session.buy_hint` -> `hint_changed` -> BoardView marks targets and reasons and highlights the candidates to cross (`hint.eliminations`), the hint panel shows the text.
 - **Completion:** `session.completed` -> `App.on_puzzle_completed` (stats, delete the save, session null) -> completion screen shows the returned `CompletionResult`: level, time, score parts, hints used and any New best label.
-- **Resume:** App startup -> `SaveStore.read` -> `GameSession.from_dict` -> `session.set_auto_cross(settings.auto_cross)` -> main menu shows Continue.
+- **Resume:** App startup -> `SaveStore.read` -> `GameSession.from_dict` -> `session.set_auto_cross(settings.auto_cross)` -> title screen; PLAY (or Continue on the main menu) opens it.
+- **PLAY:** title screen -> `App.play_now` -> first launch offer once, else the play screen with the puzzle in progress, else `start_new_puzzle(settings.last_level)`.
 - **Skin change:** settings -> `App.set_skin` -> `Skins.apply` -> `skin_changed` -> App rebuilds the theme, boards redraw.
 - **Lesson step:** NumberPad or BoardView -> BoardController -> gate (LessonPlayer) -> right taps apply to the lesson session; wrong taps show text and change nothing.
 

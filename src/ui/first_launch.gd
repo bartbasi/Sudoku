@@ -2,7 +2,9 @@ extends UiScreen
 ## The first launch offer (GDD 15.3, DESIGN_SYSTEM.md 7.2): the wordmark and
 ## the hero as on the main menu, then a card with the offer and two buttons.
 ## Side by side (4.11) the card takes the right half, centered.
-## Either answer is final. Closing the app before answering shows it again.
+## It goes over the title screen on PLAY while unanswered (GDD 15.3). Either
+## answer is final. Back returns to the title screen without answering, and
+## closing the app before answering shows it again on the next PLAY.
 ## Owner: ui-systems-dev.
 
 const MainMenu := preload("res://src/ui/main_menu.gd")
@@ -47,6 +49,8 @@ func _on_start() -> void:
 	app.open_first_lesson()
 
 
+## Skip goes straight into a puzzle, as PLAY does once the offer is
+## answered (GDD 15.3).
 func _on_skip() -> void:
 	app.answer_first_launch()
-	app.goto(AppService.MAIN_MENU)
+	app.play_now()

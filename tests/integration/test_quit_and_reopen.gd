@@ -47,14 +47,10 @@ func test_quit_and_reopen_resumes_everything() -> void:
 	assert_true((screen.get(&"pause_menu") as PauseMenu).is_open(), "the pause menu opens")
 	Ix.quit(h)
 
-	var again: Ix.Harness = Ix.open_app(dir)
-	assert_eq(again.screen_name(), AppService.MAIN_MENU, "reopens on the main menu")
-	var go_on: Button = again.top().get(&"continue_button")
-	assert_true(go_on.visible, "Continue shows")
-	var caption: Label = again.top().get(&"continue_caption")
-	assert_true(caption.text.to_lower().contains("easy"), "with the level: %s" % caption.text)
-	assert_true(caption.text.contains("1:37"), "and the time: %s" % caption.text)
-	assert_true(Ix.click(go_on))
+	var again: Ix.Harness = Ix.open_app_on_title(dir)
+	assert_eq(again.screen_name(), AppService.TITLE, "reopens on the title screen")
+	var play: Button = again.top().get(&"play_button")
+	assert_true(Ix.click(play), "PLAY")
 	Ix.fit(again)
 	assert_eq(again.screen_name(), AppService.PLAY)
 	var back: GameSession = again.app.session

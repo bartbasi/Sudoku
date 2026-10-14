@@ -184,6 +184,27 @@ func test_settings_from_bad_data() -> void:
 	assert_eq(Settings.from_dict({"skin_id": 5}).skin_id, &"pop_light")
 
 
+func test_settings_last_level() -> void:
+	assert_eq(Settings.new().last_level, Levels.EASY, "Easy by default")
+	for level: int in Levels.COUNT:
+		var settings: Settings = Settings.new()
+		settings.last_level = level
+		assert_eq(settings.to_dict()["last_level"], level)
+		assert_eq(Settings.from_dict(_json(settings.to_dict())).last_level, level, "round trip through JSON")
+	assert_eq(Settings.from_dict({"last_level": 3}).last_level, Levels.HARD, "an int loads")
+	assert_eq(Settings.from_dict({"last_level": 4.0}).last_level, Levels.EXPERT, "a whole float loads")
+	assert_eq(Settings.from_dict({"last_level": 0.0}).last_level, Levels.BEGINNER)
+	var bad: Array = [null, "3", "Hard", true, false, 2.5, -1, -1.0, 5, 5.0, -0.5, 4.5,
+		NAN, INF, -INF, 1e300, -1e300, 9223372036854775807, [], {}]
+	for value: Variant in bad:
+		assert_eq(Settings.from_dict({"last_level": value}).last_level, Levels.EASY, "%s takes Easy" % [value])
+	assert_eq(Settings.from_dict({}).last_level, Levels.EASY, "missing takes Easy")
+	var mixed: Settings = Settings.from_dict({"last_level": 2.5, "auto_cross": true})
+	assert_true(mixed.auto_cross, "a bad last_level leaves the other fields alone")
+	var kept: Settings = Settings.from_dict({"last_level": 0, "sound": "off"})
+	assert_eq(kept.last_level, Levels.BEGINNER, "a good last_level loads beside a bad field")
+
+
 func test_lesson_progress() -> void:
 	# AT-56 (core part): counts once per lesson.
 	var progress: LessonProgress = LessonProgress.new()

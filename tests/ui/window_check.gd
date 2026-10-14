@@ -54,6 +54,7 @@ func _run() -> void:
 	_skin = load("res://src/skins/pop_light.tres") as GameSkin
 	for window: Shape in _shapes():
 		await _check_play(window)
+		await _check_title(window)
 		await _check_main_menu(window, false)
 		await _check_main_menu(window, true)
 		await _check_first_launch(window)
@@ -302,10 +303,22 @@ func _check_main_menu(window: Shape, with_puzzle: bool) -> void:
 	_new_app(window)
 	if with_puzzle:
 		_app.start_new_puzzle(Levels.EASY)
-		_app.goto(AppService.MAIN_MENU)
+	_app.goto(AppService.MAIN_MENU)
 	var screen: Control = await _fit(window)
 	var where: String = "%s, main menu%s" % [window.label, " with Continue" if with_puzzle else ""]
 	_check_buttons([screen.get(&"continue_button"), screen.get(&"new_button"), screen.get(&"lessons_button"), screen.get(&"stats_button"), screen.get(&"settings_button")], window.safe, where)
+	_check_halves(screen.get(&"halves") as HalvesBox, window, where)
+	var wordmark: Control = screen.find_child("Wordmark", true, false) as Control
+	_ok(_inside(_rect(wordmark), window.safe), "%s: the wordmark inside the safe rect" % where)
+
+
+## The title screen (7.15): PLAY, INFO and ABOUT, the wordmark and hero.
+func _check_title(window: Shape) -> void:
+	_new_app(window)
+	_ok(_app.current_screen() == AppService.TITLE, "%s: the app opens on the title screen" % window.label)
+	var screen: Control = await _fit(window)
+	var where: String = "%s, title" % window.label
+	_check_buttons([screen.get(&"play_button"), screen.get(&"info_button"), screen.get(&"about_button")], window.safe, where)
 	_check_halves(screen.get(&"halves") as HalvesBox, window, where)
 	var wordmark: Control = screen.find_child("Wordmark", true, false) as Control
 	_ok(_inside(_rect(wordmark), window.safe), "%s: the wordmark inside the safe rect" % where)
@@ -377,10 +390,13 @@ func _check_completion(window: Shape) -> void:
 ## Level select, stats and settings: one scrolling column with the title row
 ## fixed, in either arrangement.
 func _check_lists(window: Shape) -> void:
-	for screen_id: StringName in [AppService.LEVEL_SELECT, AppService.STATS, AppService.SETTINGS]:
+	for screen_id: StringName in [AppService.LEVEL_SELECT, AppService.STATS, AppService.SETTINGS, AppService.INFO, AppService.ABOUT]:
 		_new_app(window)
 		_app.goto(screen_id)
 		var screen: Control = await _fit(window)
+		if screen.has_method(&"build_all_notices"):
+			screen.call(&"build_all_notices")
+			await _settle(screen)
 		var where: String = "%s, %s" % [window.label, screen_id]
 		var scroll: ScrollContainer = _first_scroll(screen)
 		_ok(scroll != null, "%s: the list scrolls" % where)
@@ -388,6 +404,8 @@ func _check_lists(window: Shape) -> void:
 			var rect: Rect2 = _rect(scroll)
 			_ok(_inside(rect, window.safe), "%s: the list %s inside the safe rect" % [where, rect])
 			_ok(rect.size.x <= Layout.COLUMN_MAX + SLACK, "%s: one column at most 600 wide" % where)
+			var list: Control = scroll.get_child(0) as Control
+			_ok(list.size.x <= rect.size.x + SLACK, "%s: the list %.0f is no wider than its scroll %.0f" % [where, list.size.x, rect.size.x])
 		var back: Control = screen.find_child("Back", true, false) as Control
 		_ok(back != null and _inside(_rect(back), window.safe), "%s: the title row's Back inside the safe rect" % where)
 		if back != null:

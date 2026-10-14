@@ -46,7 +46,13 @@ Sudoku (working name in older docs: bartssudoku; Bart may choose a final name la
   - Split screen is allowed. The game must lay out well in any window shape a foldable gives it (Galaxy Z Fold5 cover and inner screens, split screen), including wide and short windows. The device orientation stays portrait.
   - Back or a tap outside the "Start a new puzzle?" dialog means Keep playing.
   - Later, not v1: worst-case board redraw time, the tablet hint panel size, the Godot Android template defaults (command line intent extra, provider authority, profileable).
-  - Kept as built: Back on the main menu closes the app; the last lesson screen's button says Next; in a lesson, the mode button already on gives the wrong-tap text.
+  - Kept as built: the last lesson screen's button says Next; in a lesson, the mode button already on gives the wrong-tap text.
+
+- 2026-10-14, title screen (Bart):
+  - Every app start opens a title screen: the wordmark and hero, then PLAY, INFO and ABOUT. Back on it closes the app.
+  - PLAY goes straight into a puzzle: it resumes the puzzle in progress, or else starts a new puzzle at the last level started (Easy the first time). The main menu stays as it is, reached from the pause menu's Menu; Back on the main menu now opens the title screen (this replaces "Back on the main menu closes the app").
+  - INFO explains everything a player needs: scoring, time bonus, hints and their cost, every control, the candidate ring, Cross Out, Auto Cross, mistakes, levels, stats.
+  - ABOUT: the game name and version, "Copyright 2026 Bart Basi. All rights reserved.", that it is free, offline and collects nothing, and the open source notices for Godot and what it ships (from the engine's own license data). No GitHub address until the repo is public.
 
 ## Ownership
 

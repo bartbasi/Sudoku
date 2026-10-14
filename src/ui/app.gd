@@ -22,6 +22,9 @@ const STATS_FILE: String = "stats.json"
 const LESSONS_FILE: String = "lessons.json"
 const PUZZLE_FILE: String = "puzzle.json"
 
+const TITLE: StringName = &"title"
+const INFO: StringName = &"info"
+const ABOUT: StringName = &"about"
 const MAIN_MENU: StringName = &"main_menu"
 const FIRST_LAUNCH: StringName = &"first_launch"
 const LEVEL_SELECT: StringName = &"level_select"
@@ -33,6 +36,9 @@ const LESSONS: StringName = &"lessons"
 const LESSON: StringName = &"lesson"
 
 const SCREEN_PATHS: Dictionary[StringName, String] = {
+	TITLE: "res://scenes/ui/title_screen.tscn",
+	INFO: "res://scenes/ui/info_screen.tscn",
+	ABOUT: "res://scenes/ui/about_screen.tscn",
 	MAIN_MENU: "res://scenes/ui/main_menu.tscn",
 	FIRST_LAUNCH: "res://scenes/ui/first_launch.tscn",
 	LEVEL_SELECT: "res://scenes/ui/level_select.tscn",
@@ -44,8 +50,9 @@ const SCREEN_PATHS: Dictionary[StringName, String] = {
 	LESSON: "res://scenes/lessons/lesson_player.tscn",
 }
 ## Screens that start a fresh stack: nothing sits under them, so Back on
-## them never uncovers an old screen.
-const ROOT_SCREENS: Array[StringName] = [MAIN_MENU, FIRST_LAUNCH, PLAY, COMPLETION]
+## them never uncovers an old screen. The first launch offer, Info and About
+## go over the title screen.
+const ROOT_SCREENS: Array[StringName] = [TITLE, MAIN_MENU, PLAY, COMPLETION]
 const FIRST_LESSON_ID: String = "lesson_01"
 
 const GeneratingOverlay := preload("res://src/ui/generating_overlay.gd")
@@ -261,10 +268,13 @@ func is_generating() -> bool:
 ## saves, emits generation_finished and opens the play screen. Ignored while
 ## another puzzle is being made. Call abandon_puzzle() first when one is in
 ## progress; if one still is when the new puzzle is ready, it is abandoned
-## then, so there is never more than one.
+## then, so there is never more than one. The level becomes the last level
+## started, saved at once (GDD 15.0).
 func start_new_puzzle(level: int) -> void:
 	if not Levels.is_valid(level) or is_generating():
 		return
+	settings.last_level = level
+	_save_settings()
 	var seed_value: int = PuzzleSource.pick_seed(level, randi())
 	generation_started.emit(level)
 	if not use_thread:
@@ -484,13 +494,29 @@ func _apply_theme() -> void:
 
 # Navigation ---------------------------------------------------------------------
 
-## Called by the main scene: screens go into host. Opens the first launch
-## offer until it is answered, otherwise the main menu.
+## Called by the main scene: screens go into host. Every app start opens
+## the title screen (GDD 15.0).
 func attach_host(host: Control) -> void:
 	_host = host
-	goto(MAIN_MENU if settings.first_launch_answered else FIRST_LAUNCH)
+	goto(TITLE)
 	if _too_small:
 		_show_layer()
+
+
+## PLAY on the title screen (GDD 15.0), and Skip on the first launch offer
+## once answered: the offer while it is unanswered, pushed over the title
+## screen; else the puzzle in progress; else a new puzzle at the last level
+## started. Ignored while a puzzle is being made, so one tap never starts
+## two puzzles.
+func play_now() -> void:
+	if is_generating():
+		return
+	if not settings.first_launch_answered:
+		goto(FIRST_LAUNCH)
+	elif has_puzzle_in_progress():
+		goto(PLAY)
+	else:
+		start_new_puzzle(settings.last_level)
 
 
 func current_screen() -> StringName:
@@ -544,8 +570,9 @@ func goto(screen: StringName, payload: Variant = null) -> void:
 
 ## Back: the screen on top handles it first (a dialog closes, the play
 ## screen opens or closes its pause menu). Otherwise the top screen closes
-## and the one under it shows again. On the last screen Back leaves the app,
-## after saving.
+## and the one under it shows again. On the main menu alone Back opens the
+## title screen; on any other last screen (the title screen) Back leaves the
+## app, after saving (GDD 15.0).
 func go_back() -> void:
 	if is_generating() or _stack.is_empty():
 		return
@@ -558,9 +585,12 @@ func go_back() -> void:
 		return
 	if _stack.size() > 1:
 		_pop()
-	elif is_inside_tree():
+	elif current_screen() == MAIN_MENU:
+		goto(TITLE)
+	else:
 		save_all()
-		get_tree().quit()
+		if is_inside_tree():
+			get_tree().quit()
 
 
 ## Opens lesson 1 over the main menu (the first launch offer's Start lesson).

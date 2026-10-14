@@ -2,7 +2,7 @@
 
 Owner: lead-game-designer. Approved by Bart at Hard Stop 1, 2026-10-11. Where this document disagrees with docs/BRIEF.md, the brief wins, unless Bart decided otherwise (CLAUDE.md, "Decisions from Bart after the brief").
 
-Change log: 2026-10-11, Phase 2: updated for Bart's Hard Stop 1 decisions (his answers to the three questions, the New best rule in 12.1 with AT-67, a hand-crossed digit drawn on top of its X, ring layout A, the Pop light and Pop dark skins, the screen sizes in AT-66), and corrected the example scores in section 13 and AT-53 to match the score formula. Later in Phase 2: added the Settings line for Auto Cross (5.2), and the rule that taps after a lesson step's answer are ignored until Next (15.4, AT-63). 2026-10-12, Phase 3: updated for Bart's Hard Stop 2 decisions: a givens floor for Beginner and Easy (11.4, AT-68) and the hint highlight of candidates to cross (2.3, 10.2, AT-69). 2026-10-12, Phase 6: window shapes for foldables and split screen, with Hint at the far end in side by side (2.4), the too small message and what it does to the puzzle (8, 8.1, 14), and AT-70 and AT-71.
+Change log: 2026-10-11, Phase 2: updated for Bart's Hard Stop 1 decisions (his answers to the three questions, the New best rule in 12.1 with AT-67, a hand-crossed digit drawn on top of its X, ring layout A, the Pop light and Pop dark skins, the screen sizes in AT-66), and corrected the example scores in section 13 and AT-53 to match the score formula. Later in Phase 2: added the Settings line for Auto Cross (5.2), and the rule that taps after a lesson step's answer are ignored until Next (15.4, AT-63). 2026-10-12, Phase 3: updated for Bart's Hard Stop 2 decisions: a givens floor for Beginner and Easy (11.4, AT-68) and the hint highlight of candidates to cross (2.3, 10.2, AT-69). 2026-10-12, Phase 6: window shapes for foldables and split screen, with Hint at the far end in side by side (2.4), the too small message and what it does to the puzzle (8, 8.1, 14), and AT-70 and AT-71. 2026-10-14: Bart's title screen. Every app start opens it, with PLAY, INFO and ABOUT (15.0); the lesson 1 offer moved from app start to the first PLAY (15.3); the main menu (15.1); the last level started is saved (14, 15.2); the exact Info screen text (15.5) and About screen text (15.6); Continue became PLAY in 7.3 and in the restart tests; AT-72 to AT-78.
 
 ## 1. Summary for Bart
 
@@ -50,7 +50,8 @@ Play
 - No lessons for Medium and harder techniques in v1, as Bart confirmed: v1 has lessons 1 to 5. Hints explain those techniques. [11]
 - Completion locks the board and shows level, time, and the score with its parts, plus a New best label when the result beats the level's previous best. [12]
 - Stats are exactly the brief's list. [13]
-- Starting a puzzle while one is in progress asks once for confirmation. First launch offers lesson 1 once. [15]
+- Every app start opens the title screen: PLAY, INFO and ABOUT (Bart, 2026-10-14). PLAY resumes the puzzle in progress, or starts a new one at the level of the last puzzle started (Easy the first time). Back on the main menu opens the title screen. [15.0]
+- Starting a puzzle while one is in progress asks once for confirmation. The first PLAY offers lesson 1, once. [15]
 - In lessons Auto Cross is off and there is no timer, score or hint. Any tap that is not the step's answer, selecting another cell included, changes nothing and gets a short explanation. Once the answer is complete, other taps are ignored until Next. [15]
 
 ### Bart's answers to the Hard Stop 1 questions
@@ -354,13 +355,13 @@ Example across mode switches, with empty cells E, F and G. Place mode: place 5 i
 
 Decision: undo history survives closing the app. It is saved with the puzzle in progress and deleted when the puzzle is completed or abandoned.
 - Reason: Android can close the app at any time, for a phone call or low memory. Losing undo after an interruption the player did not choose would feel like a bug. The history is small.
-- Example: the player places 5 in E and crosses 2 in F, then a phone call pushes the game out and Android closes it. The player reopens and taps Continue. Undo restores F's 2, then empties E.
+- Example: the player places 5 in E and crosses 2 in F, then a phone call pushes the game out and Android closes it. The player reopens the app and taps PLAY on the title screen. Undo restores F's 2, then empties E.
 
 ## 8. Timer and pause
 
 - The timer starts at 0:00 when a new puzzle's board first appears. Time spent generating the puzzle is not counted.
 - It runs only while the puzzle screen is showing with nothing over the board. The hint panel and the full board message do not stop it.
-- It pauses while the pause menu is open (including Settings opened from it), while the app is in the background or has lost focus, while the window is too small (8.1), and while the player is on any other screen (main menu, lessons, stats) with a puzzle in progress.
+- It pauses while the pause menu is open (including Settings opened from it), while the app is in the background or has lost focus, while the window is too small (8.1), and while the player is on any other screen (title, Info, About, main menu, lessons, stats) with a puzzle in progress.
 - When the app comes back from the background during a puzzle, the pause menu is showing. The timer resumes when the player taps Resume.
 - Android Back on the puzzle screen opens the pause menu. Back in the pause menu resumes, except while the window is too small (8.1).
 - It stops for good at completion.
@@ -693,24 +694,46 @@ Average example: Easy completions in 300 s with 1 hint (score 160 + 116 = 276) a
 | What | Contents | Saved | Deleted |
 | --- | --- | --- | --- |
 | Puzzle in progress | Puzzle ID (reproduces the givens and the solution) and level; every placed digit; the state of every candidate of every non-given cell (the four states of 4.2); timer; score and hints bought; mode; selected cell; undo history; the hint on screen, if any | When the board first appears; after every board change and undo; after a mode switch, a hint bought or closed, and an Auto Cross change; when the app pauses, goes to the background or leaves the puzzle screen | At completion or abandon |
-| Settings | Sound (default on), skin (one of the two built-in skins, Pop light or Pop dark; default Pop light), Auto Cross (default off) | When changed | Never |
+| Settings | Sound (default on), skin (one of the two built-in skins, Pop light or Pop dark; default Pop light), Auto Cross (default off), last level started (default Easy; 15.0) | When changed; the last level when a new puzzle starts being made (15.2) | Never. Reset Stats does not change them. |
 | Stats | Section 13 | At puzzle start, completion and Reset Stats | Cleared by Reset Stats |
 | Lesson progress | Which lessons were finished | When a lesson is finished the first time | Never |
-| First launch | Whether the lesson 1 offer was answered | When answered | Never |
+| First launch | Whether the lesson 1 offer was answered (15.3) | When answered | Never |
 
-- Not saved: a lesson in progress (it restarts from its first screen), the full board message, and the window arrangement and too small message (2.4, 8.1), which come from the window each time.
+- Not saved: a lesson in progress (it restarts from its first screen), which screen was showing (every app start opens the title screen, 15.0), the full board message, and the window arrangement and too small message (2.4, 8.1), which come from the window each time.
 - If the app dies without warning, no board change is lost, because each one is saved at once. At most the timer seconds since the last save are lost.
 - If saved data cannot be read or fails validation, that part falls back to its default (for the puzzle: none in progress), the other parts load normally, and the game does not crash.
 
-## 15. New puzzle, first launch and lessons
+## 15. Title screen, new puzzle, first launch and lessons
 
-### 15.1 App start
+### 15.0 Title screen
 
-The app opens on the main menu, except on first launch (15.3). If a puzzle is in progress, Continue is the first button. It opens the puzzle with the saved cell selected, the saved mode on and the timer running.
+Bart, 2026-10-14. These are his rules, not designer decisions.
+
+- Every app start opens the title screen: the wordmark and the hero, then three buttons, PLAY, INFO and ABOUT. An app start means the app was not running, whether the player closed it or Android did. Coming back from the background while the app is still running is not an app start: the player is back where they left, and during a puzzle the pause menu is showing (section 8).
+- The title screen opens on every start, with or without a puzzle in progress and on first launch too. It has no Continue button; PLAY does that job.
+- Android Back on the title screen closes the app. Everything is already saved (section 14).
+- PLAY does the first of these that applies:
+  1. If the lesson 1 offer has not been answered, it shows the offer (15.3).
+  2. Else, if a puzzle is in progress, it opens that puzzle exactly as Continue does (15.1): the saved cell selected, the saved mode on, the timer running on from its saved value. No dialog, and stats do not change.
+  3. Else it starts a new puzzle at the level of the last puzzle started, or Easy if no puzzle was ever started. The making a puzzle card shows while it is made, as for every new puzzle (DESIGN_SYSTEM 7.14), and the puzzle starts exactly as 15.2 describes: its board appears with the timer at 0:00, and its level's Started goes up by 1.
+- A tap on PLAY while a puzzle is being made does nothing, so one tap never starts two puzzles.
+- The last level started is the level of the last new puzzle the game began to make, from level select, from Play again or from PLAY itself. It is saved with the settings (section 14). Abandoning, completing, lessons and Reset Stats do not change it. If the saved value is missing or unreadable it is Easy.
+- INFO opens the Info screen (15.5) and ABOUT opens the About screen (15.6), each over the title screen. Back on either returns to the title screen. That means Android Back, and also the screen's own back button if the design gives it one, as other pushed screens such as Settings have.
+- The main menu is unchanged (15.1). It is reached from the pause menu's Menu and from the completion screen's Menu, as before. Android Back on the main menu opens the title screen. This replaces the Phase 6 rule that Back on the main menu closes the app.
+- Example, a new player: install, open the app, and the title screen shows. Tap PLAY: the lesson 1 offer shows. Tap Skip: a new Easy puzzle starts at 0:00 with a score of 200. Play two minutes, then tap Pause, then Menu: the main menu shows Continue. Press Back: the title screen. Tap PLAY: the same Easy puzzle, same cell and mode, timer at 2:00 and running.
+- Example, the last level: the player completes a Hard puzzle, taps Menu on the completion screen and presses Back. On the title screen PLAY starts a new Hard puzzle. If instead the player had started a Beginner puzzle from level select and then abandoned it for a Medium one, PLAY after completing the Medium puzzle starts Medium.
+
+### 15.1 App start and the main menu
+
+- The app starts on the title screen (15.0), never on the main menu.
+- The main menu is reached from the pause menu's Menu and from the completion screen's Menu. Its buttons are as before: Continue first, only when a puzzle is in progress, then New puzzle, Lessons, Stats and Settings.
+- Continue opens the puzzle in progress with the saved cell selected, the saved mode on and the timer running.
+- Android Back on the main menu opens the title screen (15.0).
 
 ### 15.2 Starting a new puzzle
 
 - New puzzle opens level select: five levels, all open.
+- Every new puzzle, from level select, Play again or PLAY, becomes the last level started (15.0) when it starts being made.
 - With no puzzle in progress, the chosen level starts at once, after generation.
 - With a puzzle in progress, a dialog asks: "You have a {level} puzzle in progress. Start a new {chosen level} puzzle? The current one will count as started, not completed." Buttons: Keep playing and Start new.
 - Keep playing returns to the puzzle in progress with nothing changed.
@@ -719,9 +742,13 @@ The app opens on the main menu, except on first launch (15.3). If a puzzle is in
 
 ### 15.3 First launch
 
-- The first time the app opens, before the main menu, it offers lesson 1: "New to Sudoku? Lesson 1 shows you how to play." Buttons: Start lesson and Skip.
-- Start lesson opens lesson 1. Skip opens the main menu.
-- Either answer is final, and the offer never shows again. If the app closes before the player answers, it shows again next time.
+- The offer no longer shows at app start. It shows the first time the player taps PLAY on the title screen (15.0): "New to Sudoku? Lesson 1 shows you how to play." Buttons: Start lesson and Skip.
+- Start lesson opens lesson 1, as before: the lesson opens over the main menu, so leaving the lesson shows the main menu.
+- Skip goes straight into a puzzle, exactly like PLAY with the offer answered: the puzzle in progress if there is one, else a new puzzle at the last level started (Easy the first time).
+- Either answer is final, and the offer never shows again. If the app closes before the player answers, the next PLAY shows it again.
+- Decision: Android Back on the offer returns to the title screen and does not answer it, so the next PLAY shows it again.
+  - Reason: this matches Bart's Phase 6 rule for the "Start a new puzzle?" dialog, where Back means no choice was made, and the rule above that an unanswered offer shows again.
+  - Example: fresh install, PLAY, then Back: the title screen. PLAY again: the offer shows again.
 - Lesson 1 is always available from the Lessons screen.
 
 ### 15.4 Lessons and the game rules
@@ -736,6 +763,164 @@ LESSONS.md holds the lesson content. These rules apply to every lesson:
 - Reason: a wrong tap text is written for the step in progress. After the answer it would be out of date, for example "Pick the cell first" once the digit is already placed.
 - A lesson counts as finished when the player completes its last step. Leaving early does not count.
 - Example: in the candidate ring lesson, on Bart's example, the player in Cross Out mode taps 5. 5 stays open, a short note explains that nothing in the row, column or box holds a 5, and the step waits for the right taps.
+
+### 15.5 Info screen text
+
+The Info screen (INFO on the title screen) shows exactly the text below, in this order. Each heading in bold is a heading on screen. Each paragraph shows as written, and each line starting with a dash shows as its own line in a list. The text scrolls when it does not fit. Every fact in it matches the section named in brackets after each heading; those brackets are for the team and do not show on screen. If one of those sections changes, this text changes with it.
+
+**How to play** [2, 6.3, 11]
+
+Fill the board so that every row, every column and every box holds the digits 1 to 9, each exactly once. A box is one of the nine 3 by 3 squares with the heavier borders.
+
+Every puzzle has exactly one answer, and you can always reach it by reasoning. You never need to guess.
+
+Tap PLAY to start. It brings back the puzzle you were playing, or starts a new one at the level you last started. The very first time, that is Easy.
+
+**Getting around** [15.0, 15.1]
+
+The title screen has PLAY, INFO and ABOUT. Back on the title screen closes the game. Your puzzle is saved.
+
+For the main menu, tap the Pause button during a puzzle, then Menu. You also get there from Menu when you finish a puzzle. The main menu has Continue (when a puzzle is in progress), New puzzle, Lessons, Stats and Settings. Back on the main menu takes you to the title screen.
+
+**The board** [2.1 to 2.3]
+
+Some digits are there from the start. They are called givens. They look different from the digits you place, and they cannot be changed.
+
+Tap any cell to select it. Its row, column and box light up. If the cell holds a digit, every other cell with that digit lights up too, so you can see where that digit already is.
+
+**The candidate ring** [4]
+
+Every empty cell shows the digits 1 to 9 around its inside edge: 1, 2, 3 and 4 across the top, 5 on the left, 6 on the right, and 7, 8 and 9 across the bottom. These are the candidates: the digits that might still go in that cell.
+
+A digit is ruled out for a cell when the cell's row, column or box already holds it. Cross out the digits you rule out. A crossed digit stays readable, so you always see what you crossed. When you have crossed out all but one digit correctly, that last digit goes in the cell.
+
+Example: a cell's row holds 9 and 3, its column holds 4 and 6, and its box holds 2, 3 and 4. Cross out 2, 3, 4, 6 and 9. That leaves 1, 5, 7 and 8 open.
+
+The game never checks your crosses. You can cross out any digit, even all nine, and bring it back later.
+
+**Place and Cross out** [3]
+
+The pad has the digits 1 to 9 and a switch with two modes, Place and Cross out. The switch and the selected cell both show which mode is on.
+
+Place: tap a digit to put it in the selected cell. Tap a different digit to replace it. While a cell holds a digit, its ring is hidden.
+
+Cross out: tap a digit to cross it out in the selected cell's ring. Tap it again to bring it back. Cross out works only on empty cells.
+
+Switching modes keeps your selected cell. You can place a digit even if you crossed it out.
+
+**Erase and Undo** [3, 4.3, 7]
+
+Erase removes a digit you placed in the selected cell. Givens cannot be erased. When the digit goes, the ring comes back with your crosses exactly as you left them.
+
+Erase does not clear crosses. To bring back a crossed digit, tap it again in Cross out mode.
+
+Undo takes back your last change: a digit placed, replaced or erased, or a candidate crossed out or brought back. Tap it again to go further back, all the way to the start of the puzzle. Undo selects the cell it changed. Your undo history is kept when you close the game. Undo never gives back the cost of a hint.
+
+**Auto Cross** [5]
+
+Auto Cross is a setting, and it is off unless you turn it on. Crossing out by hand is how you learn to see the board.
+
+While it is on, the game crosses out every candidate that a digit in the same row, column or box rules out. When that digit goes and nothing else rules the candidate out, Auto Cross brings it back. Its X looks different from yours. It never changes a digit you crossed out or brought back yourself. When you erase a digit, your own crosses come back exactly as you left them, and Auto Cross updates its crosses to match the board.
+
+Auto Cross trusts every digit on the board, even a wrong one. A wrong digit makes it cross out candidates that should stay open.
+
+Turning it off leaves its crosses where they are. Turning it on again updates them. Auto Cross does not change your score. It is always off in lessons.
+
+**Mistakes** [6]
+
+If the same digit is in a row, column or box more than once, every cell involved is marked. That is the only check while you play. A wrong digit that clashes with nothing is not marked. A hint will point it out, at the usual cost.
+
+Marks cost no points. They go away as soon as the clash is fixed.
+
+If the board is full but some digits clash, the puzzle is not finished. Fix the marked cells. A full board with no clash is always the right answer.
+
+**Timer and pause** [8, 8.1]
+
+The timer starts when the board appears. The time it takes to make the puzzle does not count. The timer runs only while you can see the board.
+
+Tap the Pause button, or press Back, to open the pause menu. It hides the board and stops the timer. It has Resume, Settings and Menu.
+
+When you leave the game, or another app takes over the screen, the game pauses too, and the pause menu is waiting when you come back. Time while the game is closed never counts.
+
+If the game's window gets too small to play in, a message says so and the game pauses until the window is bigger again.
+
+**Score** [9]
+
+Each puzzle starts with points for its level. The score shows them while you play. It goes down only when you buy a hint, and never below zero. Time does not lower it.
+
+Finish faster than the level's par time, a target time for the level, and you also get a time bonus. The bonus is the level's points times the part of the par time you had left, rounded down. At the par time or slower there is no bonus. Your final score is your points after hints plus the time bonus.
+
+- Beginner: 100 points, a hint costs 20, par time 8:00
+- Easy: 200 points, a hint costs 40, par time 12:00
+- Medium: 400 points, a hint costs 80, par time 20:00
+- Hard: 700 points, a hint costs 140, par time 30:00
+- Expert: 1000 points, a hint costs 200, par time 45:00
+
+A hint costs a fifth of the level's points, so five hints use them all up.
+
+Example: you finish an Easy puzzle in 9:00 with one hint. Your points are 200 minus 40 for the hint, which is 160. The par time is 12:00, so you had 3:00 left, a quarter of it. The time bonus is a quarter of 200, which is 50. Your score is 160 plus 50, which is 210.
+
+**Hints** [10]
+
+Stuck? Tap the Hint button. A hint never fills anything in.
+
+If a digit you placed is wrong, the hint points to it so you can erase it. Otherwise the hint shows the next step you can work out. It marks the cells involved, highlights any candidates to cross out, explains the step in a sentence or two and names the technique. A technique is a way of reasoning that finds a digit or rules candidates out. For the techniques the lessons teach, the hint also names the lesson.
+
+The hint stays on screen until you close it, place, replace or erase a digit, or tap Undo. You can cross out candidates while it shows. If you close a hint and ask again, the new hint costs again.
+
+The Hint button is off while a hint is showing, once the puzzle is finished, and when your score is lower than a hint costs. That happens after five hints, when your score is 0.
+
+**Levels** [11]
+
+There are five levels: Beginner, Easy, Medium, Hard and Expert, all open from the start. To pick one, open the main menu and tap New puzzle. If a puzzle is in progress, the game asks first. The old puzzle then counts as started, not completed.
+
+A level is set by the hardest technique the puzzle needs, not by how many digits it starts with.
+
+- Beginner: last empty cell, a row, column or box with one empty cell left, and hidden single, a digit that fits in only one cell of a row, column or box
+- Easy: also naked single, a cell where every digit but one is ruled out
+- Medium, Hard and Expert: patterns across several cells. A hint names and explains each one when you need it.
+
+**Finishing and stats** [12, 13]
+
+A puzzle is finished the moment the board is full with no clash. The timer stops, and you see the level, your time, your points after hints, your time bonus, your score and the number of hints you used. Then choose Play again for another puzzle at the same level, or Menu.
+
+Stats, on the main menu, show for each level: Started (puzzles whose board appeared, including ones you left unfinished), Completed, Best time, Average time (of completed puzzles) and Best score. They also show how many of the five lessons you have finished.
+
+When a result beats your best at that level, the finish screen says New best time or New best score, or both. A tie is not a new best. The first puzzle you finish at a level shows neither, because there is nothing to beat yet.
+
+**Lessons** [15.3, 15.4]
+
+Five short lessons teach the basics: 1 How Sudoku works, 2 The ring and Cross Out, 3 Last empty cell, 4 Hidden single, 5 Naked single. Open them from Lessons on the main menu. The first time you tap PLAY, the game offers lesson 1.
+
+In a lesson, a tap that is not the answer changes nothing and a short note tells you why, so you cannot fail. Lessons have no timer, score or hints, and Auto Cross is always off. Your puzzle in progress waits, with its timer stopped.
+
+**Settings** [5, 13.2, 14]
+
+Settings opens from the main menu and from the pause menu.
+
+- Sound: a click when you place a digit, or cross out a candidate or bring it back. On at first.
+- Auto Cross: see above. Off at first.
+- Skin: Light, the first choice, or Dark.
+- Reset stats: clears the stats of every level after you confirm. Your lesson progress stays. This cannot be undone.
+
+Decision: the Info screen also has a "Getting around" section, beyond the list in Bart's request.
+- Reason: from the title screen the main menu is reached only through a puzzle's pause menu or the completion screen (15.0), so a player who wants Lessons, Stats, Settings or New puzzle needs to be told how to get there.
+- Example: a player on the title screen who wants lesson 3 reads "tap the Pause button during a puzzle, then Menu", then taps Lessons.
+
+### 15.6 About screen text
+
+The About screen (ABOUT on the title screen) shows exactly this, in this order:
+
+1. The title line: "Sudoku".
+2. "Version {version}", where {version} is the app's version as the project settings give it at run time (ARCHITECTURE section 11).
+3. "Copyright 2026 Bart Basi. All rights reserved."
+4. This paragraph: "Sudoku is free. It works offline, with no ads and no accounts, and it collects no data. Everything you do stays on this device."
+5. "Made with the Godot Engine."
+6. The heading "Open source notices".
+7. Under it, the Godot Engine's license and the notices for the third party code that ships inside the engine. The screen reads all of this from the engine at run time; no notice text is copied into the game's own files or this document.
+
+- The screen shows no web address, GitHub address or link of any kind (Bart: no GitHub address until the repo is public). Nothing on it opens a browser or uses the network.
+- The text scrolls when it does not fit. Back returns to the title screen (15.0).
 
 ## 16. Acceptance tests
 
@@ -954,7 +1139,7 @@ How to read them:
 - Expected: the same technique, cells and text both times.
 
 **AT-48 A hint on screen survives a restart** (App)
-- Steps: buy a hint. Kill the app. Reopen and tap Continue.
+- Steps: buy a hint. Kill the app. Reopen and tap PLAY on the title screen.
 - Expected: the same hint is on screen and the score was charged once.
 
 **AT-69 Hint highlights the candidates to cross** (Core, App)
@@ -984,7 +1169,7 @@ How to read them:
 - Expected: at the last placement the timer stops and the board locks (no input, Undo and Hint disabled). The completion screen shows the level, the time, the score with points after hints, time bonus and total, and the hints used. The main menu shows no Continue. Play again starts a new Beginner puzzle with no dialog.
 
 **AT-52 Stats when a puzzle starts** (App)
-- Steps: note Easy's Started. Start an Easy puzzle. Check Stats. Leave, tap Continue, check again. Kill the app, reopen, Continue, check again.
+- Steps: note Easy's Started. Start an Easy puzzle. Check Stats. Leave, tap Continue, check again. Kill the app, reopen, tap PLAY, check again.
 - Expected: Started is 1 higher right after the start, and does not change on any resume.
 
 **AT-53 Stats on completion** (Core, App)
@@ -1007,7 +1192,7 @@ How to read them:
 ### Persistence
 
 **AT-57 Resume after the app is killed** (App)
-- Steps: Auto Cross on. Mid puzzle, have placed digits, hand crosses, hand restores, Auto Cross crosses, one hint bought and closed, Cross Out mode on, a cell selected, about 3 minutes on the timer, and several undo steps. Send the app to the background and swipe it away (or force-stop it). Reopen and tap Continue. Then undo step by step. Repeat once with a force-stop right after an action, without going to the background first.
+- Steps: Auto Cross on. Mid puzzle, have placed digits, hand crosses, hand restores, Auto Cross crosses, one hint bought and closed, Cross Out mode on, a cell selected, about 3 minutes on the timer, and several undo steps. Send the app to the background and swipe it away (or force-stop it). Reopen and tap PLAY on the title screen. Then undo step by step. Repeat once with a force-stop right after an action, without going to the background first.
 - Expected: every digit, every candidate with its exact state and look, the score, the mode and the selected cell are as they were. The timer is within one second of its value when the app went to the background. Undo works back to the start of the puzzle. After the force-stop variant, the last action is there.
 
 **AT-58 Settings persist** (App)
@@ -1020,7 +1205,7 @@ How to read them:
 
 **AT-60 Damaged save** (Core, App)
 - Steps: replace the saved puzzle with unreadable data. Then with readable data holding impossible values (a digit 12, a cell index 99, a negative timer). Start the game each time.
-- Expected: the game starts without crashing and shows no puzzle in progress. Settings, stats and lesson progress load normally.
+- Expected: the game starts without crashing on the title screen, and there is no puzzle in progress: PLAY starts a new puzzle at the last level started instead of resuming one. Settings, stats and lesson progress load normally.
 
 ### Flow and lessons
 
@@ -1029,8 +1214,8 @@ How to read them:
 - Expected: level select shows five levels, all open. The dialog names both levels. Keep playing returns to the old puzzle unchanged. Start new abandons it as AT-54 describes and starts a Hard puzzle. With nothing in progress, Easy starts with no dialog.
 
 **AT-62 First launch** (App)
-- Steps: fresh install. Launch. Kill the app before answering. Launch again and tap Skip. Kill and launch again. Open the Lessons screen. Then fresh install again, launch and tap Start lesson.
-- Expected: the offer shows on the first launch and again after the kill. Skip opens the main menu, and the offer never shows again. Lesson 1 is in the Lessons screen. Start lesson opens lesson 1.
+- Steps: fresh install. Launch and tap PLAY. Kill the app before answering. Launch again, tap PLAY and tap Skip. Kill and launch again, and tap PLAY. Tap Pause, then Menu, and open the Lessons screen. Then fresh install again, launch, tap PLAY and tap Start lesson. Leave the lesson.
+- Expected: each launch opens the title screen, never the offer. The offer shows on the first PLAY and again on the first PLAY after the kill. Skip goes straight into a new Easy puzzle. After the next launch, PLAY resumes that puzzle and the offer never shows again. Lesson 1 is in the Lessons screen. Start lesson opens lesson 1, and leaving it shows the main menu. The full title screen flow is AT-72 to AT-76.
 
 **AT-63 Lesson wrong answers** (App)
 - Steps: in a lesson step, do each of these wrong taps in turn: select a different cell; with the taught cell selected, tap a wrong digit; in a Cross Out step, cross a candidate that should stay open; tap the mode toggle when switching is not part of the answer. Then do the right taps.
@@ -1043,7 +1228,7 @@ How to read them:
 - Expected: no candidate in the lesson is crossed by Auto Cross. The lesson shows no timer, score or Hint button. The puzzle in progress is unchanged and its timer still shows 2:00.
 
 **AT-65 Rotation lock** (App, on a phone)
-- Steps: with auto-rotate on, turn the phone to landscape on the main menu, during a puzzle, in a lesson and with a dialog open.
+- Steps: with auto-rotate on, turn the phone to landscape on the title screen, on the main menu, during a puzzle, in a lesson and with a dialog open.
 - Expected: the screen stays portrait. Nothing moves or changes, and the timer is unaffected.
 
 **AT-66 Tiny and huge screens** (App)
@@ -1063,7 +1248,7 @@ How to read them:
 These run on a Galaxy Z Fold5, or in the editor with the window set to each size in dp and the stated insets. "Status bar" is a 32 dp inset at the top, "gesture bar" a 24 dp inset at the bottom, "taskbar" a 48 dp inset at the bottom in place of the gesture bar. Measure sizes on a screenshot, converting pixels to dp by the screen density (2.625 on the Fold5).
 
 **AT-70 Window shapes** (App)
-- Steps: run the game in each window below. In each, start or continue a Medium puzzle, select a cell, place a digit, cross a candidate, buy a hint and leave it on screen, then open the pause menu, Settings, the main menu, level select, stats, the lessons list, a lesson, and the "Start a new puzzle?" dialog. Complete a Beginner puzzle in at least one stacked window and one side by side window to see the completion screen. Then, mid puzzle with a hint on screen, change the window from the inner full screen to the inner top half and back.
+- Steps: run the game in each window below. In each, start or continue a Medium puzzle, select a cell, place a digit, cross a candidate, buy a hint and leave it on screen, then open the pause menu, Settings, the main menu, the title screen, the Info screen, the About screen, level select, stats, the lessons list, a lesson, and the "Start a new puzzle?" dialog. Complete a Beginner puzzle in at least one stacked window and one side by side window to see the completion screen. Then, mid puzzle with a hint on screen, change the window from the inner full screen to the inner top half and back.
 
 | Window (dp) | Insets | Expected arrangement |
 | --- | --- | --- |
@@ -1086,3 +1271,36 @@ These run on a Galaxy Z Fold5, or in the editor with the window set to each size
 - Expected, part 1: the moment the window shrinks, a full screen message reads exactly "This window is too small. Make it bigger to play." and the timer stops. The taps and Back change nothing, play no sound and do not resume. After the window grows, the message is gone and the pause menu is showing, with the same time as when the window shrank. After Resume the board shows the same digit, the same crossed candidate and the same hint, the timer runs on from that time, the score was charged for one hint only, and the two undos reverse the cross and then the placement.
 - Steps, part 2: repeat the shrink and grow with each other too small window: the cover screen's bottom half (344 by 430 dp, gesture bar), the inner screen one third wide (230 by 829 dp, status bar and gesture bar) and the inner screen's bottom third (690 by 276 dp, gesture bar). Do it once on the main menu, once in a lesson in the middle of a step, once with the "Start a new puzzle?" dialog open, and once while a Hard puzzle is being made.
 - Expected, part 2: each of those windows shows the message, and every tap on it does nothing. When the window grows, the main menu, the lesson on the same step, and the dialog with nothing chosen are back exactly as left. The Hard puzzle opens behind the pause menu with the timer at 0:00, and the timer starts only after Resume.
+
+### Title screen
+
+**AT-72 Title screen on every start** (App)
+- Steps: fresh install and launch. Kill the app and launch again. Start a puzzle, play a little, kill the app and launch again. Then, mid puzzle, send the app to the background without killing it and come back. Last, on the title screen, press Android Back.
+- Expected: every launch opens the title screen: the wordmark, the hero, then PLAY, INFO and ABOUT, with no Continue button and no lesson offer. Coming back from the background without a kill shows the puzzle with the pause menu open, not the title screen. Back on the title screen closes the app, and on the next launch the puzzle is still in progress (PLAY resumes it).
+
+**AT-73 The first PLAY offers lesson 1** (App)
+- Steps: fresh install, launch, tap PLAY. Press Android Back. Tap PLAY again. Kill the app, launch, tap PLAY. Tap Skip. Note the level, score and timer. Kill the app, launch, tap PLAY. Then fresh install again, launch, tap PLAY, tap Start lesson, leave the lesson, press Back on the main menu, and tap PLAY.
+- Expected: the offer reads "New to Sudoku? Lesson 1 shows you how to play." with Start lesson and Skip. Back returns to the title screen without answering, and the offer shows on the next PLAY and again after the kill. Skip goes straight into a new Easy puzzle (score 200, timer from 0:00), with no main menu in between, and Easy Started goes up by 1. After the next launch PLAY resumes that puzzle and the offer never shows again. On the second install, Start lesson opens lesson 1, leaving it shows the main menu, Back shows the title screen, and PLAY starts a new Easy puzzle with no offer.
+
+**AT-74 PLAY resumes the puzzle in progress** (App)
+- Steps: in a puzzle, select a cell, switch to Cross Out, and play until the timer shows 2:00. Note Started for its level. Tap Pause, then Menu, then press Back. On the title screen wait 30 s, open INFO for 30 s, go back, open ABOUT, go back. Tap PLAY. Then tap Pause, Menu, Back again, kill the app, launch it and tap PLAY.
+- Expected: both times PLAY opens the same puzzle with no dialog and no making a puzzle card: every digit and ring mark as left, the same cell selected, Cross Out on, and the timer running on from the time it showed when the player tapped Pause (2:00 the first time), never counting the time on the title, Info or About screens. Started is unchanged.
+
+**AT-75 PLAY starts a new puzzle at the last level started** (Core, App)
+- Steps (Core): save settings with the last level Hard and load them. Then load settings where the last level is missing, is 7, is -1 and is the text "Hard". Then Reset Stats with the last level Medium.
+- Expected (Core): Hard loads as Hard. Each of the four damaged values loads as Easy, and the other settings load normally. Reset Stats leaves Medium.
+- Steps (App): with the lesson offer answered and a puzzle in progress, tap Pause, Menu, New puzzle, choose Beginner and tap Start new. Complete the Beginner puzzle. Kill the app on the completion screen. Launch, note Beginner Started, and tap PLAY twice quickly. Then tap Pause, Menu, New puzzle, choose Medium and tap Start new. Tap Pause, Menu, Back, and PLAY.
+- Expected (App): after the relaunch PLAY starts one new Beginner puzzle (score 100, timer from 0:00), the making a puzzle card shows if making it takes a moment, and Beginner Started goes up by exactly 1, so the second tap started nothing. The last PLAY resumes the Medium puzzle.
+
+**AT-76 Main menu and Back** (App)
+- Steps: with a puzzle in progress, tap Pause, then Menu. Open Stats and press Back. Press Back on the main menu. Tap PLAY and complete the puzzle. On the completion screen tap Menu, then press Back.
+- Expected: the main menu shows Continue, New puzzle, Lessons, Stats and Settings, as before. Back on Stats returns to the main menu. Back on the main menu opens the title screen both times and never closes the app. After the completion, the main menu has no Continue.
+
+**AT-77 Info screen** (App)
+- Steps: on the title screen tap INFO. Read the whole screen, scrolling to the end, at 320 by 568 dp and at 360 by 800 dp. Press Back. Then check the 15.5 text against the GDD: the levels' points, hint costs and par times against 9.1; the Easy example with the formula in 9.2; the skin names against the Settings skin picker; the lesson titles against the Lessons screen.
+- Expected: the Info screen opens over the title screen and shows the text of 15.5 word for word, with its fifteen headings in order, from How to play to Settings, and none of the bracketed section numbers. Every line can be reached by scrolling and nothing is cut off. Back returns to the title screen. The numbers match 9.1 exactly, the example gives 160 plus 50, which is 210, as in 9.3, and the skin names and lesson titles match the screens. The text has no em dash and no double hyphen.
+
+**AT-78 About screen** (Core, App)
+- Steps (App): turn on airplane mode. On the title screen tap ABOUT. Read the whole screen, scrolling to the end. Press Back.
+- Steps (Core): build the About screen's text and compare it with what the engine returns at run time and with the project's version setting.
+- Expected: in order: "Sudoku"; "Version" followed by the version in the project settings; "Copyright 2026 Bart Basi. All rights reserved."; the paragraph of 15.6 word for word; "Made with the Godot Engine."; the heading "Open source notices"; then the notices. The notices are not empty, contain the Godot Engine's license exactly as the engine returns it, and list the third party components the engine reports. Nothing on the screen contains "http", "www" or "github", and nothing opens a browser. The screen works in airplane mode. Back returns to the title screen. A search of the repo for the first line of the engine's license text, as the screen shows it, finds nothing.

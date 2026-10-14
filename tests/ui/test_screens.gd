@@ -8,6 +8,7 @@ const SKIN_IDS: Array[StringName] = [&"pop_light", &"pop_dark"]
 const SCREENS: Array[StringName] = [
 	AppService.MAIN_MENU, AppService.FIRST_LAUNCH, AppService.LEVEL_SELECT,
 	AppService.COMPLETION, AppService.STATS, AppService.SETTINGS,
+	AppService.TITLE, AppService.INFO, AppService.ABOUT,
 ]
 
 var _dirs: Array[String] = []
@@ -28,6 +29,8 @@ func _setup(skin_id: StringName = &"pop_light") -> Array:
 	host.size = Vector2(360, 800)
 	(Engine.get_main_loop() as SceneTree).root.add_child(host)
 	app.attach_host(host)
+	# These tests start where the pause menu's Menu leads: the main menu.
+	app.goto(AppService.MAIN_MENU)
 	return [app, host]
 
 
@@ -107,17 +110,23 @@ func test_main_menu_shows_continue_only_with_a_puzzle() -> void:
 	_teardown(parts)
 
 
-func test_first_launch_shows_until_answered_and_skip_opens_the_menu() -> void:
+func test_first_launch_skip_answers_and_plays() -> void:
+	# GDD 15.3, AT-73: the offer goes over the title screen on PLAY.
 	var parts: Array = _setup()
 	var app: AppService = parts[0]
 	var host: Control = parts[1]
 	app.settings.first_launch_answered = false
 	app.attach_host(host)
+	assert_eq(app.current_screen(), AppService.TITLE)
+	app.play_now()
 	assert_eq(app.current_screen(), AppService.FIRST_LAUNCH)
 	var offer: Control = _top(app)
 	(offer.get(&"skip_button") as Button).pressed.emit()
 	assert_true(app.settings.first_launch_answered)
-	assert_eq(app.current_screen(), AppService.MAIN_MENU)
+	assert_eq(app.current_screen(), AppService.PLAY, "Skip goes straight into a puzzle")
+	assert_eq(app.session.level, Levels.EASY)
+	assert_eq(app.session.score(), 200)
+	assert_eq(app.stats.started(Levels.EASY), 1)
 	var again: AppService = AppService.new()
 	again.save_dir = app.save_dir
 	again.load_all()
@@ -320,10 +329,20 @@ func test_first_launch_start_lesson_opens_lesson_one() -> void:
 	var host: Control = parts[1]
 	app.settings.first_launch_answered = false
 	app.attach_host(host)
+	app.play_now()
 	(_top(app).get(&"start_button") as Button).pressed.emit()
 	assert_true(app.settings.first_launch_answered)
 	assert_eq(app.current_screen(), AppService.LESSON)
 	var lesson: Object = _top(app).get(&"lesson")
 	if lesson != null:
 		assert_eq(lesson.get(&"id"), "lesson_01")
+	# AT-73: leaving the lesson shows the main menu, Back the title screen,
+	# and PLAY starts a new Easy puzzle with no offer.
+	_top(app).emit_signal(&"closed")
+	assert_eq(app.current_screen(), AppService.MAIN_MENU)
+	app.go_back()
+	assert_eq(app.current_screen(), AppService.TITLE)
+	app.play_now()
+	assert_eq(app.current_screen(), AppService.PLAY)
+	assert_eq(app.session.level, Levels.EASY)
 	_teardown(parts)
