@@ -915,11 +915,17 @@ The About screen (ABOUT on the title screen) shows exactly this, in this order:
 2. "Version {version}", where {version} is the app's version as the project settings give it at run time (ARCHITECTURE section 11).
 3. "Copyright 2026 Bart Basi. All rights reserved."
 4. This paragraph: "Sudoku is free. It works offline, with no ads and no accounts, and it collects no data. Everything you do stays on this device."
-5. "Made with the Godot Engine."
-6. The heading "Open source notices".
-7. Under it, the Godot Engine's license and the notices for the third party code that ships inside the engine. The screen reads all of this from the engine at run time; no notice text is copied into the game's own files or this document.
+5. "Made with the Godot Engine." This is the last line of the card.
+6. The heading "Open source notices", with no lead sentence under it.
+7. Under the heading, in this order:
+   - The caption "Godot Engine", then the Godot Engine's license.
+   - The heading "Third party components", then the notices for the third party code that ships inside the engine.
+   - The heading "Licenses", then the license texts those components use.
 
-- The screen shows no web address, GitHub address or link of any kind (Bart: no GitHub address until the repo is public). Nothing on it opens a browser or uses the network.
+   The screen reads all of these notices from the engine at run time; no notice text is copied into the game's own files or this document. They are shown word for word as the engine returns them, including any web addresses inside them. The only change allowed is joining the line breaks inside a paragraph so the text wraps to the screen.
+
+- Items 1 to 5 are the game's own text (the card). The card holds no web address, and nothing anywhere on the screen contains "github" (Bart: no GitHub address until the repo is public).
+- Nothing on the screen is a link or can be tapped to open anything. Nothing on it opens a browser or uses the network.
 - The text scrolls when it does not fit. Back returns to the title screen (15.0).
 
 ## 16. Acceptance tests
@@ -1303,4 +1309,4 @@ These run on a Galaxy Z Fold5, or in the editor with the window set to each size
 **AT-78 About screen** (Core, App)
 - Steps (App): turn on airplane mode. On the title screen tap ABOUT. Read the whole screen, scrolling to the end. Press Back.
 - Steps (Core): build the About screen's text and compare it with what the engine returns at run time and with the project's version setting.
-- Expected: in order: "Sudoku"; "Version" followed by the version in the project settings; "Copyright 2026 Bart Basi. All rights reserved."; the paragraph of 15.6 word for word; "Made with the Godot Engine."; the heading "Open source notices"; then the notices. The notices are not empty, contain the Godot Engine's license exactly as the engine returns it, and list the third party components the engine reports. Nothing on the screen contains "http", "www" or "github", and nothing opens a browser. The screen works in airplane mode. Back returns to the title screen. A search of the repo for the first line of the engine's license text, as the screen shows it, finds nothing.
+- Expected: in order: "Sudoku"; "Version" followed by the version in the project settings; "Copyright 2026 Bart Basi. All rights reserved."; the paragraph of 15.6 word for word; "Made with the Godot Engine." as the last line of the card; the heading "Open source notices" with no sentence under it; the caption "Godot Engine" and the engine's license; the heading "Third party components" and the component notices; the heading "Licenses" and the license texts. The notices are not empty and list the third party components the engine reports. The engine's license, the component notices and the license texts match what the engine returns word for word, including their own web addresses; the only difference allowed is that line breaks inside a paragraph are joined. The card (from "Sudoku" to "Made with the Godot Engine.") contains no "http" and no "www". Nothing on the whole screen contains "github" (in any letter case). Tapping anywhere on the screen, including on every web address in the notices, opens nothing and does nothing. The screen works in airplane mode. Back returns to the title screen. A search of the repo for the first line of the engine's license text, as the screen shows it, finds nothing.
