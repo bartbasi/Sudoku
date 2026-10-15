@@ -240,6 +240,7 @@ var skin_id: StringName = &"pop_light"
 var auto_cross: bool = false
 var first_launch_answered: bool = false
 var last_level: int = Levels.EASY                    # the level of the last puzzle started; PLAY starts here (Bart 2026-10-14)
+var show_candidates: bool = true                      # false hides the ring on the play screen (Bart 2026-10-14, GDD Show candidates)
 func to_dict() -> Dictionary
 static func from_dict(data: Variant) -> Settings     # an invalid field takes its default; never null
                                                      # (last_level must be an int, or a float with no fraction, inside Levels.is_valid)
@@ -398,6 +399,8 @@ var hint_reasons: PackedInt32Array
 var hint_crosses: PackedInt32Array      # mark indices (cell * 9 + digit - 1) the hint says to cross (Hint.eliminations)
 var lesson_marks: PackedInt32Array      # cells a lesson screen points at
 var locked: bool = false                # completed board
+var show_ring: bool = true              # false: draw no candidate and no X, except each candidate in hint_crosses that shows open (open or restored by hand),
+                                        # drawn in its hint look; digits, highlights and conflicts are unchanged
 
 class_name CellEffect extends RefCounted
 enum Kind { PLACE, ERASE, CROSS, RESTORE, COMPLETE }
@@ -474,6 +477,7 @@ var digit: int = 0
 class_name BoardView extends Control            # scenes/board/board_view.tscn
 signal cell_pressed(cell: int)
 var session: GameSession                        # set by the owner; the view listens to its signals
+var show_ring: bool = true                      # copied into BoardDrawState.show_ring; setting it redraws
 var lesson_marks: PackedInt32Array
 func cell_rect_global(cell: int) -> Rect2       # for hint panel placement and lesson pointers
 func play_effect(kind: int, cell: int, digit: int) -> void
@@ -486,6 +490,7 @@ signal undo_pressed()
 func set_mode(mode: int) -> void
 func set_undo_enabled(enabled: bool) -> void
 func set_locked(locked: bool) -> void           # after completion
+func set_mode_visible(visible: bool) -> void    # false hides the mode toggle (Show candidates off); layout per DESIGN_SYSTEM.md
 func control_rect_global(control: StringName) -> Rect2   # &"mode", &"erase", &"undo", &"pad:<d>", for lesson pointers
 
 class_name BoardController extends Node
@@ -502,6 +507,7 @@ var view: BoardView
 var pad: NumberPad
 var controller: BoardController
 func setup(session: GameSession) -> void
+func set_show_candidates(on: bool) -> void      # view.show_ring = on and pad.set_mode_visible(on); lessons never call it
 func band_rect_global() -> Rect2                # the band above the board (DESIGN_SYSTEM.md 4.6): the play screen puts the
                                                 # level sticker there, and lessons put their lesson card there. The hint
                                                 # panel covers the screen's header row and the band together (DESIGN_SYSTEM.md 7.6)
@@ -659,6 +665,10 @@ func set_auto_cross(on: bool) -> void               # also applies to the sessio
 func reset_stats() -> void
 func record_lesson_finished(lesson_id: String) -> void
 func answer_first_launch() -> void
+func set_show_candidates(on: bool) -> void          # saves settings, emits settings_changed; turning it off with a session in
+                                                    # Cross out calls session.set_mode(PLACE) and saves the session.
+                                                    # The play screen applies settings.show_candidates to its PlayArea on open
+                                                    # and on settings_changed
 func save_session() -> void
 func goto(screen: StringName, payload: Variant = null) -> void
 func go_back() -> void
@@ -675,7 +685,7 @@ const ABOUT: StringName = &"about"                  # scenes/ui/about_screen.tsc
 
 The About screen reads the version from `ProjectSettings` `application/config/version` and the open source notices from `Engine.get_license_text()`, `Engine.get_copyright_info()` and `Engine.get_license_info()` at run time; no notice text is copied into the repo.
 
-Screens (scenes/ui, one scene and script each): title (PLAY, INFO, ABOUT), info, about, main menu, level select, play (HUD, PlayArea, pause menu, hint panel, full board message, new puzzle confirm), completion, stats, settings (sound, skin picker, Auto Cross, Reset Stats with confirmation), first launch offer. The lessons list and lesson player are lessons-dev's scenes, opened through `App.goto(&"lessons")` and `App.goto(&"lesson", lesson)`.
+Screens (scenes/ui, one scene and script each): title (PLAY, MENU, INFO, ABOUT; MENU calls goto(MAIN_MENU)), info, about, main menu, level select, play (HUD, PlayArea, pause menu, hint panel, full board message, new puzzle confirm), completion, stats, settings (sound, skin picker, Auto Cross, Reset Stats with confirmation), first launch offer. The lessons list and lesson player are lessons-dev's scenes, opened through `App.goto(&"lessons")` and `App.goto(&"lesson", lesson)`.
 
 The play screen drives the timer: it calls `session.add_time(delta)` in `_process` while the puzzle screen is showing and neither the pause menu nor another screen covers it. The hint panel and the full board message do not stop the timer (GDD 8). The Hint button calls `NextStep.find(session.solution, session.board)` and then `session.buy_hint(hint)` (section 5 if `find` runs on a worker thread).
 

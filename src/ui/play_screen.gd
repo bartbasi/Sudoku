@@ -36,6 +36,9 @@ func build() -> void:
 	play_area.header_height = Layout.HEADER_ROW
 	add_child(play_area)
 	play_area.resized.connect(_place_band_items)
+	_apply_show_candidates()
+	if app != null:
+		app.settings_changed.connect(_apply_show_candidates)
 
 	hud = PlayHud.new()
 	hud.name = "Hud"
@@ -90,6 +93,13 @@ func build() -> void:
 	if session.hint != null:
 		hint_panel.show_hint(session.hint)
 	_layout()
+
+
+## Show candidates (GDD 4.5): the setting decides whether the rings and the
+## mode buttons show. App switches a Cross out session to Place first.
+func _apply_show_candidates() -> void:
+	if app != null:
+		play_area.set_show_candidates(app.settings.show_candidates)
 
 
 func _process(delta: float) -> void:

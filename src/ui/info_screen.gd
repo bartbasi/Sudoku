@@ -19,8 +19,8 @@ const SECTIONS: Array[Array] = [
 		"Tap PLAY to start. It brings back the puzzle you were playing, or starts a new one at the level you last started. The very first time, that is Easy.",
 	]],
 	["Getting around", [
-		"The title screen has PLAY, INFO and ABOUT. Back on the title screen closes the game. Your puzzle is saved.",
-		"For the main menu, tap the Pause button during a puzzle, then Menu. You also get there from Menu when you finish a puzzle. The main menu has Continue (when a puzzle is in progress), New puzzle, Lessons, Stats and Settings. Back on the main menu takes you to the title screen.",
+		"The title screen has PLAY, MENU, INFO and ABOUT. Back on the title screen closes the game. Your puzzle is saved.",
+		"MENU on the title screen opens the main menu. During a puzzle, tap the Pause button, then Menu. You also get there from Menu when you finish a puzzle. The main menu has Continue (when a puzzle is in progress), New puzzle, Lessons, Stats and Settings. Back on the main menu takes you to the title screen.",
 	]],
 	["The board", [
 		"Some digits are there from the start. They are called givens. They look different from the digits you place, and they cannot be changed.",
@@ -31,12 +31,14 @@ const SECTIONS: Array[Array] = [
 		"A digit is ruled out for a cell when the cell's row, column or box already holds it. Cross out the digits you rule out. A crossed digit stays readable, so you always see what you crossed. When you have crossed out all but one digit correctly, that last digit goes in the cell.",
 		"Example: a cell's row holds 9 and 3, its column holds 4 and 6, and its box holds 2, 3 and 4. Cross out 2, 3, 4, 6 and 9. That leaves 1, 5, 7 and 8 open.",
 		"The game never checks your crosses. You can cross out any digit, even all nine, and bring it back later.",
+		"If you would rather keep the candidates in your head, turn off Show candidates in Settings. The rings are hidden, and your crosses are kept for when you turn it back on.",
 	]],
 	["Place and Cross out", [
 		"The pad has the digits 1 to 9 and a switch with two modes, Place and Cross out. The switch and the selected cell both show which mode is on.",
 		"Place: tap a digit to put it in the selected cell. Tap a different digit to replace it. While a cell holds a digit, its ring is hidden.",
 		"Cross out: tap a digit to cross it out in the selected cell's ring. Tap it again to bring it back. Cross out works only on empty cells.",
 		"Switching modes keeps your selected cell. You can place a digit even if you crossed it out.",
+		"With Show candidates off, the switch is hidden and every digit you tap is placed.",
 	]],
 	["Erase and Undo", [
 		"Erase removes a digit you placed in the selected cell. Givens cannot be erased. When the digit goes, the ring comes back with your crosses exactly as you left them.",
@@ -75,6 +77,7 @@ const SECTIONS: Array[Array] = [
 		"Stuck? Tap the Hint button. A hint never fills anything in.",
 		"If a digit you placed is wrong, the hint points to it so you can erase it. Otherwise the hint shows the next step you can work out. It marks the cells involved, highlights any candidates to cross out, explains the step in a sentence or two and names the technique. A technique is a way of reasoning that finds a digit or rules candidates out. For the techniques the lessons teach, the hint also names the lesson.",
 		"The hint stays on screen until you close it, place, replace or erase a digit, or tap Undo. You can cross out candidates while it shows. If you close a hint and ask again, the new hint costs again.",
+		"With Show candidates off, a hint that says to cross out candidates shows just those candidates while it is on screen.",
 		"The Hint button is off while a hint is showing, once the puzzle is finished, and when your score is lower than a hint costs. That happens after five hints, when your score is 0.",
 	]],
 	["Levels", [
@@ -96,7 +99,8 @@ const SECTIONS: Array[Array] = [
 	["Settings", [
 		"Settings opens from the main menu and from the pause menu.",
 		"- Sound: a click when you place a digit, or cross out a candidate or bring it back. On at first.",
-		"- Auto Cross: see above. Off at first.",
+		"- Show candidates: shows the candidate ring in empty cells. Turn it off to hide every ring and the Place and Cross out switch, so every tap places a digit. Your crosses are kept, and Auto Cross keeps working, so turning it back on shows the rings as they are now. Lessons always show the ring. On at first.",
+		"- Auto Cross: see above. Off at first. You can change it while candidates are hidden.",
 		"- Skin: Light, the first choice, or Dark.",
 		"- Reset stats: clears the stats of every level after you confirm. Your lesson progress stays. This cannot be undone.",
 	]],

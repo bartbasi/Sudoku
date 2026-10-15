@@ -379,3 +379,66 @@ func _tap_cell(cell: int) -> void:
 
 func _pad_point(control: StringName) -> Vector2:
 	return area.pad.get_global_transform().affine_inverse() * area.pad.control_rect_global(control).get_center()
+
+
+## Show candidates off on one window: the board, the pad rect and the digit
+## keys do not move, UNDO and ERASE fill the right column with faces of at
+## least 71 by 28 (DESIGN_SYSTEM.md 7.5), every touch area is 48 dp, inside
+## the safe rect and clear of the others, and nothing reaches the board, the
+## header row or the info zone.
+func _check_candidates_off(w: float, h: float, top: float, bottom: float, expected: int) -> void:
+	_build(w, h, top, bottom)
+	var label: String = "%.0f by %.0f" % [w, h]
+	assert_eq(area.arrangement(), expected, label)
+	var board: Rect2 = area.view.get_global_rect()
+	var pad_rect: Rect2 = area.pad.get_global_rect()
+	var digits: Rect2 = area.pad.control_rect_global(&"pad")
+	area.set_show_candidates(false)
+	assert_false(area.view.show_ring, label)
+	assert_false(area.view.draw_state().show_ring, label)
+	assert_false(area.pad.is_mode_visible(), label)
+	assert_eq(area.view.get_global_rect(), board, "board unchanged at " + label)
+	assert_eq(area.pad.get_global_rect(), pad_rect, "pad rect unchanged at " + label)
+	assert_eq(area.pad.control_rect_global(&"pad"), digits, "digit block unchanged at " + label)
+	assert_eq(area.pad.control_rect_global(&"mode"), Rect2(), "no mode rect while hidden at " + label)
+	var safe: Rect2 = Rect2(0.0, top, w, h - top - bottom)
+	var others: Array[Rect2] = [area.header_rect_global(), area.info_zone_rect_global(), board]
+	var rects: Array[Rect2] = []
+	for control: StringName in PAD_CONTROLS:
+		if control == &"place" or control == &"cross_out":
+			continue
+		var face: Rect2 = area.pad.control_rect_global(control)
+		var touch: Rect2 = area.pad.touch_rect_global(control)
+		assert_true(touch.size.x >= Layout.TOUCH_MIN - 0.001 and touch.size.y >= Layout.TOUCH_MIN - 0.001,
+			"%s touch area %s at %s" % [control, touch.size, label])
+		assert_true(_contains(safe, touch), "%s inside the safe rect at %s" % [control, label])
+		for part: Rect2 in others:
+			assert_false(touch.intersects(part), "%s touch area reaches %s at %s" % [control, part, label])
+		for other: Rect2 in rects:
+			assert_false(touch.grow(-0.01).intersects(other), "%s overlaps another touch area at %s" % [control, label])
+		rects.append(touch)
+		if control == &"undo" or control == &"erase":
+			assert_true(face.size.x >= 71.0 and face.size.y >= 28.0, "%s face %s at %s" % [control, face.size, label])
+	area.set_show_candidates(true)
+	assert_true(area.view.show_ring and area.pad.is_mode_visible(), label)
+	assert_true(area.pad.control_rect_global(&"mode").has_area(), "mode buttons back at " + label)
+	_free()
+
+
+func test_candidates_off_at_320_by_568() -> void:
+	_check_candidates_off(320.0, 568.0, 32.0, 24.0, Layout.Arrangement.STACKED)
+
+
+func test_candidates_off_at_360_by_800() -> void:
+	_check_candidates_off(360.0, 800.0, 32.0, 24.0, Layout.Arrangement.STACKED)
+
+
+func test_candidates_off_side_by_side() -> void:
+	_check_candidates_off(690.0, 400.0, 32.0, 0.0, Layout.Arrangement.SIDE)
+
+
+func test_candidates_on_by_default() -> void:
+	_build(360.0, 800.0, 32.0, 24.0)
+	assert_true(area.view.show_ring)
+	assert_true(area.pad.is_mode_visible())
+	_free()

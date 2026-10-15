@@ -51,8 +51,15 @@ Sudoku (working name in older docs: bartssudoku; Bart may choose a final name la
 - 2026-10-14, title screen (Bart):
   - Every app start opens a title screen: the wordmark and hero, then PLAY, INFO and ABOUT. Back on it closes the app.
   - PLAY goes straight into a puzzle: it resumes the puzzle in progress, or else starts a new puzzle at the last level started (Easy the first time). The main menu stays as it is, reached from the pause menu's Menu; Back on the main menu now opens the title screen (this replaces "Back on the main menu closes the app").
+  - Later the same day: the title screen also has MENU, under PLAY, which opens the main menu (order PLAY, MENU, INFO, ABOUT).
   - INFO explains everything a player needs: scoring, time bonus, hints and their cost, every control, the candidate ring, Cross Out, Auto Cross, mistakes, levels, stats.
   - ABOUT: the game name and version, "Copyright 2026 Bart Basi. All rights reserved.", that it is free, offline and collects nothing, and the open source notices for Godot and what it ships (from the engine's own license data). No GitHub address until the repo is public.
+
+- 2026-10-14, Show candidates (Bart): a Settings switch, on by default, that hides the candidate ring on the play screen.
+  - Hidden, the Place / Cross out mode button is hidden too and every tap places a digit (a session in Cross out switches to Place).
+  - Marks are kept while hidden and show exactly as left when turned back on. Auto Cross keeps working out of sight.
+  - A hint that points to a candidate to cross shows just that candidate in its cell; the rest stay hidden.
+  - Lessons always show the ring.
 
 ## Ownership
 

@@ -58,6 +58,9 @@ const F_PEER: int = 32
 ## Cell fills by priority (DESIGN_SYSTEM.md 2.6).
 enum Fill { SELECTED, CONFLICT, HINT_TARGET, HINT_REASON, SAME_DIGIT, PEER, PLAIN }
 
+## How one candidate draws (DESIGN_SYSTEM.md 2.3 to 2.5, 2.7 and 2.10).
+enum Look { NONE, OPEN, CROSSED_HAND, CROSSED_AUTO, HINT_CHIP }
+
 ## Motion details from DESIGN_SYSTEM.md section 6, as shares of each effect.
 const PLACE_FROM_SCALE: float = 0.6
 const PLACE_RING_SHARE: float = 80.0 / 140.0   # the ring fades out over the first 80 of 140 ms
@@ -408,26 +411,48 @@ func _draw_digit(cell: int, digit: int, color: Color, alpha: float) -> void:
 ## One candidate in its slot (DESIGN_SYSTEM.md 2.3 to 2.5 and the hint cross
 ## chip in 2.7). corner is the ring box's top left corner, fill the cell fill.
 func _draw_candidate(cell: int, digit: int, corner: Vector2, fill: Color, alpha: float) -> void:
+	var look: int = _candidate_look(cell * 9 + digit - 1)
+	if look == Look.NONE:
+		return
 	var s: GameSkin = _skin
-	var index: int = cell * 9 + digit - 1
-	var mark: int = _mark(index)
 	var text: String = DIGIT_TEXT[digit]
 	var at: Vector2 = corner + _candidate_origin[digit - 1]
 	var knockout: int = _knockout_px()
+	match look:
+		Look.CROSSED_HAND:
+			_draw_hand_x(corner, digit, 1.0, _faded(s.cross_mark_hand, alpha))
+			_canvas.draw_char_outline(_candidate_font, at, text, _candidate_px, knockout, _faded(fill, alpha))
+			_canvas.draw_char(_candidate_font, at, text, _candidate_px, _faded(s.candidate_crossed, alpha))
+		Look.CROSSED_AUTO:
+			_canvas.draw_char(_candidate_font, at, text, _candidate_px, _faded(s.candidate_crossed, alpha))
+			var box: Rect2 = _mark_rects[digit - 1]
+			_canvas.draw_line(corner + box.position, corner + box.end, _faded(s.cross_mark_auto, alpha), _weight(s.cross_mark_w), true)
+		Look.HINT_CHIP:
+			_draw_chip(corner, digit, alpha)
+			_canvas.draw_char_outline(_candidate_font, at, text, _candidate_px, knockout, _faded(s.hint_cross_bg, alpha))
+			_canvas.draw_char(_candidate_font, at, text, _candidate_px, _faded(s.cell_bg, alpha))
+		_:
+			_canvas.draw_char(_candidate_font, at, text, _candidate_px, _faded(s.candidate_open, alpha))
+
+
+## The look of the candidate at mark index (cell * 9 + digit - 1). With the
+## ring hidden (DESIGN_SYSTEM.md 2.10) only an open hint cross shows, as its
+## chip; everything else draws nothing.
+func _candidate_look(index: int) -> int:
+	var mark: int = _mark(index)
+	var crossed: bool = mark == MARK_CROSSED_HAND or mark == MARK_CROSSED_AUTO
+	var chip: bool = not crossed and _chips[index] != 0
+	if not _ring_shown():
+		return Look.HINT_CHIP if chip else Look.NONE
 	if mark == MARK_CROSSED_HAND:
-		_draw_hand_x(corner, digit, 1.0, _faded(s.cross_mark_hand, alpha))
-		_canvas.draw_char_outline(_candidate_font, at, text, _candidate_px, knockout, _faded(fill, alpha))
-		_canvas.draw_char(_candidate_font, at, text, _candidate_px, _faded(s.candidate_crossed, alpha))
-	elif mark == MARK_CROSSED_AUTO:
-		_canvas.draw_char(_candidate_font, at, text, _candidate_px, _faded(s.candidate_crossed, alpha))
-		var box: Rect2 = _mark_rects[digit - 1]
-		_canvas.draw_line(corner + box.position, corner + box.end, _faded(s.cross_mark_auto, alpha), _weight(s.cross_mark_w), true)
-	elif _chips[index] != 0:
-		_draw_chip(corner, digit, alpha)
-		_canvas.draw_char_outline(_candidate_font, at, text, _candidate_px, knockout, _faded(s.hint_cross_bg, alpha))
-		_canvas.draw_char(_candidate_font, at, text, _candidate_px, _faded(s.cell_bg, alpha))
-	else:
-		_canvas.draw_char(_candidate_font, at, text, _candidate_px, _faded(s.candidate_open, alpha))
+		return Look.CROSSED_HAND
+	if mark == MARK_CROSSED_AUTO:
+		return Look.CROSSED_AUTO
+	return Look.HINT_CHIP if chip else Look.OPEN
+
+
+func _ring_shown() -> bool:
+	return _state == null or _state.show_ring
 
 
 ## The hand X: both diagonals of the mark box, scaled about the slot center.
@@ -474,13 +499,19 @@ func _draw_selection() -> void:
 	var s: GameSkin = _skin
 	var w: float = _weight(s.selection_frame_w)
 	var band: Rect2 = _band_rect(cell, w)
-	if _state.mode != MODE_CROSS_OUT:
+	if not _frame_is_cross_out():
 		_draw_band(band, w, s.selection_frame_place)
 		return
 	_draw_band(band, w, _fill_color(Fill.SELECTED))
 	var corner_dash: float = (1.0 - s.selection_mid_dash - 2.0 * s.selection_gap) * 0.5
 	_draw_corner_arms(cell, band, w, corner_dash, s.selection_frame_cross)
 	_draw_side_ticks(cell, band, w, s.selection_mid_dash, s.selection_frame_cross)
+
+
+## The broken Cross Out frame shows only with the ring shown; hidden, the
+## frame is always the solid Place frame (DESIGN_SYSTEM.md 2.10).
+func _frame_is_cross_out() -> bool:
+	return _state != null and _state.show_ring and _state.mode == MODE_CROSS_OUT
 
 
 ## Hint ticks on reason and lesson marked cells, then hint brackets on
@@ -559,7 +590,7 @@ func _draw_place_effect(effect: CellEffect) -> void:
 		return
 	var p: float = effect.progress
 	_cover_cell(cell)
-	var ring_alpha: float = 1.0 - clampf(p / PLACE_RING_SHARE, 0.0, 1.0)
+	var ring_alpha: float = _effect_ring_alpha(effect)
 	if ring_alpha > 0.0:
 		_draw_ring_faded(cell, ring_alpha)
 	_with_scale(_cell_center(cell), lerpf(PLACE_FROM_SCALE, 1.0, p))
@@ -576,7 +607,7 @@ func _draw_erase_effect(effect: CellEffect) -> void:
 		return
 	var p: float = effect.progress
 	_cover_cell(cell)
-	var ring_alpha: float = clampf(p / ERASE_RING_SHARE, 0.0, 1.0)
+	var ring_alpha: float = _effect_ring_alpha(effect)
 	if ring_alpha > 0.0 and _digit(cell) == 0:
 		_draw_ring_faded(cell, ring_alpha)
 	_with_scale(_cell_center(cell), lerpf(1.0, ERASE_TO_SCALE, p))
@@ -591,7 +622,7 @@ func _draw_erase_effect(effect: CellEffect) -> void:
 func _draw_mark_effect(effect: CellEffect) -> void:
 	var cell: int = effect.cell
 	var digit: int = effect.digit
-	if digit < 1 or digit > 9 or _digit(cell) != 0:
+	if digit < 1 or digit > 9 or _digit(cell) != 0 or not _mark_effect_draws():
 		return
 	var s: GameSkin = _skin
 	var p: float = effect.progress
@@ -634,6 +665,27 @@ func _draw_complete_effect(effect: CellEffect) -> void:
 	_draw_digit(cell, digit, _digit_color(cell, digit), 1.0)
 	_push_pixels()
 	_redraw_conflict_bar(cell)
+
+
+## The alpha of the ring layer under a PLACE or ERASE effect. With the ring
+## hidden (DESIGN_SYSTEM.md 2.10 and section 6) there is no ring fade: PLACE
+## draws no ring, and ERASE draws the cell's ring layer as the board shows it,
+## at once, which hidden is only its hint cross chips, if any (chips change
+## instantly).
+func _effect_ring_alpha(effect: CellEffect) -> float:
+	var p: float = effect.progress
+	match effect.kind:
+		CellEffect.Kind.PLACE:
+			return 1.0 - clampf(p / PLACE_RING_SHARE, 0.0, 1.0) if _ring_shown() else 0.0
+		CellEffect.Kind.ERASE:
+			return clampf(p / ERASE_RING_SHARE, 0.0, 1.0) if _ring_shown() else 1.0
+	return 0.0
+
+
+## CROSS and RESTORE draw nothing while the ring is hidden (DESIGN_SYSTEM.md
+## section 6); the board under them already shows the slot as it is now.
+func _mark_effect_draws() -> bool:
+	return _ring_shown()
 
 
 ## Paints the inside of a cell in its fill, short of the frame and hint marks.

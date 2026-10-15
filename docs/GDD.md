@@ -2,7 +2,7 @@
 
 Owner: lead-game-designer. Approved by Bart at Hard Stop 1, 2026-10-11. Where this document disagrees with docs/BRIEF.md, the brief wins, unless Bart decided otherwise (CLAUDE.md, "Decisions from Bart after the brief").
 
-Change log: 2026-10-11, Phase 2: updated for Bart's Hard Stop 1 decisions (his answers to the three questions, the New best rule in 12.1 with AT-67, a hand-crossed digit drawn on top of its X, ring layout A, the Pop light and Pop dark skins, the screen sizes in AT-66), and corrected the example scores in section 13 and AT-53 to match the score formula. Later in Phase 2: added the Settings line for Auto Cross (5.2), and the rule that taps after a lesson step's answer are ignored until Next (15.4, AT-63). 2026-10-12, Phase 3: updated for Bart's Hard Stop 2 decisions: a givens floor for Beginner and Easy (11.4, AT-68) and the hint highlight of candidates to cross (2.3, 10.2, AT-69). 2026-10-12, Phase 6: window shapes for foldables and split screen, with Hint at the far end in side by side (2.4), the too small message and what it does to the puzzle (8, 8.1, 14), and AT-70 and AT-71. 2026-10-14: Bart's title screen. Every app start opens it, with PLAY, INFO and ABOUT (15.0); the lesson 1 offer moved from app start to the first PLAY (15.3); the main menu (15.1); the last level started is saved (14, 15.2); the exact Info screen text (15.5) and About screen text (15.6); Continue became PLAY in 7.3 and in the restart tests; AT-72 to AT-78.
+Change log: 2026-10-11, Phase 2: updated for Bart's Hard Stop 1 decisions (his answers to the three questions, the New best rule in 12.1 with AT-67, a hand-crossed digit drawn on top of its X, ring layout A, the Pop light and Pop dark skins, the screen sizes in AT-66), and corrected the example scores in section 13 and AT-53 to match the score formula. Later in Phase 2: added the Settings line for Auto Cross (5.2), and the rule that taps after a lesson step's answer are ignored until Next (15.4, AT-63). 2026-10-12, Phase 3: updated for Bart's Hard Stop 2 decisions: a givens floor for Beginner and Easy (11.4, AT-68) and the hint highlight of candidates to cross (2.3, 10.2, AT-69). 2026-10-12, Phase 6: window shapes for foldables and split screen, with Hint at the far end in side by side (2.4), the too small message and what it does to the puzzle (8, 8.1, 14), and AT-70 and AT-71. 2026-10-14: Bart's title screen. Every app start opens it, with PLAY, INFO and ABOUT (15.0); the lesson 1 offer moved from app start to the first PLAY (15.3); the main menu (15.1); the last level started is saved (14, 15.2); the exact Info screen text (15.5) and About screen text (15.6); Continue became PLAY in 7.3 and in the restart tests; AT-72 to AT-78. 2026-10-14, later: Bart's Show candidates switch (4.5), with the matching lines in 1, 2.1, 3.1, 4.2, 5.1, 7.1, 10.2, 14, 15.4, 15.5 and 16, and AT-79 to AT-85. Bart's MENU button on the title screen (1, 15.0, 15.1, 15.5 Getting around, AT-72, AT-76).
 
 ## 1. Summary for Bart
 
@@ -35,6 +35,8 @@ Candidate ring and Auto Cross
 - Auto Cross does not change the score. [5]
 - An Auto Cross X looks different from a hand X, by more than color. The senior graphic designer designs it. [5]
 - Auto Cross changes are part of the undo step of the action that caused them. Turning Auto Cross on or off is not an undo step. [5]
+- Show candidates (Bart, 2026-10-14): a Settings switch, on by default. Off hides every ring on the play screen and the mode toggle, so every digit tap places. A puzzle in Cross Out switches to Place, which is not an undo step. Marks are kept, Auto Cross keeps working out of sight, and a hint still shows the candidates it says to cross. Lessons always show the ring. [4.5]
+- The Show candidates row sits between Sound and Auto Cross. Its line reads "Shows the candidate ring in empty cells. Off, every tap places a digit. Your marks stay." The Auto Cross row stays usable while candidates are hidden. Undo works the same while they are hidden. Hints find the same step, an elimination included, with the same text and cost. [4.5]
 
 Play
 - Undo: one step per place, replace, erase, cross or restore, with no limit, back to the start of the puzzle. Undo selects the cell it changes. The history survives closing the app. [7]
@@ -50,7 +52,7 @@ Play
 - No lessons for Medium and harder techniques in v1, as Bart confirmed: v1 has lessons 1 to 5. Hints explain those techniques. [11]
 - Completion locks the board and shows level, time, and the score with its parts, plus a New best label when the result beats the level's previous best. [12]
 - Stats are exactly the brief's list. [13]
-- Every app start opens the title screen: PLAY, INFO and ABOUT (Bart, 2026-10-14). PLAY resumes the puzzle in progress, or starts a new one at the level of the last puzzle started (Easy the first time). Back on the main menu opens the title screen. [15.0]
+- Every app start opens the title screen: PLAY, MENU, INFO and ABOUT (Bart, 2026-10-14). MENU opens the main menu. PLAY resumes the puzzle in progress, or starts a new one at the level of the last puzzle started (Easy the first time). Back on the main menu opens the title screen. [15.0]
 - Starting a puzzle while one is in progress asks once for confirmation. The first PLAY offers lesson 1, once. [15]
 - In lessons Auto Cross is off and there is no timer, score or hint. Any tap that is not the step's answer, selecting another cell included, changes nothing and gets a short explanation. Once the answer is complete, other taps are ignored until Next. [15]
 
@@ -81,7 +83,7 @@ Expert puzzles (Swordfish, XYZ-Wing) may be slow to generate. Phase 2 timing is 
 
 - Standard 9 by 9 board with nine 3 by 3 boxes. Box borders read clearly heavier than cell borders.
 - Givens are locked and look different from placed digits. Both show large in the center of the cell.
-- Every empty cell shows its ring (section 4). A cell holding a digit hides its ring.
+- Every empty cell shows its ring (section 4), unless Show candidates is off (4.5). A cell holding a digit hides its ring.
 
 ### 2.2 Selection
 
@@ -136,7 +138,7 @@ Decision: changing the window's shape during play changes only the layout. The d
 
 ### 3.1 Controls
 
-Number pad 1 to 9, a mode toggle with Place and Cross Out (it always shows which is on), Erase and Undo. The Hint button is in the HUD (section 10). Erase and Undo do the same thing in both modes.
+Number pad 1 to 9, a mode toggle with Place and Cross Out (it always shows which is on), Erase and Undo. The Hint button is in the HUD (section 10). Erase and Undo do the same thing in both modes. With Show candidates off, the mode toggle is hidden and Place is always on (4.5).
 
 ### 3.2 Every action
 
@@ -196,7 +198,7 @@ Nine slots around the inside edge of the cell, center open. Each digit sits in t
 | Restored by hand | Exactly like open | The player, in Cross Out mode |
 | Crossed by Auto Cross | The digit with the Auto Cross X | Auto Cross (section 5) |
 
-A crossed digit always stays visible and readable. A digit crossed by hand is drawn on top of its X with a thin outline, so the digit reads clearly and the X still shows around it. Bart approved this at Hard Stop 1, and it replaces the brief's "X drawn over it". How the Auto Cross X differs from the hand X is in section 5.2. The senior graphic designer owns the exact drawing of both.
+While the ring shows, a crossed digit always stays visible and readable (with Show candidates off the ring is hidden, 4.5). A digit crossed by hand is drawn on top of its X with a thin outline, so the digit reads clearly and the X still shows around it. Bart approved this at Hard Stop 1, and it replaces the brief's "X drawn over it". How the Auto Cross X differs from the hand X is in section 5.2. The senior graphic designer owns the exact drawing of both.
 
 ### 4.3 Rules
 
@@ -218,6 +220,63 @@ Position B. Only these digits are on the board: r5c1 = 9 and r5c8 = 3 (row 5); r
 
 This is acceptance test AT-14.
 
+### 4.5 Show candidates
+
+Bart, 2026-10-14. These are his rules; the designer decisions follow them.
+
+- Settings has a switch, Show candidates, on by default. It is global, saved with the settings (section 14), and takes effect at once, including on a puzzle in progress. Like every setting, it is reached from the main menu and from the pause menu.
+- Off, the play screen draws no candidate and no X in any empty cell, so each empty cell looks empty. The one exception is a hint's candidates to cross (below). Everything else looks exactly as it does with the switch on: givens and placed digits, the selected cell with its Place look, the peer and same digit highlights, conflicts, and the hint target and reason cells.
+- Off also hides the mode toggle (Place and Cross Out). Place is the only mode, so every digit tap places, exactly as the Place mode row of 3.2 says. Erase and Undo work as usual.
+- Turning it off while the puzzle in progress is in Cross Out switches that puzzle to Place, whether Settings was opened from the pause menu or from the main menu. Like any mode switch (3.3, 7.1), this keeps the selected cell, changes nothing on the board, is not an undo step and is saved (section 14). Turning Show candidates on again does not switch back: the toggle shows again with Place on.
+- The ring is never cleared. Every mark of every cell stays as it is and is saved, whether the switch is on or off. Auto Cross, when it is on, keeps applying its rules out of sight (5.1). Turning Show candidates on shows every ring exactly as it is at that moment: the hand marks as the player left them, and the Auto Cross marks as Auto Cross has kept them, including changes it made while they were hidden.
+- While candidates are hidden, the player cannot cross or restore anything, since Cross Out is out of reach. A hidden mark can change only through Auto Cross, or through Undo reversing an earlier cross or restore (decision below).
+- Hints find the same step and cost the same, whether the switch is on or off (10.1, 10.3). When the step crosses candidates, each candidate it says to cross that still shows open (open or restored by hand) is drawn in its target cell, in its ring slot, in the hint cross look of 10.2. No other part of any ring shows. These candidates show only while the hint is on screen. A placement hint, a wrong digit hint and the fallback show no candidate.
+- Turning the switch on or off while a hint is on screen keeps the hint, with no new charge. With it on, the hint shows as in 10.2; with it off, as above.
+- The switch never changes the score, the timer, the stats, the undo history or completion. Turning it on or off is not an undo step and is never undone.
+- Lessons always show the ring and the mode toggle, whatever the setting (15.4).
+
+Decision: on the Settings screen the row's name is "Show candidates", and the line under its switch reads exactly: "Shows the candidate ring in empty cells. Off, every tap places a digit. Your marks stay."
+- Reason: it follows the Auto Cross row: the setting's name on the switch, then one short line that says what it does and ends with a promise about the player's own work. It names the one thing that changes for the hands (taps only place) and promises that turning it off loses nothing.
+- Example: a player who solves in their head turns it off, reads that their marks stay, and knows that turning it back on later brings the crosses they made earlier.
+
+Decision: the Settings rows are, top to bottom: Sound, Show candidates, Auto Cross, Skin, Reset stats.
+- Reason: Auto Cross acts on the ring, so the switch that shows or hides the ring sits right above it. Sound stays first, as before.
+- Example: a player looking for Auto Cross sees Show candidates just above it and can tell the two apart from their lines.
+
+Decision: the Auto Cross row stays usable while candidates are hidden, and it works exactly as in section 5.
+- Reason: Auto Cross changes the marks the player sees when they turn candidates back on, so they may want to set it first. Greying it out would also hide a setting that is still saved and still applied.
+- Example: SC-1 below.
+
+Decision: Undo works the same while candidates are hidden. It reverses the latest step, a cross or restore included, and selects that step's cell (7.2). Only the selection shows the change; the mark itself shows when candidates are on again.
+- Reason: undo reverses steps in order (7.2). Skipping cross steps while they are hidden would make the history depend on a display setting, and the same Undo press would mean different things with the switch on and off.
+- Example: SC-2 below.
+
+Decision: while candidates are hidden, a hint finds its step exactly as in 10.1, with the same text and the same cost. When the next step is an elimination, the hint shows that elimination, as Bart's rule says, even though the player cannot cross it on the hidden ring. The player keeps it in mind, or turns Show candidates on and crosses it.
+- Reason: the hint stays a true logical step, the next thing the player can work out, and its text stays true. The other way, skipping eliminations silently and pointing at the next placement, would need placement texts that rest on crosses the player never saw ("every digit but 4 is ruled out here" would be false), so in practice it would say "This cell is 4", which is the fill-in hint Bart turned down at Hard Stop 1. It would also leave Bart's rule about showing the candidates to cross with nothing to do.
+- Cost of this choice: a player who never crosses and asks again before anything changes gets the same step again, at full cost. That is already true with candidates showing (10.1, AT-47), and the hint stays on screen until the player closes it, so there is no need to buy it twice.
+- Example: SC-3 below. A Medium player with candidates hidden pays 80 for "In this box, 7 can only go in one row. So cross 7 out in the rest of that row." and sees the 7s in that row highlighted. They keep in mind that 7 cannot go in those cells and carry on from there. Closing it and asking again before changing anything would cost another 80 and show the same step.
+
+Decision: turning Show candidates on again leaves Place on. It does not bring back Cross Out.
+- Reason: the switch to Place was a real mode switch, saved like any other. The mode toggle shows again, so Cross Out is one tap away.
+- Example: in SC-1 the toggle comes back showing Place.
+
+Worked examples. Each starts from Position B (4.4), with X = r5c5 and Y = r5c3, Show candidates on and Auto Cross off.
+
+SC-1. Hidden marks and Auto Cross out of sight.
+1. The player selects X, switches to Cross Out and crosses 2, 3, 4, 6 and 9 by hand, as in Bart's example.
+2. Pause, Settings, Show candidates off, back, Resume. Every empty cell looks empty, X is still selected and shows the Place look, and the mode toggle is gone. The undo history has not grown.
+3. The player taps 8: X shows 8 and the click plays. Erase: X looks empty again.
+4. Pause, Settings, Auto Cross on, back, Resume. Nothing shows on the empty cells, but out of sight Auto Cross crosses every ruled out open candidate, for example 2, 3, 4 and 9 in r5c4. X's 2, 3, 4, 6 and 9 are crossed by hand, so they do not change (rule 3).
+5. The player places 7 in r5c2. Out of sight, X's open 7 becomes crossed by Auto Cross.
+6. Pause, Settings, Show candidates on, back, Resume. X shows 2, 3, 4, 6 and 9 crossed by hand, 7 crossed by Auto Cross, and 1, 5 and 8 open. The toggle shows again with Place on.
+
+SC-2. Undo while hidden. In Cross Out the player crosses 1 in X, then selects Y and crosses 5 in Y. Show candidates off: the puzzle is in Place mode, no undo step added.
+- Undo: Y is selected and its 5 is open again. Nothing else shows, since the rings are hidden.
+- Undo: X is selected and its 1 is open again. Undo is now disabled.
+- Show candidates on: every candidate of X and Y is open, and the mode is Place.
+
+SC-3. A hint while hidden. Take the Pointing example of 10.2: the hint says to cross 7 in r5c4 to r5c9, r5c5 and r5c7 hold digits, the 7 is open in r5c4, r5c6 and r5c8 and crossed by hand in r5c9. With Show candidates off, the only small digits on the board are the 7s in r5c4, r5c6 and r5c8, in the hint cross look. r5c9 shows nothing. The hint text, the target and reason cells and the charge are the same as with the switch on. The player turns Show candidates on from the pause menu: every ring shows, the three 7s are highlighted, r5c9 shows its hand X, and the score is not charged again. If the player instead places a digit, the hint closes and the three 7s disappear.
+
 ## 5. Auto Cross
 
 ### 5.1 The rule
@@ -230,6 +289,7 @@ This is acceptance test AT-14.
 - It applies the rules when it is turned on, after every board change and after every undo.
 - It only uses the digits on the board, right or wrong. It never uses the solution and never applies any technique beyond "ruled out".
 - While it is off, nothing is crossed or reopened automatically. Turning it off changes nothing on the board: its Xs stay and keep their look.
+- It works the same with Show candidates off. Its marks are then out of sight until the player turns Show candidates on again (4.5).
 - Rule 3 is the brief's "never changes a candidate the player crossed or restored by hand". Rule 2 is the brief's "restores only the candidates it crossed itself that nothing else on the board still rules out".
 
 ### 5.2 Decisions
@@ -336,7 +396,7 @@ One of these player actions, together with every Auto Cross change it caused (se
 - crossing a candidate
 - restoring a candidate
 
-Not undo steps: selecting a cell, switching modes, taps where nothing happens, buying a hint, turning Auto Cross on or off, pausing.
+Not undo steps: selecting a cell, switching modes (including the switch to Place when Show candidates is turned off, 4.5), taps where nothing happens, buying a hint, turning Auto Cross or Show candidates on or off, pausing.
 
 ### 7.2 Behavior
 
@@ -465,6 +525,7 @@ Candidates to cross (Bart, Hard Stop 2):
 - The highlight follows the ring while the hint is on screen: crossing a highlighted candidate removes its highlight, and restoring it brings the highlight back.
 - A placement step, a wrong digit hint and the fallback highlight no candidate.
 - The highlight goes away when the hint closes, and shows again with the hint on resume.
+- With Show candidates off, the highlighted candidates are the only part of any ring that shows, and only while the hint is on screen (4.5, example SC-3).
 - The senior graphic designer decides the look.
 - Example: a Pointing hint says to cross 7 in row 5 outside box 4, that is r5c4 to r5c9. r5c5 and r5c7 hold other digits. The 7 is open in r5c4, r5c6 and r5c8, and the player crossed it by hand in r5c9. The targets are r5c4, r5c6 and r5c8, and the 7 is highlighted in each. r5c9 shows its hand X as usual. The player crosses 7 in r5c4: that highlight goes, the hint stays, and 7 stays highlighted in r5c6 and r5c8.
 
@@ -694,7 +755,7 @@ Average example: Easy completions in 300 s with 1 hint (score 160 + 116 = 276) a
 | What | Contents | Saved | Deleted |
 | --- | --- | --- | --- |
 | Puzzle in progress | Puzzle ID (reproduces the givens and the solution) and level; every placed digit; the state of every candidate of every non-given cell (the four states of 4.2); timer; score and hints bought; mode; selected cell; undo history; the hint on screen, if any | When the board first appears; after every board change and undo; after a mode switch, a hint bought or closed, and an Auto Cross change; when the app pauses, goes to the background or leaves the puzzle screen | At completion or abandon |
-| Settings | Sound (default on), skin (one of the two built-in skins, Pop light or Pop dark; default Pop light), Auto Cross (default off), last level started (default Easy; 15.0) | When changed; the last level when a new puzzle starts being made (15.2) | Never. Reset Stats does not change them. |
+| Settings | Sound (default on), skin (one of the two built-in skins, Pop light or Pop dark; default Pop light), Auto Cross (default off), Show candidates (default on; 4.5), last level started (default Easy; 15.0) | When changed; the last level when a new puzzle starts being made (15.2) | Never. Reset Stats does not change them. |
 | Stats | Section 13 | At puzzle start, completion and Reset Stats | Cleared by Reset Stats |
 | Lesson progress | Which lessons were finished | When a lesson is finished the first time | Never |
 | First launch | Whether the lesson 1 offer was answered (15.3) | When answered | Never |
@@ -709,7 +770,7 @@ Average example: Easy completions in 300 s with 1 hint (score 160 + 116 = 276) a
 
 Bart, 2026-10-14. These are his rules, not designer decisions.
 
-- Every app start opens the title screen: the wordmark and the hero, then three buttons, PLAY, INFO and ABOUT. An app start means the app was not running, whether the player closed it or Android did. Coming back from the background while the app is still running is not an app start: the player is back where they left, and during a puzzle the pause menu is showing (section 8).
+- Every app start opens the title screen: the wordmark and the hero, then four buttons, top to bottom PLAY, MENU, INFO and ABOUT (MENU added by Bart later on 2026-10-14). An app start means the app was not running, whether the player closed it or Android did. Coming back from the background while the app is still running is not an app start: the player is back where they left, and during a puzzle the pause menu is showing (section 8).
 - The title screen opens on every start, with or without a puzzle in progress and on first launch too. It has no Continue button; PLAY does that job.
 - Android Back on the title screen closes the app. Everything is already saved (section 14).
 - PLAY does the first of these that applies:
@@ -718,15 +779,17 @@ Bart, 2026-10-14. These are his rules, not designer decisions.
   3. Else it starts a new puzzle at the level of the last puzzle started, or Easy if no puzzle was ever started. The making a puzzle card shows while it is made, as for every new puzzle (DESIGN_SYSTEM 7.14), and the puzzle starts exactly as 15.2 describes: its board appears with the timer at 0:00, and its level's Started goes up by 1.
 - A tap on PLAY while a puzzle is being made does nothing, so one tap never starts two puzzles.
 - The last level started is the level of the last new puzzle the game began to make, from level select, from Play again or from PLAY itself. It is saved with the settings (section 14). Abandoning, completing, lessons and Reset Stats do not change it. If the saved value is missing or unreadable it is Easy.
+- MENU opens the main menu (15.1), unchanged. Android Back on the main menu returns to the title screen. MENU never shows the lesson 1 offer, starts or resumes a puzzle, or changes stats or the timer; the offer stays on the first PLAY (15.3).
 - INFO opens the Info screen (15.5) and ABOUT opens the About screen (15.6), each over the title screen. Back on either returns to the title screen. That means Android Back, and also the screen's own back button if the design gives it one, as other pushed screens such as Settings have.
-- The main menu is unchanged (15.1). It is reached from the pause menu's Menu and from the completion screen's Menu, as before. Android Back on the main menu opens the title screen. This replaces the Phase 6 rule that Back on the main menu closes the app.
+- The main menu is unchanged (15.1). It is reached from MENU on the title screen, and from the pause menu's Menu and the completion screen's Menu, as before. Android Back on the main menu opens the title screen. This replaces the Phase 6 rule that Back on the main menu closes the app.
 - Example, a new player: install, open the app, and the title screen shows. Tap PLAY: the lesson 1 offer shows. Tap Skip: a new Easy puzzle starts at 0:00 with a score of 200. Play two minutes, then tap Pause, then Menu: the main menu shows Continue. Press Back: the title screen. Tap PLAY: the same Easy puzzle, same cell and mode, timer at 2:00 and running.
+- Example, MENU: with an Easy puzzle in progress at 2:00, the player launches the app and taps MENU. The main menu shows Continue, New puzzle, Lessons, Stats and Settings. The player opens Stats, presses Back twice and is on the title screen again. PLAY then resumes the Easy puzzle at 2:00.
 - Example, the last level: the player completes a Hard puzzle, taps Menu on the completion screen and presses Back. On the title screen PLAY starts a new Hard puzzle. If instead the player had started a Beginner puzzle from level select and then abandoned it for a Medium one, PLAY after completing the Medium puzzle starts Medium.
 
 ### 15.1 App start and the main menu
 
 - The app starts on the title screen (15.0), never on the main menu.
-- The main menu is reached from the pause menu's Menu and from the completion screen's Menu. Its buttons are as before: Continue first, only when a puzzle is in progress, then New puzzle, Lessons, Stats and Settings.
+- The main menu is reached from MENU on the title screen (15.0), from the pause menu's Menu and from the completion screen's Menu. Its buttons are as before: Continue first, only when a puzzle is in progress, then New puzzle, Lessons, Stats and Settings.
 - Continue opens the puzzle in progress with the saved cell selected, the saved mode on and the timer running.
 - Android Back on the main menu opens the title screen (15.0).
 
@@ -756,6 +819,7 @@ Bart, 2026-10-14. These are his rules, not designer decisions.
 LESSONS.md holds the lesson content. These rules apply to every lesson:
 - Lessons use the same board, selection, Place and Cross Out modes and Erase as puzzles.
 - Auto Cross is always off in lessons, whatever the setting, because lessons teach crossing by hand.
+- Lessons always show the ring and the mode toggle, whatever the Show candidates setting (Bart, 2026-10-14). The setting is kept as it is and applies again on the play screen.
 - No timer, score, hints or puzzle stats in lessons. A puzzle in progress stays saved and untouched, and its timer does not run.
 - Until the step's answer is complete, every tap that is not part of it, as LESSONS.md defines it, is a wrong tap. That includes selecting a different cell. A wrong tap changes nothing (board, ring, selection and mode stay as they were), the lesson's short explanation shows, and the player tries again. The player cannot fail.
 - Reason: lessons are scripted around one cell, so this keeps the player on the taught cell and makes every tap teach.
@@ -778,9 +842,9 @@ Tap PLAY to start. It brings back the puzzle you were playing, or starts a new o
 
 **Getting around** [15.0, 15.1]
 
-The title screen has PLAY, INFO and ABOUT. Back on the title screen closes the game. Your puzzle is saved.
+The title screen has PLAY, MENU, INFO and ABOUT. Back on the title screen closes the game. Your puzzle is saved.
 
-For the main menu, tap the Pause button during a puzzle, then Menu. You also get there from Menu when you finish a puzzle. The main menu has Continue (when a puzzle is in progress), New puzzle, Lessons, Stats and Settings. Back on the main menu takes you to the title screen.
+MENU on the title screen opens the main menu. During a puzzle, tap the Pause button, then Menu. You also get there from Menu when you finish a puzzle. The main menu has Continue (when a puzzle is in progress), New puzzle, Lessons, Stats and Settings. Back on the main menu takes you to the title screen.
 
 **The board** [2.1 to 2.3]
 
@@ -798,6 +862,8 @@ Example: a cell's row holds 9 and 3, its column holds 4 and 6, and its box holds
 
 The game never checks your crosses. You can cross out any digit, even all nine, and bring it back later.
 
+If you would rather keep the candidates in your head, turn off Show candidates in Settings. The rings are hidden, and your crosses are kept for when you turn it back on.
+
 **Place and Cross out** [3]
 
 The pad has the digits 1 to 9 and a switch with two modes, Place and Cross out. The switch and the selected cell both show which mode is on.
@@ -807,6 +873,8 @@ Place: tap a digit to put it in the selected cell. Tap a different digit to repl
 Cross out: tap a digit to cross it out in the selected cell's ring. Tap it again to bring it back. Cross out works only on empty cells.
 
 Switching modes keeps your selected cell. You can place a digit even if you crossed it out.
+
+With Show candidates off, the switch is hidden and every digit you tap is placed.
 
 **Erase and Undo** [3, 4.3, 7]
 
@@ -868,6 +936,8 @@ If a digit you placed is wrong, the hint points to it so you can erase it. Other
 
 The hint stays on screen until you close it, place, replace or erase a digit, or tap Undo. You can cross out candidates while it shows. If you close a hint and ask again, the new hint costs again.
 
+With Show candidates off, a hint that says to cross out candidates shows just those candidates while it is on screen.
+
 The Hint button is off while a hint is showing, once the puzzle is finished, and when your score is lower than a hint costs. That happens after five hints, when your score is 0.
 
 **Levels** [11]
@@ -894,18 +964,19 @@ Five short lessons teach the basics: 1 How Sudoku works, 2 The ring and Cross Ou
 
 In a lesson, a tap that is not the answer changes nothing and a short note tells you why, so you cannot fail. Lessons have no timer, score or hints, and Auto Cross is always off. Your puzzle in progress waits, with its timer stopped.
 
-**Settings** [5, 13.2, 14]
+**Settings** [4.5, 5, 13.2, 14]
 
 Settings opens from the main menu and from the pause menu.
 
 - Sound: a click when you place a digit, or cross out a candidate or bring it back. On at first.
-- Auto Cross: see above. Off at first.
+- Show candidates: shows the candidate ring in empty cells. Turn it off to hide every ring and the Place and Cross out switch, so every tap places a digit. Your crosses are kept, and Auto Cross keeps working, so turning it back on shows the rings as they are now. Lessons always show the ring. On at first.
+- Auto Cross: see above. Off at first. You can change it while candidates are hidden.
 - Skin: Light, the first choice, or Dark.
 - Reset stats: clears the stats of every level after you confirm. Your lesson progress stays. This cannot be undone.
 
 Decision: the Info screen also has a "Getting around" section, beyond the list in Bart's request.
-- Reason: from the title screen the main menu is reached only through a puzzle's pause menu or the completion screen (15.0), so a player who wants Lessons, Stats, Settings or New puzzle needs to be told how to get there.
-- Example: a player on the title screen who wants lesson 3 reads "tap the Pause button during a puzzle, then Menu", then taps Lessons.
+- Reason: Lessons, Stats, Settings and New puzzle live on the main menu, not on the title screen, so a player needs to be told the three ways there: MENU on the title screen, the pause menu's Menu and the completion screen's Menu (15.0).
+- Example: a player on the title screen who wants lesson 3 reads "MENU on the title screen opens the main menu", taps MENU, then taps Lessons.
 
 ### 15.6 About screen text
 
@@ -932,7 +1003,7 @@ The About screen (ABOUT on the title screen) shows exactly this, in this order:
 
 How to read them:
 - Core: a unit test on the stated position, in tests/core or tests/puzzles. App: checked by hand in the running game.
-- Unless a test says otherwise: settings at their defaults (sound on, Pop light skin, Auto Cross off) and a new Beginner puzzle.
+- Unless a test says otherwise: settings at their defaults (sound on, Pop light skin, Auto Cross off, Show candidates on) and a new Beginner puzzle.
 - E, F, G and H are empty cells the tester picks. Position B, X, Y and Z are defined in sections 4.4 and 5.3. AC-n and U-n are the examples in section 5.
 
 ### Board and input
@@ -1282,7 +1353,7 @@ These run on a Galaxy Z Fold5, or in the editor with the window set to each size
 
 **AT-72 Title screen on every start** (App)
 - Steps: fresh install and launch. Kill the app and launch again. Start a puzzle, play a little, kill the app and launch again. Then, mid puzzle, send the app to the background without killing it and come back. Last, on the title screen, press Android Back.
-- Expected: every launch opens the title screen: the wordmark, the hero, then PLAY, INFO and ABOUT, with no Continue button and no lesson offer. Coming back from the background without a kill shows the puzzle with the pause menu open, not the title screen. Back on the title screen closes the app, and on the next launch the puzzle is still in progress (PLAY resumes it).
+- Expected: every launch opens the title screen: the wordmark, the hero, then PLAY, MENU, INFO and ABOUT, top to bottom, with no Continue button and no lesson offer. Coming back from the background without a kill shows the puzzle with the pause menu open, not the title screen. Back on the title screen closes the app, and on the next launch the puzzle is still in progress (PLAY resumes it).
 
 **AT-73 The first PLAY offers lesson 1** (App)
 - Steps: fresh install, launch, tap PLAY. Press Android Back. Tap PLAY again. Kill the app, launch, tap PLAY. Tap Skip. Note the level, score and timer. Kill the app, launch, tap PLAY. Then fresh install again, launch, tap PLAY, tap Start lesson, leave the lesson, press Back on the main menu, and tap PLAY.
@@ -1299,8 +1370,10 @@ These run on a Galaxy Z Fold5, or in the editor with the window set to each size
 - Expected (App): after the relaunch PLAY starts one new Beginner puzzle (score 100, timer from 0:00), the making a puzzle card shows if making it takes a moment, and Beginner Started goes up by exactly 1, so the second tap started nothing. The last PLAY resumes the Medium puzzle.
 
 **AT-76 Main menu and Back** (App)
-- Steps: with a puzzle in progress, tap Pause, then Menu. Open Stats and press Back. Press Back on the main menu. Tap PLAY and complete the puzzle. On the completion screen tap Menu, then press Back.
-- Expected: the main menu shows Continue, New puzzle, Lessons, Stats and Settings, as before. Back on Stats returns to the main menu. Back on the main menu opens the title screen both times and never closes the app. After the completion, the main menu has no Continue.
+- Steps: with a puzzle in progress at a time T, tap Pause, then Menu. Open Stats and press Back. Press Back on the main menu. On the title screen tap MENU, note the level's Started on Stats, go back, wait 30 s on the main menu and press Back. Tap PLAY and complete the puzzle. On the completion screen tap Menu, then press Back. Tap MENU.
+- Expected: the main menu shows Continue, New puzzle, Lessons, Stats and Settings, as before, whether reached by Pause and Menu or by MENU. Back on Stats returns to the main menu. Back on the main menu opens the title screen every time and never closes the app. MENU starts no puzzle and leaves Started unchanged. PLAY resumes the puzzle at T, not counting the time on the main menu. After the completion, the main menu reached by MENU has no Continue.
+- Steps, part 2: fresh install, launch, tap MENU, press Back, tap PLAY.
+- Expected, part 2: MENU opens the main menu with no lesson offer and no Continue. The offer shows on the PLAY that follows.
 
 **AT-77 Info screen** (App)
 - Steps: on the title screen tap INFO. Read the whole screen, scrolling to the end, at 320 by 568 dp and at 360 by 800 dp. Press Back. Then check the 15.5 text against the GDD: the levels' points, hint costs and par times against 9.1; the Easy example with the formula in 9.2; the skin names against the Settings skin picker; the lesson titles against the Lessons screen.
@@ -1310,3 +1383,37 @@ These run on a Galaxy Z Fold5, or in the editor with the window set to each size
 - Steps (App): turn on airplane mode. On the title screen tap ABOUT. Read the whole screen, scrolling to the end. Press Back.
 - Steps (Core): build the About screen's text and compare it with what the engine returns at run time and with the project's version setting.
 - Expected: in order: "Sudoku"; "Version" followed by the version in the project settings; "Copyright 2026 Bart Basi. All rights reserved."; the paragraph of 15.6 word for word; "Made with the Godot Engine." as the last line of the card; the heading "Open source notices" with no sentence under it; the caption "Godot Engine" and the engine's license; the heading "Third party components" and the component notices; the heading "Licenses" and the license texts. The notices are not empty and list the third party components the engine reports. The engine's license, the component notices and the license texts match what the engine returns word for word, including their own web addresses; the only difference allowed is that line breaks inside a paragraph are joined. The card (from "Sudoku" to "Made with the Godot Engine.") contains no "http" and no "www". Nothing on the whole screen contains "github" (in any letter case). Tapping anywhere on the screen, including on every web address in the notices, opens nothing and does nothing. The screen works in airplane mode. Back returns to the title screen. A search of the repo for the first line of the engine's license text, as the screen shows it, finds nothing.
+
+### Show candidates
+
+**AT-79 The Settings row and its default** (App, Core)
+- Steps (App): fresh install. Open Settings from the main menu. Read the rows top to bottom. Turn Show candidates off, kill the app, launch it and open Settings again. Turn it on, kill, launch, open Settings.
+- Expected (App): the rows are Sound, Show candidates, Auto Cross, Skin, Reset stats. The row's name is "Show candidates", its switch is on, and the line under it reads exactly "Shows the candidate ring in empty cells. Off, every tap places a digit. Your marks stay." After each relaunch the switch is as it was set. No other setting changed.
+- Steps (Core): save settings with Show candidates off and load them. Then load settings where Show candidates is missing, is the text "false", and is an empty list.
+- Expected (Core): off loads as off. Each damaged value loads as on, and the other settings load normally.
+
+**AT-80 What hiding shows and hides** (App)
+- Steps: Auto Cross on. In a Beginner puzzle, cross two candidates by hand in E, restore one candidate in F that Auto Cross had crossed, place a digit d in G, and place a digit in H that clashes with a given, so a conflict shows. Select G. Take a screenshot. Open the pause menu, Settings, turn Show candidates off, go back and Resume. Take a second screenshot. Tap a digit in a fresh empty cell, then tap Erase.
+- Expected: in the second screenshot no empty cell shows any small digit or any X. The givens, the placed digits, G's selection, its row, column and box, the same digit highlight on every other d, and the conflict marks look exactly as in the first screenshot. The mode toggle is gone and the pad's other controls still work. Every control left has a touch area of at least 48 by 48 dp and nothing overlaps. The digit tap places the digit with the click, and Erase removes it. The score and the timer are not affected.
+
+**AT-81 Turning it off in Cross Out** (App, Core)
+- Steps (App): select E, switch to Cross Out and cross 3 in E. Open the pause menu, Settings, turn Show candidates off, go back and Resume. Tap 6. Tap Undo twice. Turn Show candidates on. Then switch to Cross Out again, open the main menu (Pause, Menu), open Settings there, turn Show candidates off, go back and tap Continue. Kill the app, launch it and tap PLAY.
+- Expected (App): after the first Resume, E is still selected with the Place look and the toggle is hidden. Tapping 6 places 6 in E. The first undo empties E, and the second undo reverses the cross of 3 (E stays selected, nothing else shows), so the mode switch made no undo step. After turning it on, the toggle shows Place and E's ring is all open. After Continue the puzzle is in Place mode, and it is still in Place after the relaunch.
+- Steps (Core): a session in Cross Out with two undo steps. Call App.set_show_candidates(false). Then call App.set_show_candidates(true).
+- Expected (Core): after the first call the session's mode is Place, the undo history still has two steps, and the saved puzzle has mode Place. After the second call the mode is still Place.
+
+**AT-82 Marks are kept and Auto Cross works out of sight** (App)
+- Steps: run SC-1 of section 4.5 on Position B, or in a real puzzle: in E cross by hand one digit ruled out in E and one that is not, then turn Show candidates off. Turn Auto Cross on from the pause menu's Settings. Place a digit d in an empty peer of E where d clashes with nothing and is open in E. Turn Show candidates on.
+- Expected: with SC-1, X's ring is exactly as SC-1 step 6 states. In the real puzzle, E's two hand crosses are unchanged and keep the hand look, E's d is crossed by Auto Cross, and every other ruled out candidate of E and of every other empty cell is crossed by Auto Cross. Nothing else changed on any ring. While candidates were hidden, the Auto Cross switch could be turned on and off.
+
+**AT-83 Undo while hidden** (App)
+- Steps: run SC-2 of section 4.5 on a new puzzle with no undo steps yet: in Cross Out cross 1 in E, select F and cross 5 in F. Turn Show candidates off. Tap Undo twice, then turn Show candidates on.
+- Expected: the first undo selects F and nothing else visible changes; the second selects E. Undo is then disabled. After turning it on, E's 1 and F's 5 are open and the mode is Place.
+
+**AT-84 A hint while hidden** (App)
+- Steps: Show candidates off and Auto Cross off. Start a Medium puzzle. Tap Hint until a hint names Pointing, Claiming or Naked pair, placing the digit of each placement hint (which closes it) and noting the score after each hint. With the elimination hint on screen, take a screenshot. Turn Show candidates on from the pause menu's Settings and Resume. Turn it off again and Resume. Close the hint. Then, in an empty cell, place a digit that clashes with a given in its row, so it is surely wrong (as AT-41), and tap Hint.
+- Expected: every hint costs 80, the same as with the switch on. While a placement hint is on screen, no small digit shows anywhere. With the elimination hint on screen, the only small digits on the board are, in each target cell, the candidates the hint text says to cross, in the hint cross look; the target and reason cells are marked as usual. Turning the switch on shows every ring with the same highlights and no new charge; turning it off again shows only those candidates again. Closing the hint leaves no small digit anywhere. The wrong digit hint shows no small digit.
+
+**AT-85 Lessons always show the ring** (App)
+- Steps: with a puzzle in progress, turn Show candidates off. Open lesson 2 (the candidate ring) from the Lessons screen and play it through. Leave and tap Continue.
+- Expected: in the lesson every empty cell shows its ring and the mode toggle shows. Crossing in Cross Out works and the lesson accepts Bart's example as AT-14 says. Back in the puzzle the rings are hidden, the toggle is hidden, and Settings still shows Show candidates off.

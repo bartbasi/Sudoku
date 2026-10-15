@@ -6,6 +6,7 @@ extends SceneTree
 ##   timeout 300 godot --path . --script res://tests/ui/capture_screens.gd -- 320x568
 ##   timeout 300 godot --path . --script res://tests/ui/capture_screens.gd -- windows
 ##   timeout 300 godot --path . --script res://tests/ui/capture_screens.gd -- title <folder>
+##   timeout 300 godot --path . --script res://tests/ui/capture_screens.gd -- candidates <folder>
 ##
 ## Writes build/ui/<size>-<skin>-<screen>.png. Saves go to
 ## user://ui_capture/, which is wiped first, so real saves are untouched.
@@ -15,6 +16,9 @@ extends SceneTree
 ## "title" captures the title screen (Pop light and Pop dark), Info at the
 ## top and About at the top and partway into the notices, on TITLE_SIZES,
 ## into the folder given (absolute), or build/ui/ when none is.
+## "candidates" captures Settings at 360 by 800, then a Medium puzzle with
+## Show candidates off on TITLE_SIZES: with hand crosses hidden, and with an
+## elimination hint showing only its candidates to cross (GDD 4.5, SC-3).
 
 const OUT_DIR: String = "res://build/ui/"
 const SAVE_DIR: String = "user://ui_capture"
@@ -29,6 +33,7 @@ const TITLE_SIZES: Array[Vector2i] = [Vector2i(360, 800), Vector2i(320, 568), Ve
 var _size: Vector2i = Vector2i(360, 800)
 var _windows: bool = false
 var _title: bool = false
+var _candidates: bool = false
 var _out_dir: String = OUT_DIR
 var _app: AppService = null
 var _skins: Node = null
@@ -38,8 +43,9 @@ func _initialize() -> void:
 	var args: PackedStringArray = OS.get_cmdline_user_args()
 	if args.size() > 0 and args[0] == "windows":
 		_windows = true
-	elif args.size() > 0 and args[0] == "title":
-		_title = true
+	elif args.size() > 0 and (args[0] == "title" or args[0] == "candidates"):
+		_title = args[0] == "title"
+		_candidates = args[0] == "candidates"
 		if args.size() > 1:
 			_out_dir = args[1].replace("\\", "/")
 			if not _out_dir.ends_with("/"):
@@ -84,6 +90,9 @@ func _run() -> void:
 		return
 	if _title:
 		await _run_title()
+		return
+	if _candidates:
+		await _run_candidates()
 		return
 	await _shot("light", "title")
 	_app.play_now()
@@ -240,6 +249,60 @@ func _run_title() -> void:
 		scroll.scroll_vertical = int(notices.get_global_rect().position.y - scroll.get_global_rect().position.y) + 600
 		await _shot("light", "about_notices")
 		_app.go_back()
+	_wipe(SAVE_DIR)
+	quit(0)
+
+
+## Settings, then the play screen with Show candidates off, without and with
+## an elimination hint on screen. Placement hints are followed by placing
+## their digit (no charge) until the next step is an elimination.
+func _run_candidates() -> void:
+	_resize(TITLE_SIZES[0])
+	_app.answer_first_launch()
+	_app.goto(AppService.SETTINGS)
+	await _shot("light", "settings")
+	_app.start_new_puzzle(Levels.MEDIUM)
+	var session: GameSession = _app.session
+	session.add_time(312.0)
+	var cells: PackedInt32Array = PackedInt32Array()
+	for cell: int in Sudoku.CELLS:
+		if session.board.digits[cell] == 0:
+			cells.append(cell)
+	var hint: Hint = null
+	for i: int in Sudoku.CELLS:
+		hint = NextStep.find(session.solution, session.board)
+		if hint == null or hint.placement_cell < 0:
+			break
+		session.select(hint.placement_cell)
+		session.press_digit(hint.placement_digit)
+	print("next step: ", hint.technique if hint != null else &"none")
+	# Hand crosses in the last empty cell, of digits its peers already hold.
+	var marked: int = -1
+	for cell: int in Sudoku.CELLS:
+		if session.board.digits[cell] == 0:
+			marked = cell
+	session.set_mode(GameSession.Mode.CROSS_OUT)
+	session.select(marked)
+	var crossed: int = 0
+	for peer: int in Sudoku.peers(marked):
+		var d: int = session.board.digits[peer]
+		if d != 0 and crossed < 3 and session.board.mark(marked, d) == Board.Mark.OPEN:
+			session.press_digit(d)
+			crossed += 1
+	_app.set_show_candidates(false)
+	for window: Vector2i in TITLE_SIZES:
+		_resize(window)
+		_app.goto(AppService.PLAY)
+		await _shot("light", "play_hidden")
+	var play: Control = _app.current_screen_node()
+	play.call(&"buy_hint")
+	for window: Vector2i in TITLE_SIZES:
+		_resize(window)
+		await _shot("light", "hint_hidden")
+	_app.set_show_candidates(true)
+	_resize(TITLE_SIZES[0])
+	await _shot("light", "hint_shown")
+	_app.abandon_puzzle()
 	_wipe(SAVE_DIR)
 	quit(0)
 

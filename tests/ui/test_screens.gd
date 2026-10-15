@@ -237,6 +237,36 @@ func test_settings_switches_skins_and_reset_confirm() -> void:
 	_teardown(parts)
 
 
+func test_settings_show_candidates_row() -> void:
+	# AT-79 (App), GDD 4.5, DESIGN_SYSTEM.md 7.11.
+	var parts: Array = _setup()
+	var app: AppService = parts[0]
+	app.goto(AppService.SETTINGS)
+	var screen: Control = _top(app)
+	var sound_card: Control = screen.find_child("Sound", true, false) as Control
+	var rows: Node = sound_card.get_parent()
+	var names: PackedStringArray = PackedStringArray()
+	for child: Node in rows.get_children():
+		names.append(child.name)
+	var sound_at: int = names.find("Sound")
+	assert_eq(names[sound_at + 1], "ShowCandidates", "Show candidates right under Sound")
+	assert_eq(names[sound_at + 2], "AutoCross", "Auto Cross right under Show candidates")
+	var switch: CheckButton = screen.get(&"show_candidates_switch")
+	assert_eq(switch.text, ThemeFactory.display_text(ThemeFactory.HEADING, "Show candidates"))
+	assert_eq(switch.theme_type_variation, ThemeFactory.SWITCH)
+	assert_true(switch.button_pressed, "on by default")
+	var line: Label = switch.get_parent().get_child(1) as Label
+	assert_eq(line.text, "Shows the candidate ring in empty cells. Off, every tap places a digit. Your marks stay.")
+	assert_eq(line.theme_type_variation, ThemeFactory.BODY_MUTED)
+	switch.button_pressed = false
+	assert_false(app.settings.show_candidates)
+	assert_true(app.settings.sound, "no other setting changed")
+	assert_false(app.settings.auto_cross, "no other setting changed")
+	app.set_show_candidates(true)
+	assert_true(switch.button_pressed, "the switch follows the setting")
+	_teardown(parts)
+
+
 func test_stats_show_dashes_then_values() -> void:
 	var parts: Array = _setup()
 	var app: AppService = parts[0]

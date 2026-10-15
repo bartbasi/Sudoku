@@ -17,3 +17,5 @@ var hint_reasons: PackedInt32Array
 var hint_crosses: PackedInt32Array      # mark indices (cell * 9 + digit - 1) the hint says to cross (Hint.eliminations)
 var lesson_marks: PackedInt32Array      # cells a lesson screen points at
 var locked: bool = false                # completed board
+var show_ring: bool = true              # false: draw no candidate and no X, except each open candidate in hint_crosses,
+                                        # drawn in its hint look; digits, highlights and conflicts are unchanged

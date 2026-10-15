@@ -205,6 +205,28 @@ func test_settings_last_level() -> void:
 	assert_eq(kept.last_level, Levels.BEGINNER, "a good last_level loads beside a bad field")
 
 
+func test_settings_show_candidates() -> void:
+	var settings: Settings = Settings.new()
+	assert_true(settings.show_candidates, "on by default")
+	assert_eq(settings.to_dict()["show_candidates"], true)
+	assert_true(Settings.from_dict(_json(settings.to_dict())).show_candidates, "on round trips")
+	settings.show_candidates = false
+	assert_eq(settings.to_dict()["show_candidates"], false, "saved as show_candidates")
+	assert_false(Settings.from_dict(_json(settings.to_dict())).show_candidates, "off round trips")
+	assert_true(Settings.from_dict({}).show_candidates, "missing takes on")
+	var bad: Array = [null, 0, 1, 0.0, "false", "off", [], {}]
+	for value: Variant in bad:
+		assert_true(Settings.from_dict({"show_candidates": value}).show_candidates, "%s takes on" % [value])
+	var mixed: Settings = Settings.from_dict({"show_candidates": "no", "auto_cross": true, "sound": false, "last_level": 3})
+	assert_true(mixed.show_candidates)
+	assert_true(mixed.auto_cross, "a bad show_candidates leaves the other fields alone")
+	assert_false(mixed.sound)
+	assert_eq(mixed.last_level, Levels.HARD)
+	var kept: Settings = Settings.from_dict({"show_candidates": false, "sound": "off", "skin_id": 5})
+	assert_false(kept.show_candidates, "a good show_candidates loads beside bad fields")
+	assert_true(kept.sound)
+
+
 func test_lesson_progress() -> void:
 	# AT-56 (core part): counts once per lesson.
 	var progress: LessonProgress = LessonProgress.new()

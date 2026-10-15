@@ -12,6 +12,8 @@ var auto_cross: bool = false
 var first_launch_answered: bool = false
 ## The level of the last puzzle started; PLAY starts here.
 var last_level: int = Levels.EASY
+## False hides the candidate ring on the play screen (GDD Show candidates).
+var show_candidates: bool = true
 
 
 func to_dict() -> Dictionary:
@@ -21,6 +23,7 @@ func to_dict() -> Dictionary:
 		"auto_cross": auto_cross,
 		"first_launch_answered": first_launch_answered,
 		"last_level": last_level,
+		"show_candidates": show_candidates,
 	}
 
 
@@ -44,6 +47,9 @@ static func from_dict(data: Variant) -> Settings:
 	if typeof(answered_value) == TYPE_BOOL:
 		settings.first_launch_answered = answered_value
 	settings.last_level = _level_from(dict.get("last_level"))
+	var show_value: Variant = dict.get("show_candidates")
+	if typeof(show_value) == TYPE_BOOL:
+		settings.show_candidates = show_value
 	return settings
 
 

@@ -287,7 +287,8 @@ The hint marks are as heavy as the frame and drawn after it, so on a selected ce
 | Selected and hint target | Lemon | Frame in its mode; green brackets over its corners |
 | Hint target with candidates to cross, not selected | Mint | Green brackets; each open candidate the hint names sits on a green chip with its digit in white (near black in dark); every other candidate as usual |
 | Selected hint target with candidates to cross, Place mode | Lemon | Solid blue frame; green brackets over its corners; the green chips |
-| Selected hint target with candidates to cross, Cross Out mode | Lemon | Broken magenta frame; green brackets; the green chips. Crossing a chipped candidate takes its chip away at once and shows the hand X look || Selected and hint reason, or lesson marked | Lemon | Frame in its mode; green ticks over the middle of each side |
+| Selected hint target with candidates to cross, Cross Out mode | Lemon | Broken magenta frame; green brackets; the green chips. Crossing a chipped candidate takes its chip away at once and shows the hand X look |
+| Selected and hint reason, or lesson marked | Lemon | Frame in its mode; green ticks over the middle of each side |
 | Selected, in conflict, and hint target (wrong digit hint) | Lemon | Red digit and red bar; frame; green brackets. Never a chip: the cell holds a digit, so it shows no ring, and a wrong digit hint names nothing to cross |
 | Conflict and hint target, not selected | Salmon | Red digit and red bar; green brackets. Never a chip, for the same reason |
 | Hint target next to the selected cell | Mint | Its brackets are drawn over the selected cell's frame on the shared edge |
@@ -299,6 +300,25 @@ Dark mode is the same with its own colors: a lifted gray selected cell, a light 
 ### 2.9 Draw order
 
 Bottom to top: board shadow and card; cell fills; cell lines; box lines; outer line; digits and rings (per candidate: the X, then the outlined digit; or the digit, then the slash; or, for a hint cross, the chip, then the outlined digit in `cell_bg`; or the plain digit); conflict bars; selection frame; hint ticks; hint brackets. Effects (section 6) draw last, through `draw_effects` on a layer above the board, so an animation never forces the whole board to redraw.
+
+### 2.10 Show candidates off
+
+Bart, 2026-10-14: a Settings switch, Show candidates, on by default, hides the candidate ring on the play screen (`BoardDrawState.show_ring` false, set through `PlayArea.set_show_candidates`). Lessons always show the ring. With it off, the board is the same board with one layer left out:
+
+- **Empty cells are plain.** Same fill by the priority of 2.6, same selection frame, same hint brackets and ticks, same lines. No small digits, no hand X, no Auto Cross slash. An empty cell shows only its fill and its marks.
+- **Digits, conflicts and helpers do not change.** Given and placed digits (2.2), the conflict bar (2.7), the same digit and peer fills all draw exactly as with the ring on.
+- **The frame is always the solid Place frame,** because the session is always in Place mode while the ring is hidden (CLAUDE.md, 2026-10-14). The broken Cross Out frame never shows.
+- **The one exception: hint cross chips.** While a hint is on screen, each candidate in `hint_crosses` that is still open (or restored by hand) is drawn in its usual ring slot (2.3), at the usual candidate font size, in the hint cross chip look of 2.7: the green chip in `hint_cross_bg`, the digit on it in `cell_bg` with its `knockout_w` outline in `hint_cross_bg`. Nothing else in that cell's ring draws. A candidate in `hint_crosses` that is already crossed, by hand or by Auto Cross, draws nothing at all (with the ring on it would draw as crossed with no chip; hidden, crossed marks never show).
+- Draw order (2.9) is unchanged, with the ring step reduced to the chips.
+
+**The chip alone in an empty cell reads well; no change.** Checked against what makes it work with the ring on:
+
+- It is still a filled shape with the digit punched out, inside the green brackets of a hint target cell (GDD 10.2 makes every cell with a candidate to cross a target), so it reads as "the hint, about this digit" and not as a stray pencil mark.
+- It sits in the digit's own slot, so a player who knows the ring finds the digit where it always is; a player who never turned the ring on still reads the digit, because it is the only shape in the cell.
+- Without neighbors it has more room, not less: the 1 px gap to a neighboring chip (2.7) is the tightest case, and that case is unchanged when two chips in a row show.
+- Colors are the pairs the checker already holds on every fill a ring sits on: `hint_cross_bg` at 3:1 against the fill, `cell_bg` at 4.5:1 on the chip. Hidden adds no fill and no pair, so the checker needs no new rule.
+
+When the hint closes, its chips go with it, instantly, and the cell is plain again. When Auto Cross crosses a chipped candidate while the hint is on screen, the chip goes at once, as it does with the ring on.
 
 ## 3. Type
 
@@ -638,7 +658,7 @@ The breakpoints, in content box dp:
 - **Header row, mirrored:** Pause at the left, next to the board; time and score centered; Hint at the right end. Hint must never sit next to the board, where a slip from a cell would buy a hint (the reason Hint moved in Phase 2). Next to the board, Pause is harmless: a slip there only pauses. Faces, guards and sizes are those of 7.5.
 - **Band:** the level sticker, `space_s` above the pad's left end, as it sits above the board when stacked.
 - **Hint panel and full board message:** they cover the side column's info zone (header row and band, down to `space_s` above the pad): the 7.6 rule in a different place. They never cover a cell. The panel is the side column's width, and its text steps down by the 7.6 rule (`ui_fit.gd` measures every hint text on every window below; side by side the longest need 12 dp, as at 320 by 568).
-- **Pad:** NumberPad does not change; it lays out in the side column's width with the 4.7 widths, including the `KEY_ASPECT_MAX` limit (never reached side by side: the side column is at most 360 and its keys at least 50.7 tall, so a key is at most 68 by 50.7, 1.34).
+- **Pad:** NumberPad does not change (with Show candidates off too, 7.5); it lays out in the side column's width with the 4.7 widths, including the `KEY_ASPECT_MAX` limit (never reached side by side: the side column is at most 360 and its keys at least 50.7 tall, so a key is at most 68 by 50.7, 1.34).
 - Touch areas stay at least 48 by 48. The pad is never narrower than at 320 by 568.
 
 #### The lesson player, side by side
@@ -651,7 +671,7 @@ The breakpoints, in content box dp:
 
 Every screen reads the same arrangement. Stacked, every screen is as in section 7. Side by side:
 
-- **Title screen:** as the main menu below, with its three buttons (196 dp) on the right; see 7.15.
+- **Title screen:** as the main menu below, with its four buttons (264 dp, the main menu's stack) on the right; see 7.15.
 - **Main menu and first launch offer:** two halves of the column `min(W, COLUMN_MAX)`, `space_xl` apart. Left: the wordmark at the top and the hero under it, filling the height left (64 to 200, 7.1). Right: the buttons (on the first launch offer, the card and its two buttons), centered vertically. At the inner top half the halves are 288 wide; the left has 352 - 66 - 48 = 238 for the hero, so it is 200; the buttons take 264 of 352.
 - **Pause menu:** two halves the same way. Left: PAUSED, the level sticker and the paused time (about 118). Right: RESUME, SETTINGS and MENU (196), centered.
 - **Completion:** two halves. Left: the starburst with SOLVED! and the level sticker, shrinking to the height. Right: the receipt, then PLAY AGAIN and MENU pinned at the bottom. When the receipt with both NEW BEST labels does not fit above the buttons, the receipt scrolls; the buttons never move.
@@ -770,6 +790,7 @@ Motion is quick and never blocks input:
 - Board effects run through `CellEffect` and `BoardPainter.draw_effects` on a layer above the board, so the board itself does not redraw every frame.
 - Undo plays the effect of the reverse action (undoing a placement plays ERASE).
 - Selection, highlights, hint cross chips, the selection frame's mode, conflicts and Auto Cross marks change instantly, with no animation.
+- Show candidates off (2.10): effects draw no ring. `PLACE` and `ERASE` play on the digit only, with no ring fade; `CROSS` and `RESTORE` (only reachable through Undo while hidden) draw nothing. Turning the switch on or off changes the board and the pad instantly; the change happens in Settings, so the player sees the result on returning.
 
 `Motion` holds these as constants. Times in ms; transition and ease are Godot `Tween` names.
 
@@ -902,6 +923,37 @@ The pad:
 - The right column, `group_gap` (20) from the digits: PLACE and CROSS OUT as two `MODE_BUTTON`s, each with its icon (pencil, crossed box) and label, the active one sunk and inverted; under them UNDO and ERASE as two `PAD_ACTION`s side by side, icon over caption. The columns line up with the digit rows.
 - The 20 dp gap leaves 12 dp between touch areas, with nothing tappable in it, between every digit and Undo, Erase or the mode buttons.
 
+**The pad with Show candidates off** (`NumberPad.set_mode_visible(false)`, 2.10). PLACE and CROSS OUT hide, and UNDO and ERASE take the whole right column, one over the other:
+
+```
+ [ 1 ][ 2 ][ 3 ]    20    [            ]
+ [ 4 ][ 5 ][ 6 ]          [ (i) UNDO    ]   right column 116, two faces
+ [ 7 ][ 8 ][ 9 ]          [            ]   each 1.5 keys + 4 tall,
+                          [ (i) ERASE   ]   gap 8 between them
+                          [            ]
+```
+
+- **Nothing else moves.** The pad's rect, the digit block, `group_gap`, the right column's x and width (`ACTION_RATIO`, `ACTION_MIN`, `ACTION_MAX`) and the narrowed pad of `KEY_ASPECT_MAX` are exactly as with the mode buttons shown. So PlayArea's height sharing (4.7), the arrangement rule and every breakpoint of 4.11, and the board size do not change with the setting.
+- **The faces.** With `k` the digit key face height and `space_s` the gap: UNDO at the top of the right column and ERASE at the bottom, each the right column's full width and `1.5 k + 0.5 space_s` tall, `space_s` apart, so together they span the three key rows exactly (`3 k + 2 space_s`). The top of UNDO lines up with the top of the 1 2 3 row and the bottom of ERASE with the bottom of the 7 8 9 row. Undo above Erase keeps the reading order of the side by side pair (Undo left, Erase right).
+- **Their content.** The same `PAD_ACTION` variation, states and disabled hatch (Undo stays disabled when GDD 7.2 says). On these wide faces the icon sits to the left of the caption on one line, as on the mode buttons (`vertical_icon_alignment` center and `icon_alignment` left, the Button defaults the mode buttons use), instead of over it. With the icon over the caption a face this tall would leave a large empty band between the two. No new theme style: `PAD_ACTION` already has `h_separation` `space_xs` and `icon_max_width` 20, and with `expand_icon` on the icon fits the face height, so it draws at 20 dp.
+- **Touch areas** are the faces grown by half the key gap, as for every key (4.4). The hidden mode buttons have no touch area; a tap where they were lands on UNDO or ERASE, which now cover that space. `control_rect_global(&"mode")` returns an empty Rect2 while hidden; lessons never hide the mode buttons, so no pointer needs it.
+- **Digit keys** always show the `PAD_KEY_PLACE` look, since the session stays in Place mode.
+
+Why this one. Leaving the two mode slots empty would put a 116 by 136 dp hole next to the digits, which reads as something failed to load. Making the digit keys wider would change the pad's proportions and the `KEY_ASPECT_MAX` rule for a setting. Two equal faces filling the column keep the pad's outline and rhythm, look deliberate, make Undo and Erase bigger targets, and need the least code: the same two buttons with new rects and one icon alignment.
+
+The arithmetic (margins are the outline 2 plus the `PAD_ACTION` padding, `space_xs` at the sides and 2 dp at the top and bottom; caption widths from 3.5):
+
+| Screen | Key face k | UNDO and ERASE face | Needs (width by height) |
+| --- | --- | --- | --- |
+| 320 by 568 | 40 | 116 by 64 | (2 + 4) x 2 + icon 20 + `space_xs` 4 + ERASE 35 = 71; (2 + 2) x 2 + the larger of icon 20 and caption 10 = 28. 71 by 28 |
+| 360 by 640 | 40 | 116 by 64 | 71 by 28 |
+| 360 by 800 (judged) | 64 | 116 by 100 | 71 by 28 |
+| 411 by 914 | 64 | 133.3 by 100 | 71 by 28 |
+| 1024 by 1366 tablet | 64 | 160 by 100 | 71 by 28 |
+| Side by side, inner bottom half (4.11) | 64 | 116 by 100 | 71 by 28 |
+
+The smallest face, 116 by 64 at 320 by 568, leaves 45 dp of width and 36 of height to spare, and its touch area is 124 by 72, well over `TOUCH_MIN`. Side by side the pad is the same NumberPad in the side column, so the same rule applies; the side column's keys are at least 49 dp wide and 40 to 64 tall, so the faces are at least 116 by 64 there too.
+
 When the puzzle completes, the board locks and the completion screen follows (6, `COMPLETE_WAVE`).
 
 ### 7.6 Hint panel
@@ -986,6 +1038,10 @@ A full screen overlay in `PAGE` that covers everything, the board included (GDD 
 │ │ SOUND                     ON [  ■] │ │ heading, caption, SWITCH
 │ └────────────────────────────────────┘ │
 │ ┌────────────────────────────────────┐ │
+│ │ SHOW CANDIDATES           ON [  ■] │ │
+│ │ One line about what it does        │ │ BODY_MUTED
+│ └────────────────────────────────────┘ │
+│ ┌────────────────────────────────────┐ │
 │ │ AUTO CROSS               OFF [■  ] │ │
 │ │ One line about what it does        │ │ BODY_MUTED
 │ └────────────────────────────────────┘ │
@@ -1000,6 +1056,8 @@ A full screen overlay in `PAGE` that covers everything, the board included (GDD 
 
 - Switches show on and off by the knob's side and the ON or OFF caption as well as by color.
 - The Auto Cross description text is the lead-game-designer's to write (one short line); the row grows to fit it.
+- **Show candidates** (Bart, 2026-10-14) is the same switch row as Auto Cross: a `CARD` row, the name in heading style, the `SWITCH` with its ON or OFF caption, and one short line in `BODY_MUTED` under it; the row grows to fit. It sits between Sound and Auto Cross, so the two ring settings are together and the one that decides whether the ring shows at all comes first. On by default. The description line is the lead-game-designer's to write; until the GDD gives one, the row is a plain 64 dp row like Sound. The Auto Cross switch stays usable when the ring is hidden, because Auto Cross keeps working out of sight. The skin cards keep drawing their ring whatever this switch says: they show the skin, not the setting.
+- With the extra row the list still fits 360 by 800 without scrolling (about 560 of 728 dp); at 320 by 568 it scrolls as before (4.9).
 - Each skin card draws a 3 by 3 corner of a board in that skin (a given, a placed digit, a ring with a hand X, the selected cell) on that skin's page color, with its display name. Selecting one switches the skin at once (`Skins.apply`).
 - RESET STATS opens a `DIALOG` with the GDD 13.2 text ("Reset all stats? This cannot be undone.") and CANCEL (`BUTTON_SECONDARY`) over RESET (`BUTTON_DANGER`), laid out like 7.4.
 - Settings opens from the main menu and from the pause menu; back returns to where it came from.
@@ -1065,7 +1123,7 @@ Every color here is a pair the checker already holds (`sticker_text` on `sticker
 
 ### 7.15 Title screen
 
-Bart, 2026-10-14: every app start opens the title screen. PLAY goes straight into a puzzle (ARCHITECTURE `App.play_now`), INFO and ABOUT open the two text screens below. Android Back on the title screen closes the app; Back on the main menu now opens the title screen.
+Bart, 2026-10-14: every app start opens the title screen. PLAY goes straight into a puzzle (ARCHITECTURE `App.play_now`), MENU opens the main menu (Bart, 2026-10-14, a fourth button under PLAY), INFO and ABOUT open the two text screens below. Android Back on the title screen closes the app; Back on the main menu now opens the title screen.
 
 ```
 ┌──────────────────────────────────────┐ safe top + 8
@@ -1079,19 +1137,20 @@ Bart, 2026-10-14: every app start opens the title screen. PLAY goes straight int
 │            └────────┘                │
 │                                      │ 24
 │ [ PLAY                             ] │ BUTTON_PRIMARY, BUTTON_TALL 56
-│ [ INFO                             ] │ BUTTON_SECONDARY, 56, gaps 12
+│ [ MENU                             ] │ BUTTON_SECONDARY, 56, gaps 12
+│ [ INFO                             ] │ BUTTON_SECONDARY, 56
 │ [ ABOUT                            ] │ BUTTON_SECONDARY, 56
 └──────────────────────────────────────┘ safe bottom - 8
 ```
 
-- **Built from the main menu's parts, nothing new.** A `HalvesBox` made exactly as the main menu makes it (`stacked_mode` FILL_FIRST, `side_gap` `space_xl`), in the screen's `ScreenColumn`. First part: the main menu's brand, the wordmark (`CELEBRATE_STICKER` holding `CELEBRATE_DISPLAY`, tilted `sticker_tilt`) over the hero (`HeroIcon`, gap `space_xl`), the same code as 7.1. Second part: the three buttons in a VBox, `space_m` apart, with room for the shadow under the last one (`UiKit.with_shadow_room`), as on the main menu.
-- **Buttons.** Full column width, `Layout.BUTTON_TALL` (56) faces, `space_m` (12) gaps: PLAY in `BUTTON_PRIMARY`, then INFO and ABOUT in `BUTTON_SECONDARY`. Labels: the source strings are "Play", "Info" and "About" in sentence case; the button role sets them in capitals at display time (3.1), so they read PLAY, INFO and ABOUT, as Bart wrote them. No icons. The stack is 3 rows of 56, 2 gaps of 12 and the 4 dp shadow: 196 dp.
+- **Built from the main menu's parts, nothing new.** A `HalvesBox` made exactly as the main menu makes it (`stacked_mode` FILL_FIRST, `side_gap` `space_xl`), in the screen's `ScreenColumn`. First part: the main menu's brand, the wordmark (`CELEBRATE_STICKER` holding `CELEBRATE_DISPLAY`, tilted `sticker_tilt`) over the hero (`HeroIcon`, gap `space_xl`), the same code as 7.1. Second part: the four buttons in a VBox, `space_m` apart, with room for the shadow under the last one (`UiKit.with_shadow_room`), as on the main menu.
+- **Buttons.** Full column width, `Layout.BUTTON_TALL` (56) faces, `space_m` (12) gaps: PLAY in `BUTTON_PRIMARY`, then MENU, INFO and ABOUT in `BUTTON_SECONDARY`, in that order. Labels: the source strings are "Play", "Menu", "Info" and "About" in sentence case; the button role sets them in capitals at display time (3.1), so they read PLAY, MENU, INFO and ABOUT, as Bart wrote them. No icons. The stack is 4 rows of 56, 3 gaps of 12 and the 4 dp shadow: 264 dp, exactly the main menu's stack with Continue (7.1), so every height rule the main menu meets, the title screen meets too.
 - PLAY is the one primary button, because it is what nearly every visit is for. It always says PLAY, with or without a puzzle in progress: the title screen shows no level or time (that stays Continue on the main menu).
 - Nothing else on the screen is tappable: no back button, no settings. Back is Android Back.
-- **Stacked heights.** The hero takes the height the wordmark (66) and the buttons (196) leave, less a `space_xl` gap above and below it (48), clamped to 64 to 200 dp and centered when it stops at 200.
-  - 360 by 800 (32 dp notch, 24 dp gesture bar): 728 inside the margins; 728 minus 66, 196 and 48 leaves 418, so the hero is 200, with 109 dp of page above and below it.
-  - 320 by 568, the same insets: 496 inside the margins; 496 minus 66, 196 and 48 leaves 186, so the hero is 186 dp. Everything fits.
-- **Side by side** (4.11): the main menu's halves. Left: the wordmark at the top and the hero under it. Right: the three buttons, centered vertically. Inner top half (674 by 352): halves 288 wide, the hero 200 (238 available), the buttons 196 of 352. At the smallest supported height, 264: the hero is 264 minus 66 and 48, 150 dp, and the buttons 196 of 264. Buttons are at least 271 dp wide at the narrowest side by side window (567 dp), so the labels have room to spare.
+- **Stacked heights.** The hero takes the height the wordmark (66) and the buttons (264) leave, less a `space_xl` gap above and below it (48), clamped to 64 to 200 dp and centered when it stops at 200.
+  - 360 by 800 (32 dp notch, 24 dp gesture bar): 728 inside the margins; 728 minus 66, 264 and 48 leaves 350, so the hero is 200, with 75 dp of page above and below it.
+  - 320 by 568, the same insets: 496 inside the margins; 496 minus 66, 264 and 48 leaves 118, so the hero is 118 dp. Everything fits.
+- **Side by side** (4.11): the main menu's halves. Left: the wordmark at the top and the hero under it. Right: the four buttons, centered vertically. Inner top half (674 by 352): halves 288 wide, the hero 200 (238 available), the buttons 264 of 352. At the smallest supported height, 264 (`CONTENT_MIN_H`, which is this very stack): the hero is 264 minus 66 and 48, 150 dp, and the buttons fill the right half exactly, 264 of 264. Buttons are at least 271 dp wide at the narrowest side by side window (567 dp), so the labels have room to spare.
 - Too small windows get the too small layer (4.11), as every screen.
 - **Motion.** No entrance animation on app start: the screen is there on the first frame after the boot background. The buttons press as every button (4.2). Info and About come in with `SCREEN_IN` and leave with `SCREEN_OUT`, as every pushed screen.
 - **Colors.** Every pair is one the main menu already uses and the checker already holds: `celebrate_text` on `celebrate_bg`, `button_primary_text` on `button_primary_bg`, `button_text` on `button_bg`, the hero's own colors on `page_bg`.

@@ -235,3 +235,18 @@ func test_scene_file_gives_a_board_view() -> void:
 	var node: Node = (load("res://scenes/board/board_view.tscn") as PackedScene).instantiate()
 	assert_true(node is BoardView)
 	node.free()
+
+
+func test_show_ring_reaches_the_state_and_redraws() -> void:
+	_build()
+	assert_true(view.draw_state().show_ring, "the ring shows by default")
+	var count: int = view._redraw_requests
+	view.show_ring = false
+	assert_true(view._redraw_requests > count, "hiding the ring redraws")
+	assert_false(view.draw_state().show_ring)
+	count = view._redraw_requests
+	view.show_ring = false
+	assert_eq(view._redraw_requests, count, "no change, no redraw")
+	view.show_ring = true
+	assert_true(view.draw_state().show_ring)
+	assert_true(view._redraw_requests > count, "showing it again redraws")

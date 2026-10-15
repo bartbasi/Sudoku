@@ -73,9 +73,20 @@ func test_attach_host_opens_the_title_screen_every_time() -> void:
 	assert_eq(app.current_screen(), AppService.TITLE)
 	var title: Control = app.current_screen_node()
 	assert_eq((title.get(&"play_button") as Button).text, "PLAY")
+	assert_eq((title.get(&"menu_button") as Button).text, "MENU")
 	assert_eq((title.get(&"info_button") as Button).text, "INFO")
 	assert_eq((title.get(&"about_button") as Button).text, "ABOUT")
 	assert_eq((title.get(&"play_button") as Button).theme_type_variation, ThemeFactory.BUTTON_PRIMARY)
+	for key: StringName in [&"menu_button", &"info_button", &"about_button"]:
+		assert_eq((title.get(key) as Button).theme_type_variation, ThemeFactory.BUTTON_SECONDARY, String(key))
+	var order: Array[Node] = []
+	for key: StringName in [&"play_button", &"menu_button", &"info_button", &"about_button"]:
+		order.append(title.get(key) as Node)
+	var parent: Node = order[0].get_parent()
+	for i: int in order.size():
+		assert_eq(order[i].get_parent(), parent, "one stack")
+		assert_eq(order[i].get_index(), i, "PLAY, MENU, INFO, ABOUT top to bottom")
+	assert_eq(parent.get_child_count(), 4, "four buttons, nothing else")
 	assert_true(title.find_child("Wordmark", true, false) != null, "the wordmark")
 	assert_true(title.find_child("Hero", true, false) != null, "the hero")
 	assert_true(title.find_child("Continue", true, false) == null, "no Continue")
@@ -244,6 +255,34 @@ func test_back_on_the_main_menu_alone_opens_the_title_screen() -> void:
 	assert_true(app.has_puzzle_in_progress(), "the puzzle stays")
 	app.play_now()
 	assert_eq(app.current_screen(), AppService.PLAY)
+	_free_all([app])
+
+
+func test_menu_opens_the_main_menu_and_changes_nothing() -> void:
+	# AT-76: MENU opens the main menu with no offer, no puzzle and no stats
+	# change; Back returns to the title screen.
+	var app: AppService = _app()
+	_attach(app)
+	(app.current_screen_node().get(&"menu_button") as Button).pressed.emit()
+	assert_eq(app.current_screen(), AppService.MAIN_MENU, "MENU opens the main menu")
+	assert_false(app.settings.first_launch_answered, "the offer stays for the first PLAY")
+	assert_false(app.has_puzzle_in_progress(), "no puzzle started")
+	assert_false((app.current_screen_node().get(&"continue_button") as Button).visible, "no Continue")
+	app.go_back()
+	assert_eq(app.current_screen(), AppService.TITLE, "Back on the main menu opens the title screen")
+	app.play_now()
+	assert_eq(app.current_screen(), AppService.FIRST_LAUNCH, "the offer shows on the PLAY after MENU")
+	app.go_back()
+	app.answer_first_launch()
+	app.start_new_puzzle(Levels.MEDIUM)
+	var elapsed: float = app.session.elapsed
+	app.goto(AppService.TITLE)
+	(app.current_screen_node().get(&"menu_button") as Button).pressed.emit()
+	assert_eq(app.current_screen(), AppService.MAIN_MENU)
+	assert_eq(app.stats.started(Levels.MEDIUM), 1, "Started unchanged")
+	assert_eq(app.session.elapsed, elapsed, "the timer unchanged")
+	app.go_back()
+	assert_eq(app.current_screen(), AppService.TITLE)
 	_free_all([app])
 
 

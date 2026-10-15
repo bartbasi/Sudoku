@@ -427,6 +427,19 @@ func set_auto_cross(on: bool) -> void:
 	settings_changed.emit()
 
 
+## Show candidates (GDD 4.5). Off with the puzzle in progress in Cross out
+## switches it to Place, which is a mode change like any other: no undo
+## step, and saved. On again leaves the mode as it is. The play screen
+## applies the setting to its PlayArea on settings_changed.
+func set_show_candidates(on: bool) -> void:
+	settings.show_candidates = on
+	_save_settings()
+	if not on and session != null and session.mode == GameSession.Mode.CROSS_OUT:
+		session.set_mode(GameSession.Mode.PLACE)
+		save_session()
+	settings_changed.emit()
+
+
 ## Clears every level's stats; the level of a puzzle in progress keeps
 ## Started at 1. Lesson progress is kept (Bart, Hard Stop 1).
 func reset_stats() -> void:

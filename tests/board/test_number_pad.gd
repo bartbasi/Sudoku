@@ -194,3 +194,122 @@ func test_undo_and_erase_stack_a_fitted_icon_over_the_caption() -> void:
 		assert_eq(button.vertical_icon_alignment, VERTICAL_ALIGNMENT_TOP, "%s icon above the caption" % node_name)
 		assert_eq(button.icon_alignment, HORIZONTAL_ALIGNMENT_CENTER, node_name)
 		assert_true(button.clip_text, node_name)
+
+
+## DESIGN_SYSTEM.md 7.5, the pad with Show candidates off: the smallest
+## UNDO and ERASE face content (icon, space_xs and ERASE beside it, inside
+## the PAD_ACTION margins) is 71 by 28.
+const HIDDEN_NEEDS: Vector2 = Vector2(71.0, 28.0)
+
+
+func _faces_now() -> Dictionary[StringName, Rect2]:
+	var faces: Dictionary[StringName, Rect2] = {}
+	for control: StringName in CONTROLS + ([&"mode", &"pad"] as Array[StringName]):
+		faces[control] = pad.control_rect_global(control)
+	return faces
+
+
+func _check_hidden_layout(content_w: float, key_h: float) -> void:
+	_build(content_w, key_h)
+	var shown: Dictionary[StringName, Rect2] = _faces_now()
+	var pad_rect: Rect2 = pad.get_global_rect()
+	pad.set_mode_visible(false)
+	var label: String = "%.0f wide, keys %.0f" % [content_w, key_h]
+	assert_eq(pad.get_global_rect(), pad_rect, "pad rect unchanged at " + label)
+	for d: int in range(1, 10):
+		var key: StringName = StringName("pad:%d" % d)
+		assert_eq(pad.control_rect_global(key), shown[key], "%s unchanged at %s" % [key, label])
+	for control: StringName in [&"mode", &"place", &"cross_out"] as Array[StringName]:
+		assert_eq(pad.control_rect_global(control), Rect2(), "%s has no face while hidden" % control)
+		assert_eq(pad.touch_rect_global(control), Rect2(), "%s has no touch area while hidden" % control)
+	var gap: float = Fx.light().space_s
+	var k: float = shown[&"pad:1"].size.y
+	var column: Rect2 = shown[&"mode"].merge(shown[&"undo"]).merge(shown[&"erase"])
+	var undo: Rect2 = pad.control_rect_global(&"undo")
+	var erase: Rect2 = pad.control_rect_global(&"erase")
+	for face: Rect2 in [undo, erase]:
+		assert_true(is_equal_approx(face.position.x, column.position.x) and is_equal_approx(face.size.x, column.size.x),
+			"full right column width at " + label)
+		assert_true(is_equal_approx(face.size.y, 1.5 * k + 0.5 * gap), "1.5 keys plus half a gap tall at " + label)
+		assert_true(face.size.x >= HIDDEN_NEEDS.x and face.size.y >= HIDDEN_NEEDS.y,
+			"face %s holds its content at %s" % [face.size, label])
+	assert_true(is_equal_approx(undo.position.y, shown[&"pad:1"].position.y), "UNDO lines up with the 1 2 3 row")
+	assert_true(is_equal_approx(erase.end.y, shown[&"pad:9"].end.y), "ERASE lines up with the 7 8 9 row")
+	assert_true(is_equal_approx(erase.position.y - undo.end.y, gap), "space_s between UNDO and ERASE")
+	var rects: Array[Rect2] = []
+	for control: StringName in CONTROLS:
+		if control == &"place" or control == &"cross_out":
+			continue
+		var touch: Rect2 = pad.touch_rect_global(control)
+		assert_true(touch.size.x >= Layout.TOUCH_MIN - 0.001 and touch.size.y >= Layout.TOUCH_MIN - 0.001,
+			"%s touch area %s at %s" % [control, touch.size, label])
+		assert_true(touch.encloses(pad.control_rect_global(control)), "%s touch area holds its face" % control)
+		assert_true(pad_rect.encloses(touch), "%s touch area inside the pad" % control)
+		for other: Rect2 in rects:
+			assert_false(touch.grow(-0.01).intersects(other), "%s overlaps another touch area at %s" % [control, label])
+		rects.append(touch)
+	pad.set_mode_visible(true)
+	assert_eq(_faces_now(), shown, "showing the mode buttons again restores every face at " + label)
+
+
+func test_hidden_mode_layout_at_320_wide() -> void:
+	_check_hidden_layout(304.0, 40.0)
+
+
+func test_hidden_mode_layout_at_360_wide() -> void:
+	_check_hidden_layout(344.0, 64.0)
+
+
+func test_hidden_mode_layout_on_a_tablet() -> void:
+	_check_hidden_layout(600.0, 64.0)
+
+
+func test_hidden_mode_buttons_hide_and_take_no_taps() -> void:
+	_build()
+	var place: Button = pad.find_child("Place", true, false) as Button
+	var cross: Button = pad.find_child("CrossOut", true, false) as Button
+	var where_place: Vector2 = _local_center(&"place")
+	var where_cross: Vector2 = _local_center(&"cross_out")
+	pad.set_undo_enabled(true)
+	pad.set_mode_visible(false)
+	assert_false(pad.is_mode_visible())
+	assert_false(place.visible)
+	assert_false(cross.visible)
+	pad.tap(where_place)
+	pad.tap(where_cross)
+	assert_eq(log, ["undo", "erase"] as Array[String], "UNDO and ERASE now cover where the mode buttons were")
+	log.clear()
+	pad.tap(_local_center(&"erase"))
+	pad.tap(_local_center(&"pad:4"))
+	assert_eq(log, ["erase", "digit 4"] as Array[String])
+	pad.set_mode_visible(true)
+	assert_true(place.visible and cross.visible)
+	log.clear()
+	pad.tap(where_cross)
+	assert_eq(log, ["mode"] as Array[String], "the mode buttons work again")
+
+
+func test_hidden_undo_and_erase_put_the_icon_left_of_the_caption() -> void:
+	_build(304.0, 40.0)
+	pad.set_mode_visible(false)
+	for node_name: String in ["Undo", "Erase"]:
+		var button: Button = pad.find_child(node_name, true, false) as Button
+		assert_eq(button.vertical_icon_alignment, VERTICAL_ALIGNMENT_CENTER, node_name)
+		assert_eq(button.icon_alignment, HORIZONTAL_ALIGNMENT_LEFT, node_name)
+		assert_eq(button.theme_type_variation, ThemeFactory.PAD_ACTION, "same variation, no new style")
+		assert_true(button.expand_icon, node_name)
+		var face: Vector2 = pad.control_rect_global(StringName(node_name.to_lower())).size
+		assert_true(button.get_combined_minimum_size().y <= face.y + 0.001, "%s content fits the face height" % node_name)
+	pad.set_mode_visible(true)
+	for node_name: String in ["Undo", "Erase"]:
+		var button: Button = pad.find_child(node_name, true, false) as Button
+		assert_eq(button.vertical_icon_alignment, VERTICAL_ALIGNMENT_TOP, "%s back to icon over caption" % node_name)
+		assert_eq(button.icon_alignment, HORIZONTAL_ALIGNMENT_CENTER, node_name)
+
+
+func test_hidden_undo_stays_disabled_until_the_session_allows() -> void:
+	_build()
+	pad.set_mode_visible(false)
+	pad.tap(_local_center(&"undo"))
+	assert_true(log.is_empty())
+	assert_true((pad.find_child("Undo", true, false) as Button).disabled)

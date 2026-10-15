@@ -1,14 +1,16 @@
 extends UiScreen
-## Settings (GDD 5.2, 13.2 and 14, DESIGN_SYSTEM.md 7.11): Sound, Auto Cross
-## with its one line, the skin picker (Pop light and Pop dark), and Reset
+## Settings (GDD 4.5, 5.2, 13.2 and 14, DESIGN_SYSTEM.md 7.11): Sound, Show
+## candidates and Auto Cross with their one line each, the skin picker (Pop light and Pop dark), and Reset
 ## Stats with its confirmation. Opens from the main menu and from the pause
 ## menu; Back returns to where it came from.
 ## Owner: ui-systems-dev.
 
+const SHOW_CANDIDATES_LINE: String = "Shows the candidate ring in empty cells. Off, every tap places a digit. Your marks stay."
 const AUTO_CROSS_LINE: String = "Crosses out ring digits the board rules out. Your marks stay."
 const RESET_TEXT: String = "Reset all stats? This cannot be undone."
 
 var sound_switch: CheckButton = null
+var show_candidates_switch: CheckButton = null
 var auto_cross_switch: CheckButton = null
 var skin_buttons: Dictionary[StringName, Button] = {}
 var reset_button: Button = null
@@ -34,6 +36,16 @@ func build() -> void:
 	sound_switch = _switch("Sound")
 	sound_switch.toggled.connect(func(on: bool) -> void: app.set_sound(on))
 	sound_card.add_child(sound_switch)
+
+	var show_card: PanelContainer = _row_card()
+	show_card.name = "ShowCandidates"
+	rows.add_child(show_card)
+	var show_box: VBoxContainer = UiKit.vbox(0.0)
+	show_card.add_child(show_box)
+	show_candidates_switch = _switch("Show candidates")
+	show_candidates_switch.toggled.connect(func(on: bool) -> void: app.set_show_candidates(on))
+	show_box.add_child(show_candidates_switch)
+	show_box.add_child(UiKit.label(ThemeFactory.BODY_MUTED, SHOW_CANDIDATES_LINE, true))
 
 	var auto_card: PanelContainer = _row_card()
 	auto_card.name = "AutoCross"
@@ -92,6 +104,7 @@ func refresh() -> void:
 	if app == null:
 		return
 	sound_switch.set_pressed_no_signal(app.settings.sound)
+	show_candidates_switch.set_pressed_no_signal(app.settings.show_candidates)
 	auto_cross_switch.set_pressed_no_signal(app.settings.auto_cross)
 	for id: StringName in skin_buttons:
 		skin_buttons[id].set_pressed_no_signal(id == app.settings.skin_id)

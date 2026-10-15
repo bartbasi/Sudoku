@@ -1,8 +1,8 @@
 extends UiScreen
 ## The title screen (GDD 15.0, DESIGN_SYSTEM.md 7.15): every app start opens
-## it. The main menu's wordmark and hero, then PLAY, INFO and ABOUT. PLAY
-## goes straight into a puzzle (App.play_now); INFO and ABOUT open their
-## screens over this one. Back here closes the app (App.go_back). Side by
+## it. The main menu's wordmark and hero, then PLAY, MENU, INFO and ABOUT.
+## PLAY goes straight into a puzzle (App.play_now); MENU opens the main menu
+## (App.goto(MAIN_MENU)); INFO and ABOUT open their screens over this one. Back here closes the app (App.go_back). Side by
 ## side (4.11) the wordmark and hero take the left half and the buttons the
 ## right half, centered, as on the main menu.
 ## Owner: ui-systems-dev.
@@ -10,6 +10,7 @@ extends UiScreen
 const MainMenu := preload("res://src/ui/main_menu.gd")
 
 var play_button: Button = null
+var menu_button: Button = null
 var info_button: Button = null
 var about_button: Button = null
 ## Wordmark and hero first, the buttons second (DESIGN_SYSTEM.md 4.11).
@@ -28,6 +29,10 @@ func build() -> void:
 	play_button.name = "Play"
 	play_button.pressed.connect(_on_play)
 	buttons.add_child(play_button)
+	menu_button = UiKit.button(ThemeFactory.BUTTON_SECONDARY, "Menu", Layout.BUTTON_TALL)
+	menu_button.name = "Menu"
+	menu_button.pressed.connect(func() -> void: _open(AppService.MAIN_MENU))
+	buttons.add_child(menu_button)
 	info_button = UiKit.button(ThemeFactory.BUTTON_SECONDARY, "Info", Layout.BUTTON_TALL)
 	info_button.name = "Info"
 	info_button.pressed.connect(func() -> void: _open(AppService.INFO))

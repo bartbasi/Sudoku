@@ -16,6 +16,11 @@ class_name NumberPad extends Control
 ## The mode buttons: tapping the one that is off emits mode_pressed; tapping
 ## the one already on does nothing, like any tap that changes nothing.
 ##
+## With Show candidates off (set_mode_visible(false), DESIGN_SYSTEM.md 7.5)
+## the mode buttons hide and have no touch area; UNDO on top and ERASE below
+## fill the right column, each 1.5 keys plus half a gap tall, icon left of
+## the caption. Nothing else moves.
+##
 ## Scene: scenes/board/number_pad.tscn. Owner: board-input-dev.
 
 signal digit_pressed(digit: int)
@@ -43,6 +48,7 @@ var skin: GameSkin = null:
 var _mode: int = GameSession.Mode.PLACE
 var _undo_enabled: bool = false
 var _locked: bool = false
+var _mode_visible: bool = true
 
 var _digits: Array[Button] = []
 var _place: Button = null
@@ -79,16 +85,13 @@ func _init() -> void:
 	_undo = _make_button("Undo", ThemeFactory.PAD_ACTION)
 	_undo.text = ThemeFactory.display_text(ThemeFactory.PAD_ACTION, "Undo")
 	_undo.icon = Icons.texture(Icons.UNDO)
-	_undo.vertical_icon_alignment = VERTICAL_ALIGNMENT_TOP
-	_undo.icon_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_undo.expand_icon = true
 	_erase = _make_button("Erase", ThemeFactory.PAD_ACTION)
 	_erase.text = ThemeFactory.display_text(ThemeFactory.PAD_ACTION, "Erase")
 	_erase.icon = Icons.texture(Icons.ERASE)
-	_erase.vertical_icon_alignment = VERTICAL_ALIGNMENT_TOP
-	_erase.icon_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_erase.expand_icon = true
 	_show_mode()
+	_align_actions()
 	_undo.disabled = true
 
 
@@ -168,6 +171,22 @@ func set_locked(locked: bool) -> void:
 	_locked = locked
 
 
+## False hides PLACE and CROSS OUT (Show candidates off); UNDO and ERASE
+## then take the whole right column. Lessons never hide them.
+func set_mode_visible(visible: bool) -> void:
+	if visible == _mode_visible:
+		return
+	_mode_visible = visible
+	_place.visible = visible
+	_cross.visible = visible
+	_align_actions()
+	_layout()
+
+
+func is_mode_visible() -> bool:
+	return _mode_visible
+
+
 func mode() -> int:
 	return _mode
 
@@ -182,7 +201,8 @@ func is_locked() -> bool:
 
 ## A control's face on screen, for lesson pointers: "mode" (both mode
 ## buttons together), "place", "cross_out", "erase", "undo", "pad:1" to
-## "pad:9", or "pad" (the digit block). An empty Rect2 for any other name.
+## "pad:9", or "pad" (the digit block). An empty Rect2 for any other name,
+## and for "mode", "place" and "cross_out" while the mode buttons are hidden.
 func control_rect_global(control: StringName) -> Rect2:
 	var local: Rect2 = _face_rect(control)
 	if not local.has_area():
@@ -239,10 +259,24 @@ func _show_mode() -> void:
 	_cross.set_pressed_no_signal(_mode == GameSession.Mode.CROSS_OUT)
 
 
+## Undo and Erase put the icon over the caption on their small faces beside
+## the mode buttons, and to the left of it, as the mode buttons do, on the
+## tall faces they get when the mode buttons hide (DESIGN_SYSTEM.md 7.5).
+func _align_actions() -> void:
+	for button: Button in [_undo, _erase]:
+		if _mode_visible:
+			button.vertical_icon_alignment = VERTICAL_ALIGNMENT_TOP
+			button.icon_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		else:
+			button.vertical_icon_alignment = VERTICAL_ALIGNMENT_CENTER
+			button.icon_alignment = HORIZONTAL_ALIGNMENT_LEFT
+
+
 ## Places every face from the pad's size (DESIGN_SYSTEM.md 4.7 widths): the
 ## three digit columns, the group gap and the right column share the width,
 ## the right column ACTION_RATIO times a key, clamped to ACTION_MIN and
-## ACTION_MAX. Three rows of keys with space_s between them.
+## ACTION_MAX. Three rows of keys with space_s between them. With the mode
+## buttons hidden, UNDO and ERASE split the right column's height instead.
 func _layout() -> void:
 	var current: GameSkin = Support.skin_for(self, skin)
 	if current == null or _place == null:
@@ -267,12 +301,16 @@ func _layout() -> void:
 		_touch[StringName("pad:%d" % (i + 1))] = face.grow(inset)
 	var right_x: float = inset + 3.0 * key_w + 2.0 * gap + current.group_gap
 	var half_w: float = maxf(0.0, (action_w - gap) * 0.5)
-	var faces: Dictionary[StringName, Rect2] = {
-		PLACE: Rect2(right_x, inset, action_w, key_h),
-		CROSS_OUT: Rect2(right_x, inset + key_h + gap, action_w, key_h),
-		UNDO: Rect2(right_x, inset + 2.0 * (key_h + gap), half_w, key_h),
-		ERASE: Rect2(right_x + half_w + gap, inset + 2.0 * (key_h + gap), half_w, key_h),
-	}
+	var faces: Dictionary[StringName, Rect2] = {}
+	if _mode_visible:
+		faces[PLACE] = Rect2(right_x, inset, action_w, key_h)
+		faces[CROSS_OUT] = Rect2(right_x, inset + key_h + gap, action_w, key_h)
+		faces[UNDO] = Rect2(right_x, inset + 2.0 * (key_h + gap), half_w, key_h)
+		faces[ERASE] = Rect2(right_x + half_w + gap, inset + 2.0 * (key_h + gap), half_w, key_h)
+	else:
+		var tall: float = 1.5 * key_h + 0.5 * gap
+		faces[UNDO] = Rect2(right_x, inset, action_w, tall)
+		faces[ERASE] = Rect2(right_x, inset + tall + gap, action_w, tall)
 	var buttons: Dictionary[StringName, Button] = {PLACE: _place, CROSS_OUT: _cross, UNDO: _undo, ERASE: _erase}
 	for control: StringName in faces:
 		_place_button(buttons[control], faces[control])

@@ -27,6 +27,15 @@ var session: GameSession = null:
 		_watch(session, true)
 		_request_redraw()
 
+## False hides every candidate ring (Show candidates off, DESIGN_SYSTEM.md
+## 2.10). Copied into BoardDrawState.show_ring; PlayArea sets it.
+var show_ring: bool = true:
+	set(value):
+		if show_ring == value:
+			return
+		show_ring = value
+		_request_redraw()
+
 ## Cells a lesson screen points at, drawn in the hint reason look.
 var lesson_marks: PackedInt32Array = PackedInt32Array():
 	set(value):
@@ -128,6 +137,7 @@ func cell_rect_global(cell: int) -> Rect2:
 func draw_state() -> BoardDrawState:
 	var state: BoardDrawState = BoardDrawState.new()
 	state.lesson_marks = lesson_marks.duplicate()
+	state.show_ring = show_ring
 	if session == null or session.board == null:
 		return state
 	var board: Board = session.board

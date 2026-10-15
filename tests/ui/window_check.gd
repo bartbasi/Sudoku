@@ -312,13 +312,13 @@ func _check_main_menu(window: Shape, with_puzzle: bool) -> void:
 	_ok(_inside(_rect(wordmark), window.safe), "%s: the wordmark inside the safe rect" % where)
 
 
-## The title screen (7.15): PLAY, INFO and ABOUT, the wordmark and hero.
+## The title screen (7.15): PLAY, MENU, INFO and ABOUT, the wordmark and hero.
 func _check_title(window: Shape) -> void:
 	_new_app(window)
 	_ok(_app.current_screen() == AppService.TITLE, "%s: the app opens on the title screen" % window.label)
 	var screen: Control = await _fit(window)
 	var where: String = "%s, title" % window.label
-	_check_buttons([screen.get(&"play_button"), screen.get(&"info_button"), screen.get(&"about_button")], window.safe, where)
+	_check_buttons([screen.get(&"play_button"), screen.get(&"menu_button"), screen.get(&"info_button"), screen.get(&"about_button")], window.safe, where)
 	_check_halves(screen.get(&"halves") as HalvesBox, window, where)
 	var wordmark: Control = screen.find_child("Wordmark", true, false) as Control
 	_ok(_inside(_rect(wordmark), window.safe), "%s: the wordmark inside the safe rect" % where)

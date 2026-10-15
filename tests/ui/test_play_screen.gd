@@ -288,6 +288,36 @@ func test_auto_cross_from_settings_reaches_the_puzzle() -> void:
 	_teardown(parts)
 
 
+func test_show_candidates_reaches_the_play_area_on_open_and_on_change() -> void:
+	# GDD 4.5, ARCHITECTURE section 11.
+	var parts: Array = _setup()
+	var app: AppService = parts[0]
+	var area: PlayArea = _screen(app).get(&"play_area")
+	assert_true(area.view.show_ring, "on by default")
+	assert_true(area.pad.is_mode_visible())
+	app.session.set_mode(GameSession.Mode.CROSS_OUT)
+	var screen: Control = _screen(app)
+	screen.call(&"show_pause")
+	(screen.get(&"pause_menu") as PauseMenu).settings_button.pressed.emit()
+	(_screen(app).get(&"show_candidates_switch") as CheckButton).button_pressed = false
+	assert_false(area.view.show_ring, "rings hidden at once")
+	assert_false(area.pad.is_mode_visible(), "mode buttons hidden")
+	assert_eq(app.session.mode, GameSession.Mode.PLACE)
+	assert_eq(area.pad.mode(), GameSession.Mode.PLACE, "the pad follows the mode")
+	app.go_back()
+	assert_eq(app.current_screen(), AppService.PLAY)
+	# A play screen opened later takes the saved setting.
+	app.goto(AppService.MAIN_MENU)
+	app.goto(AppService.PLAY)
+	var again: PlayArea = _screen(app).get(&"play_area")
+	assert_false(again.view.show_ring, "applied when the play screen opens")
+	assert_false(again.pad.is_mode_visible())
+	app.set_show_candidates(true)
+	assert_true(again.view.show_ring)
+	assert_true(again.pad.is_mode_visible())
+	_teardown(parts)
+
+
 func test_play_screen_sets_only_theme_variations() -> void:
 	var parts: Array = _setup()
 	var app: AppService = parts[0]

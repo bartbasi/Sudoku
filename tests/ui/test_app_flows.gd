@@ -269,6 +269,46 @@ func test_auto_cross_has_one_source_of_truth() -> void:
 	Fx.wipe(dir)
 
 
+func test_show_candidates_off_switches_cross_out_to_place_with_no_undo_step() -> void:
+	# AT-81 (Core), GDD 4.5, ARCHITECTURE section 11.
+	var dir: String = Fx.fresh_dir("flow_show")
+	var app: AppService = _app(dir)
+	app.start_new_puzzle(Levels.BEGINNER)
+	var session: GameSession = app.session
+	var cells: PackedInt32Array = Fx.empty_cells(session)
+	session.set_mode(GameSession.Mode.CROSS_OUT)
+	session.select(cells[0])
+	session.press_digit(3)
+	session.select(cells[1])
+	session.press_digit(5)
+	var marks: PackedByteArray = PackedByteArray(session.board.marks)
+	var emitted: Array[int] = [0]
+	app.settings_changed.connect(func() -> void: emitted[0] += 1)
+	app.set_show_candidates(false)
+	assert_eq(emitted[0], 1, "settings_changed once")
+	assert_false(app.settings.show_candidates)
+	assert_eq(session.mode, GameSession.Mode.PLACE, "Cross out switches to Place")
+	assert_eq(session.selected, cells[1], "the selection stays")
+	assert_eq(PackedByteArray(session.board.marks), marks, "no mark changes")
+	assert_eq(app.load_session_file().mode, GameSession.Mode.PLACE, "the saved puzzle is in Place")
+	var settings_file: Variant = SaveStore.read(app.path_of(AppService.SETTINGS_FILE), SaveStore.MAX_BYTES_OTHER)
+	assert_false(Settings.from_dict(settings_file).show_candidates, "the setting is saved")
+	app.set_show_candidates(true)
+	assert_true(app.settings.show_candidates)
+	assert_eq(session.mode, GameSession.Mode.PLACE, "on again does not switch back")
+	var steps: int = 0
+	while session.can_undo():
+		session.undo()
+		steps += 1
+	assert_eq(steps, 2, "the two crosses are still the whole undo history")
+	# With no puzzle in progress it only changes the setting.
+	app.abandon_puzzle()
+	app.set_show_candidates(false)
+	assert_false(app.settings.show_candidates)
+	app.free()
+	Fx.wipe(dir)
+
+
 func test_lessons_and_first_launch() -> void:
 	var dir: String = Fx.fresh_dir("flow_lessons")
 	var app: AppService = _app(dir)

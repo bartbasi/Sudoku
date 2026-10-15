@@ -105,6 +105,13 @@ func header_rect_global() -> Rect2:
 	return get_global_transform() * _header
 
 
+## Show candidates (GDD 4.5): off hides the rings and the mode buttons.
+## The play screen calls it; lessons never do, so they always show both.
+func set_show_candidates(on: bool) -> void:
+	view.show_ring = on
+	pad.set_mode_visible(on)
+
+
 ## The band below the header row: the play screen puts the level sticker
 ## there; the lesson player puts its lesson card there.
 func band_rect_global() -> Rect2:
