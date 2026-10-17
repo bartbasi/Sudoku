@@ -3,8 +3,10 @@ extends "res://tests/unit_test.gd"
 ## ARCHITECTURE section 11): every start opens the title screen; PLAY shows
 ## the lesson offer once, resumes the puzzle in progress or starts one at
 ## the last level started; Back rules; Info shows the GDD 15.5 text word for
-## word; About shows the version, the copyright line and the engine's own
-## notices. Built with an AppService that is not an autoload.
+## word; About shows the card text of GDD 15.6 in order and the engine's own
+## notices; Buy me a coffee on both screens hands exactly one address to the
+## link opener. Built with an AppService that is not an autoload, with a
+## recorder as its link opener, so no test opens a browser.
 
 const Fx := preload("res://tests/save/save_fixtures.gd")
 const InfoScreen := preload("res://src/ui/info_screen.gd")
@@ -21,8 +23,17 @@ func _app(dir: String = "") -> AppService:
 	var app: AppService = AppService.new()
 	app.save_dir = dir
 	app.use_thread = false
+	app.link_opener = _record_link
 	app.load_all()
 	return app
+
+
+## Every address handed to the link opener, in order.
+var _links: PackedStringArray = PackedStringArray()
+
+
+func _record_link(url: String) -> void:
+	_links.append(url)
 
 
 func _attach(app: AppService) -> void:
@@ -86,7 +97,18 @@ func test_attach_host_opens_the_title_screen_every_time() -> void:
 	for i: int in order.size():
 		assert_eq(order[i].get_parent(), parent, "one stack")
 		assert_eq(order[i].get_index(), i, "PLAY, MENU, INFO, ABOUT top to bottom")
-	assert_eq(parent.get_child_count(), 4, "four buttons, nothing else")
+	assert_eq(parent.get_child_count(), 4, "four big buttons, nothing else")
+	var coffee: Button = title.get(&"coffee_button") as Button
+	assert_eq(coffee.text, "BUY ME A COFFEE", "Buy me a coffee, in the button role's capitals")
+	assert_eq(coffee.theme_type_variation, ThemeFactory.BUTTON_SECONDARY)
+	assert_eq(coffee.custom_minimum_size.y, Layout.ICON_FACE, "a 40 dp face, shorter than the four")
+	var touch: Control = title.get(&"coffee_touch") as Control
+	assert_eq(touch.get(&"button"), coffee, "in a touch area")
+	assert_true(touch.get_combined_minimum_size().y >= Layout.TOUCH_MIN, "the touch area is 48 dp tall")
+	assert_eq(touch.size_flags_horizontal, Control.SIZE_SHRINK_CENTER, "only as wide as its label")
+	var block: Node = parent.get_parent()
+	assert_eq(touch.get_parent(), block.get_parent(), "stacked: in the buttons' part")
+	assert_eq(touch.get_index(), block.get_index() + 1, "right after ABOUT and its shadow room")
 	assert_true(title.find_child("Wordmark", true, false) != null, "the wordmark")
 	assert_true(title.find_child("Hero", true, false) != null, "the hero")
 	assert_true(title.find_child("Continue", true, false) == null, "no Continue")
@@ -234,6 +256,70 @@ func test_play_is_ignored_while_a_puzzle_is_being_made() -> void:
 	app.call(&"_process", 0.0)
 	assert_eq(app.current_screen(), AppService.PLAY)
 	assert_eq(app.stats.started(Levels.EASY), 1, "one tap, one puzzle")
+	_free_all([app])
+
+
+func test_the_default_link_opener_is_the_system_one() -> void:
+	var app: AppService = AppService.new()
+	assert_eq(app.link_opener, Callable(OS, &"shell_open"), "OS.shell_open unless a test swaps it")
+	assert_eq(AppService.SUPPORT_URL, "https://buymeacoffee.com/playinc")
+	app.free()
+
+
+func test_title_coffee_opens_the_support_page_once_and_changes_nothing() -> void:
+	# GDD 15.0, AT-86.
+	var app: AppService = _app()
+	_attach(app)
+	var title: Control = app.current_screen_node()
+	(title.get(&"coffee_button") as Button).pressed.emit()
+	assert_eq(_links, PackedStringArray(["https://buymeacoffee.com/playinc"]), "exactly one address, exactly this one")
+	assert_eq(app.current_screen(), AppService.TITLE, "no screen changes")
+	assert_eq(app.current_screen_node(), title)
+	assert_false(app.settings.first_launch_answered, "the offer stays for the first PLAY")
+	assert_false(app.has_puzzle_in_progress(), "no puzzle starts")
+	assert_false(app.is_generating())
+	_free_all([app])
+
+
+func test_title_coffee_with_a_puzzle_in_progress_changes_nothing() -> void:
+	var app: AppService = _app()
+	app.answer_first_launch()
+	app.start_new_puzzle(Levels.EASY)
+	app.session.add_time(120.0)
+	var session: GameSession = app.session
+	_attach(app)
+	(app.current_screen_node().get(&"coffee_button") as Button).pressed.emit()
+	assert_eq(_links.size(), 1)
+	assert_eq(app.session, session, "the same puzzle")
+	assert_eq(app.session.elapsed_seconds(), 120, "the timer unchanged")
+	assert_eq(app.stats.started(Levels.EASY), 1, "Started unchanged")
+	_free_all([app])
+
+
+func test_title_coffee_is_ignored_while_a_puzzle_is_being_made() -> void:
+	var app: AppService = _app()
+	app.answer_first_launch()
+	_attach(app)
+	app.use_thread = true
+	var title: Control = app.current_screen_node()
+	app.play_now()
+	assert_true(app.is_generating())
+	(title.get(&"coffee_button") as Button).pressed.emit()
+	(title.get(&"coffee_button") as Button).pressed.emit()
+	assert_eq(_links.size(), 0, "the opener is never called while a puzzle is made")
+	var waited: int = 0
+	while app.get(&"_thread") != null and waited < 20000:
+		OS.delay_msec(5)
+		waited += 5
+		app.call(&"_process", 0.0)
+	var overlay: Control = app.get(&"_overlay") as Control
+	if overlay != null:
+		overlay.call(&"step", Motion.MAKING_DELAY)
+		overlay.call(&"step", Motion.MAKING_MIN)
+	app.call(&"_process", 0.0)
+	assert_eq(app.current_screen(), AppService.PLAY)
+	assert_eq(app.stats.started(Levels.EASY), 1, "one puzzle")
+	assert_eq(_links.size(), 0)
 	_free_all([app])
 
 
@@ -394,10 +480,31 @@ func test_about_shows_version_copyright_and_the_engine_notices() -> void:
 	assert_eq(card_texts, PackedStringArray([
 		ThemeFactory.display_text(ThemeFactory.TITLE, "Sudoku"),
 		ThemeFactory.display_text(ThemeFactory.CAPTION, "Version " + version),
-		"Copyright 2026 Bart Basi. All rights reserved.",
+		"Designed and written by Bart Basi.",
+		"Copyright 2026 Play, Inc. All rights reserved.",
 		"Sudoku is free. It works offline, with no ads and no accounts, and it collects no data. Everything you do stays on this device.",
+		"If you enjoy it and want to support the game, you can buy me a coffee.",
+		"Questions, feedback and notices: bartbasi@gmail.com",
+		"Privacy policy: bartbasi.github.io/Sudoku/privacy",
 		"Made with the Godot Engine.",
-	]), "GDD 15.6 items 1 to 5 in order")
+	]), "GDD 15.6 items 1 to 9 in order")
+	# The button sits right after the support line, before the contact line.
+	var coffee: Button = screen.get(&"coffee_button") as Button
+	assert_eq(coffee.text, "BUY ME A COFFEE")
+	assert_eq(coffee.theme_type_variation, ThemeFactory.BUTTON_SECONDARY)
+	var order: Array[String] = []
+	for child: Node in coffee.get_parent().get_parent().get_children():
+		if child is Label:
+			order.append((child as Label).text)
+		elif child.is_ancestor_of(coffee):
+			order.append("[coffee]")
+	assert_eq(order.find("[coffee]"), order.find("If you enjoy it and want to support the game, you can buy me a coffee.") + 1, "the button under the support line")
+	assert_eq(order.find("Questions, feedback and notices: bartbasi@gmail.com"), order.find("[coffee]") + 1, "and over the contact line")
+	assert_eq(card_texts[card_texts.size() - 1], "Made with the Godot Engine.", "still the last line")
+	for text: String in card_texts:
+		assert_false(text.contains("http") or text.contains("www"), "no web link in the card: %s" % text)
+		assert_eq(text.to_lower().contains("github"), text == "Privacy policy: bartbasi.github.io/Sudoku/privacy", "github only in the privacy line")
+		assert_false(text.contains("—") or text.contains("--"), "no em dash or double hyphen")
 	assert_false(bool(screen.call(&"is_complete")), "the notice blocks wait for the frames after the first")
 	screen.call(&"build_all_notices")
 	assert_true(bool(screen.call(&"is_complete")))
@@ -415,7 +522,6 @@ func test_about_shows_version_copyright_and_the_engine_notices() -> void:
 	var licenses: Dictionary = Engine.get_license_info()
 	for key: Variant in licenses.keys():
 		assert_true(_squash(shown).contains(_squash(str(licenses[key]))), "license %s in full" % key)
-	assert_false(shown.to_lower().contains("github"), "no GitHub address")
 	var scroll: ScrollContainer = screen.get(&"scroll")
 	for label: Label in _labels(scroll):
 		assert_eq(label.autowrap_mode, TextServer.AUTOWRAP_WORD_SMART, "every label wraps")
@@ -423,6 +529,52 @@ func test_about_shows_version_copyright_and_the_engine_notices() -> void:
 		assert_eq(label.mouse_filter, Control.MOUSE_FILTER_IGNORE, "nothing is a link")
 	assert_eq(scroll.horizontal_scroll_mode, ScrollContainer.SCROLL_MODE_DISABLED, "never sideways")
 	_free_all([app])
+
+
+## Every BaseButton under node.
+func _buttons(node: Node) -> Array[BaseButton]:
+	var found: Array[BaseButton] = []
+	for child: Node in node.get_children():
+		if child is BaseButton:
+			found.append(child as BaseButton)
+		found.append_array(_buttons(child))
+	return found
+
+
+func test_about_coffee_opens_the_support_page_and_nothing_else_does() -> void:
+	# GDD 15.6, AT-78, AT-86: only Back and Buy me a coffee react to a tap.
+	var app: AppService = _app()
+	_attach(app)
+	app.goto(AppService.ABOUT)
+	var screen: Control = app.current_screen_node()
+	screen.call(&"build_all_notices")
+	var coffee: Button = screen.get(&"coffee_button") as Button
+	var back: Button = (screen.find_child("Back", true, false) as Control).get(&"button") as Button
+	var buttons: Array[BaseButton] = _buttons(screen)
+	assert_eq(buttons.size(), 2, "two buttons on the screen")
+	assert_true(buttons.has(coffee) and buttons.has(back), "Back and Buy me a coffee")
+	# Everything under the page that takes a tap is the coffee button's.
+	var scroll: ScrollContainer = screen.get(&"scroll")
+	var takers: Array[Control] = []
+	_tap_takers(scroll.get_child(0), takers)
+	for control: Control in takers:
+		assert_true(control == coffee or control == coffee.get_parent(), "%s takes no tap" % control.name)
+	assert_eq(_links.size(), 0, "building the screen opens nothing")
+	coffee.pressed.emit()
+	assert_eq(_links, PackedStringArray(["https://buymeacoffee.com/playinc"]), "exactly one address, exactly this one")
+	assert_eq(app.current_screen(), AppService.ABOUT, "the screen stays")
+	back.pressed.emit()
+	assert_eq(app.current_screen(), AppService.TITLE)
+	assert_eq(_links.size(), 1, "Back opens nothing")
+	_free_all([app])
+
+
+## Every control under node whose mouse filter is not IGNORE.
+func _tap_takers(node: Node, found: Array[Control]) -> void:
+	for child: Node in node.get_children():
+		if child is Control and (child as Control).mouse_filter != Control.MOUSE_FILTER_IGNORE:
+			found.append(child as Control)
+		_tap_takers(child, found)
 
 
 ## text with all white space removed, to compare words in order.

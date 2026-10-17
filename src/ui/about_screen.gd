@@ -1,10 +1,15 @@
 extends UiScreen
 ## The About screen (GDD 15.6, DESIGN_SYSTEM.md 7.17): a card with the name,
-## the version, the copyright line, the short paragraph and the Godot line;
-## then the open source notices, read from the engine at run time
-## (Engine.get_license_text, get_copyright_info and get_license_info), so no
-## notice text is copied into the game. Nothing here is a link and nothing
-## opens a browser or uses the network.
+## the version, the credit and copyright lines, the short paragraph, the
+## support line with the Buy me a coffee button, the contact and privacy
+## lines and the Godot line; then the open source notices, read from the
+## engine at run time (Engine.get_license_text, get_copyright_info and
+## get_license_info), so no notice text is copied into the game.
+##
+## Only Back and Buy me a coffee react to a tap. Buy me a coffee hands the
+## support page to the phone's web browser (App.open_support_page), as on
+## the title screen; the game itself sends nothing. The email and privacy
+## addresses are plain text, and nothing in the notices can be tapped.
 ##
 ## The notices are long (about 80,000 characters), so the screen builds the
 ## card and the notices heading at once and the notice labels after its
@@ -15,8 +20,13 @@ extends UiScreen
 ## Owner: ui-systems-dev.
 
 const NAME: String = "Sudoku"
-const COPYRIGHT: String = "Copyright 2026 Bart Basi. All rights reserved."
+const CREDIT: String = "Designed and written by Bart Basi."
+const COPYRIGHT: String = "Copyright 2026 Play, Inc. All rights reserved."
 const PARAGRAPH: String = "Sudoku is free. It works offline, with no ads and no accounts, and it collects no data. Everything you do stays on this device."
+const SUPPORT: String = "If you enjoy it and want to support the game, you can buy me a coffee."
+const COFFEE: String = "Buy me a coffee"
+const CONTACT: String = "Questions, feedback and notices: bartbasi@gmail.com"
+const PRIVACY: String = "Privacy policy: bartbasi.github.io/Sudoku/privacy"
 const MADE_WITH: String = "Made with the Godot Engine."
 const NOTICES_HEADING: String = "Open source notices"
 const ENGINE_CAPTION: String = "Godot Engine"
@@ -28,6 +38,8 @@ const LABELS_PER_FRAME: int = 24
 ## The scrolling page, for tests.
 var scroll: ScrollContainer = null
 var version_label: Label = null
+## The face of Buy me a coffee in the card.
+var coffee_button: Button = null
 ## The notices under the heading; labels are appended here.
 var notices: VBoxContainer = null
 
@@ -128,15 +140,38 @@ func _card(s: GameSkin) -> PanelContainer:
 	version_label = UiKit.label(ThemeFactory.CAPTION, version_line(), true)
 	version_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	inside.add_child(version_label)
-	for entry: Array in [[ThemeFactory.BODY_SMALL, COPYRIGHT], [ThemeFactory.BODY, PARAGRAPH], [ThemeFactory.BODY, MADE_WITH]]:
+	# Each entry space_s below the one above. An empty variation is the
+	# Buy me a coffee button, right under the support line.
+	var entries: Array[Array] = [[ThemeFactory.BODY_SMALL, CREDIT], [ThemeFactory.BODY_SMALL, COPYRIGHT],
+		[ThemeFactory.BODY, PARAGRAPH], [ThemeFactory.BODY, SUPPORT], [&"", COFFEE],
+		[ThemeFactory.BODY_SMALL, CONTACT], [ThemeFactory.BODY_SMALL, PRIVACY], [ThemeFactory.BODY, MADE_WITH]]
+	for entry: Array in entries:
 		var space: Control = Control.new()
 		space.custom_minimum_size.y = s.space_s
 		space.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		inside.add_child(space)
-		var line: Label = UiKit.label(entry[0], entry[1], true)
+		var variation: StringName = entry[0]
+		if variation == &"":
+			inside.add_child(_coffee())
+			continue
+		var line: Label = UiKit.label(variation, entry[1], true)
 		line.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		inside.add_child(line)
 	return card
+
+
+## Buy me a coffee as on the title screen: a 40 dp face in a 48 dp touch
+## area, only as wide as its label, at the card's left edge.
+func _coffee() -> Control:
+	var touch: UiKit.TouchTarget = UiKit.small_button(ThemeFactory.BUTTON_SECONDARY, COFFEE, Layout.ICON_FACE)
+	touch.name = "Coffee"
+	touch.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
+	coffee_button = touch.button
+	coffee_button.name = "CoffeeButton"
+	coffee_button.pressed.connect(func() -> void:
+		if app != null:
+			app.open_support_page())
+	return touch
 
 
 ## "Version " and the version in the project settings.

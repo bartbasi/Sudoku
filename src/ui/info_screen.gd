@@ -19,7 +19,8 @@ const SECTIONS: Array[Array] = [
 		"Tap PLAY to start. It brings back the puzzle you were playing, or starts a new one at the level you last started. The very first time, that is Easy.",
 	]],
 	["Getting around", [
-		"The title screen has PLAY, MENU, INFO and ABOUT. Back on the title screen closes the game. Your puzzle is saved.",
+		"The title screen has PLAY, MENU, INFO, ABOUT and Buy me a coffee. Back on the title screen closes the game. Your puzzle is saved.",
+		"Buy me a coffee opens a page in your web browser where you can support the game if you want to. It is the only thing in the game that opens anything. The game itself never uses the internet.",
 		"MENU on the title screen opens the main menu. During a puzzle, tap the Pause button, then Menu. You also get there from Menu when you finish a puzzle. The main menu has Continue (when a puzzle is in progress), New puzzle, Lessons, Stats and Settings. Back on the main menu takes you to the title screen.",
 	]],
 	["The board", [

@@ -77,3 +77,21 @@ C:/Android/Sdk/build-tools/35.0.1/aapt2 dump permissions build/sudoku-debug.apk
 
 It prints only the package line, `package: com.bartbasi.sudoku`, with no `uses-permission` lines.
 
+The "Buy me a coffee" button calls `OS.shell_open`, which hands the address to the phone's browser with a standard Android view intent. The browser does the network work, so the game itself needs no permission for it, `INTERNET` included.
+
+## Privacy
+
+The game collects nothing. It has no accounts, ads, analytics or network code, and everything it saves stays on the phone. The privacy policy is at https://bartbasi.github.io/Sudoku/privacy/.
+
+## Support
+
+The game is free. If you enjoy it, you can buy me a coffee at https://buymeacoffee.com/playinc. Never expected, always appreciated.
+
+## Contact
+
+Questions, feedback, privacy and notices: bartbasi@gmail.com
+
+## Copyright
+
+Copyright 2026 Play, Inc. All rights reserved. Designed and written by Bart Basi.
+

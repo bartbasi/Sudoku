@@ -54,6 +54,8 @@ const SCREEN_PATHS: Dictionary[StringName, String] = {
 ## go over the title screen.
 const ROOT_SCREENS: Array[StringName] = [TITLE, MAIN_MENU, PLAY, COMPLETION]
 const FIRST_LESSON_ID: String = "lesson_01"
+## The "Buy me a coffee" page, opened in the phone's web browser.
+const SUPPORT_URL: String = "https://buymeacoffee.com/playinc"
 
 const GeneratingOverlay := preload("res://src/ui/generating_overlay.gd")
 
@@ -68,6 +70,10 @@ var save_dir: String = "user://"
 ## Make puzzles and write the puzzle save on worker threads. Tests turn it
 ## off, because they run without frames; then every save is written at once.
 var use_thread: bool = true
+## Hands a web address to the system, which opens it in the browser. The
+## game itself sends nothing. Tests swap in a recorder, so no test ever
+## opens a browser.
+var link_opener: Callable = Callable(OS, &"shell_open")
 ## The Skins and Audio services. Found at /root/Skins and /root/Audio when
 ## App enters the tree, unless a test set them first.
 var skins: Node = null
@@ -616,6 +622,12 @@ func open_first_lesson() -> void:
 		goto(LESSON, lesson)
 	else:
 		goto(LESSONS)
+
+
+## Opens the "Buy me a coffee" page in the web browser (the title screen
+## and About). The only place the game opens a web address.
+func open_support_page() -> void:
+	link_opener.call(SUPPORT_URL)
 
 
 func _pop() -> void:

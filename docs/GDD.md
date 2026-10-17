@@ -2,7 +2,7 @@
 
 Owner: lead-game-designer. Approved by Bart at Hard Stop 1, 2026-10-11. Where this document disagrees with docs/BRIEF.md, the brief wins, unless Bart decided otherwise (CLAUDE.md, "Decisions from Bart after the brief").
 
-Change log: 2026-10-11, Phase 2: updated for Bart's Hard Stop 1 decisions (his answers to the three questions, the New best rule in 12.1 with AT-67, a hand-crossed digit drawn on top of its X, ring layout A, the Pop light and Pop dark skins, the screen sizes in AT-66), and corrected the example scores in section 13 and AT-53 to match the score formula. Later in Phase 2: added the Settings line for Auto Cross (5.2), and the rule that taps after a lesson step's answer are ignored until Next (15.4, AT-63). 2026-10-12, Phase 3: updated for Bart's Hard Stop 2 decisions: a givens floor for Beginner and Easy (11.4, AT-68) and the hint highlight of candidates to cross (2.3, 10.2, AT-69). 2026-10-12, Phase 6: window shapes for foldables and split screen, with Hint at the far end in side by side (2.4), the too small message and what it does to the puzzle (8, 8.1, 14), and AT-70 and AT-71. 2026-10-14: Bart's title screen. Every app start opens it, with PLAY, INFO and ABOUT (15.0); the lesson 1 offer moved from app start to the first PLAY (15.3); the main menu (15.1); the last level started is saved (14, 15.2); the exact Info screen text (15.5) and About screen text (15.6); Continue became PLAY in 7.3 and in the restart tests; AT-72 to AT-78. 2026-10-14, later: Bart's Show candidates switch (4.5), with the matching lines in 1, 2.1, 3.1, 4.2, 5.1, 7.1, 10.2, 14, 15.4, 15.5 and 16, and AT-79 to AT-85. Bart's MENU button on the title screen (1, 15.0, 15.1, 15.5 Getting around, AT-72, AT-76).
+Change log: 2026-10-11, Phase 2: updated for Bart's Hard Stop 1 decisions (his answers to the three questions, the New best rule in 12.1 with AT-67, a hand-crossed digit drawn on top of its X, ring layout A, the Pop light and Pop dark skins, the screen sizes in AT-66), and corrected the example scores in section 13 and AT-53 to match the score formula. Later in Phase 2: added the Settings line for Auto Cross (5.2), and the rule that taps after a lesson step's answer are ignored until Next (15.4, AT-63). 2026-10-12, Phase 3: updated for Bart's Hard Stop 2 decisions: a givens floor for Beginner and Easy (11.4, AT-68) and the hint highlight of candidates to cross (2.3, 10.2, AT-69). 2026-10-12, Phase 6: window shapes for foldables and split screen, with Hint at the far end in side by side (2.4), the too small message and what it does to the puzzle (8, 8.1, 14), and AT-70 and AT-71. 2026-10-14: Bart's title screen. Every app start opens it, with PLAY, INFO and ABOUT (15.0); the lesson 1 offer moved from app start to the first PLAY (15.3); the main menu (15.1); the last level started is saved (14, 15.2); the exact Info screen text (15.5) and About screen text (15.6); Continue became PLAY in 7.3 and in the restart tests; AT-72 to AT-78. 2026-10-14, later: Bart's Show candidates switch (4.5), with the matching lines in 1, 2.1, 3.1, 4.2, 5.1, 7.1, 10.2, 14, 15.4, 15.5 and 16, and AT-79 to AT-85. Bart's MENU button on the title screen (1, 15.0, 15.1, 15.5 Getting around, AT-72, AT-76). 2026-10-17: Bart's Buy me a coffee button on the title screen and the About screen, and the new About card: credit, Play, Inc. copyright, contact and privacy lines; the rule against "github" retired (1, 15.0, 15.5 Getting around, 15.6, AT-72, AT-78, AT-86).
 
 ## 1. Summary for Bart
 
@@ -52,7 +52,9 @@ Play
 - No lessons for Medium and harder techniques in v1, as Bart confirmed: v1 has lessons 1 to 5. Hints explain those techniques. [11]
 - Completion locks the board and shows level, time, and the score with its parts, plus a New best label when the result beats the level's previous best. [12]
 - Stats are exactly the brief's list. [13]
-- Every app start opens the title screen: PLAY, MENU, INFO and ABOUT (Bart, 2026-10-14). MENU opens the main menu. PLAY resumes the puzzle in progress, or starts a new one at the level of the last puzzle started (Easy the first time). Back on the main menu opens the title screen. [15.0]
+- Every app start opens the title screen: PLAY, MENU, INFO and ABOUT (Bart, 2026-10-14), then a less prominent Buy me a coffee (Bart, 2026-10-17). MENU opens the main menu. PLAY resumes the puzzle in progress, or starts a new one at the level of the last puzzle started (Easy the first time). Back on the main menu opens the title screen. [15.0]
+- Buy me a coffee, on the title screen and the About screen, hands https://buymeacoffee.com/playinc to the phone's web browser. It is the only thing in the game that opens anything outside it. The game itself never uses the network. [15.0, 15.6]
+- About (Bart, 2026-10-17): copyright is held by Play, Inc. The card credits Bart Basi as designer and writer and gives bartbasi@gmail.com for questions, feedback and notices. [15.6]
 - Starting a puzzle while one is in progress asks once for confirmation. The first PLAY offers lesson 1, once. [15]
 - In lessons Auto Cross is off and there is no timer, score or hint. Any tap that is not the step's answer, selecting another cell included, changes nothing and gets a short explanation. Once the answer is complete, other taps are ignored until Next. [15]
 
@@ -770,7 +772,7 @@ Average example: Easy completions in 300 s with 1 hint (score 160 + 116 = 276) a
 
 Bart, 2026-10-14. These are his rules, not designer decisions.
 
-- Every app start opens the title screen: the wordmark and the hero, then four buttons, top to bottom PLAY, MENU, INFO and ABOUT (MENU added by Bart later on 2026-10-14). An app start means the app was not running, whether the player closed it or Android did. Coming back from the background while the app is still running is not an app start: the player is back where they left, and during a puzzle the pause menu is showing (section 8).
+- Every app start opens the title screen: the wordmark and the hero, then five buttons, top to bottom PLAY, MENU, INFO, ABOUT and Buy me a coffee (MENU added by Bart later on 2026-10-14, Buy me a coffee on 2026-10-17). Buy me a coffee is less prominent than the other four; the design system sets its look. An app start means the app was not running, whether the player closed it or Android did. Coming back from the background while the app is still running is not an app start: the player is back where they left, and during a puzzle the pause menu is showing (section 8).
 - The title screen opens on every start, with or without a puzzle in progress and on first launch too. It has no Continue button; PLAY does that job.
 - Android Back on the title screen closes the app. Everything is already saved (section 14).
 - PLAY does the first of these that applies:
@@ -781,6 +783,10 @@ Bart, 2026-10-14. These are his rules, not designer decisions.
 - The last level started is the level of the last new puzzle the game began to make, from level select, from Play again or from PLAY itself. It is saved with the settings (section 14). Abandoning, completing, lessons and Reset Stats do not change it. If the saved value is missing or unreadable it is Easy.
 - MENU opens the main menu (15.1), unchanged. Android Back on the main menu returns to the title screen. MENU never shows the lesson 1 offer, starts or resumes a puzzle, or changes stats or the timer; the offer stays on the first PLAY (15.3).
 - INFO opens the Info screen (15.5) and ABOUT opens the About screen (15.6), each over the title screen. Back on either returns to the title screen. That means Android Back, and also the screen's own back button if the design gives it one, as other pushed screens such as Settings have.
+- Buy me a coffee (Bart, 2026-10-17) hands the address https://buymeacoffee.com/playinc to the phone's web browser, which opens it. The game sends nothing itself: it does not check the network, fetch the page or add anything to the address. Nothing else happens in the game: no screen changes, no puzzle starts or resumes, stats, settings and the puzzle in progress do not change, and the lesson 1 offer stays on the first PLAY. The browser takes the screen, so the game goes to the background as it does when the player switches apps. Coming back to the game shows the title screen, as left. If Android closed the game while it was in the background, coming back is an app start and the title screen shows anyway.
+- With no network, for example in airplane mode, the button works the same: it opens the browser, and the browser shows its own offline page. The game shows no message of its own. If the phone has no app that can open a web page, nothing happens.
+- While a puzzle is being made, a tap on any title button, Buy me a coffee included, does nothing.
+- Example: with an Easy puzzle in progress at 2:00, the player taps Buy me a coffee. The browser opens https://buymeacoffee.com/playinc. The player switches back to Sudoku: the title screen shows, and PLAY resumes the Easy puzzle at 2:00, with Easy Started unchanged.
 - The main menu is unchanged (15.1). It is reached from MENU on the title screen, and from the pause menu's Menu and the completion screen's Menu, as before. Android Back on the main menu opens the title screen. This replaces the Phase 6 rule that Back on the main menu closes the app.
 - Example, a new player: install, open the app, and the title screen shows. Tap PLAY: the lesson 1 offer shows. Tap Skip: a new Easy puzzle starts at 0:00 with a score of 200. Play two minutes, then tap Pause, then Menu: the main menu shows Continue. Press Back: the title screen. Tap PLAY: the same Easy puzzle, same cell and mode, timer at 2:00 and running.
 - Example, MENU: with an Easy puzzle in progress at 2:00, the player launches the app and taps MENU. The main menu shows Continue, New puzzle, Lessons, Stats and Settings. The player opens Stats, presses Back twice and is on the title screen again. PLAY then resumes the Easy puzzle at 2:00.
@@ -842,7 +848,9 @@ Tap PLAY to start. It brings back the puzzle you were playing, or starts a new o
 
 **Getting around** [15.0, 15.1]
 
-The title screen has PLAY, MENU, INFO and ABOUT. Back on the title screen closes the game. Your puzzle is saved.
+The title screen has PLAY, MENU, INFO, ABOUT and Buy me a coffee. Back on the title screen closes the game. Your puzzle is saved.
+
+Buy me a coffee opens a page in your web browser where you can support the game if you want to. It is the only thing in the game that opens anything. The game itself never uses the internet.
 
 MENU on the title screen opens the main menu. During a puzzle, tap the Pause button, then Menu. You also get there from Menu when you finish a puzzle. The main menu has Continue (when a puzzle is in progress), New puzzle, Lessons, Stats and Settings. Back on the main menu takes you to the title screen.
 
@@ -984,19 +992,26 @@ The About screen (ABOUT on the title screen) shows exactly this, in this order:
 
 1. The title line: "Sudoku".
 2. "Version {version}", where {version} is the app's version as the project settings give it at run time (ARCHITECTURE section 11).
-3. "Copyright 2026 Bart Basi. All rights reserved."
-4. This paragraph: "Sudoku is free. It works offline, with no ads and no accounts, and it collects no data. Everything you do stays on this device."
-5. "Made with the Godot Engine." This is the last line of the card.
-6. The heading "Open source notices", with no lead sentence under it.
-7. Under the heading, in this order:
+3. "Designed and written by Bart Basi."
+4. "Copyright 2026 Play, Inc. All rights reserved."
+5. This paragraph: "Sudoku is free. It works offline, with no ads and no accounts, and it collects no data. Everything you do stays on this device."
+6. "If you enjoy it and want to support the game, you can buy me a coffee." Then the Buy me a coffee button, which works exactly as the one on the title screen (15.0): it hands https://buymeacoffee.com/playinc to the phone's web browser.
+7. "Questions, feedback and notices: bartbasi@gmail.com"
+8. "Privacy policy: bartbasi.github.io/Sudoku/privacy"
+9. "Made with the Godot Engine." This is the last line of the card.
+10. The heading "Open source notices", with no lead sentence under it.
+11. Under the heading, in this order:
    - The caption "Godot Engine", then the Godot Engine's license.
    - The heading "Third party components", then the notices for the third party code that ships inside the engine.
    - The heading "Licenses", then the license texts those components use.
 
    The screen reads all of these notices from the engine at run time; no notice text is copied into the game's own files or this document. They are shown word for word as the engine returns them, including any web addresses inside them. The only change allowed is joining the line breaks inside a paragraph so the text wraps to the screen.
 
-- Items 1 to 5 are the game's own text (the card). The card holds no web address, and nothing anywhere on the screen contains "github" (Bart: no GitHub address until the repo is public).
-- Nothing on the screen is a link or can be tapped to open anything. Nothing on it opens a browser or uses the network.
+- Items 1 to 9 are the game's own text (the card). The email address in item 7 and the privacy address in item 8 are plain text, not links: tapping them does nothing.
+- Bart, 2026-10-17: the copyright is held by Play, Inc. The card credits Bart Basi as designer and writer, and the contact address is bartbasi@gmail.com. The repo is now public and the privacy page lives at bartbasi.github.io/Sudoku/privacy/, so the earlier rule that nothing on the screen contains "github" is retired.
+- The only things on the screen that can be tapped are Back and the Buy me a coffee button. The open source notices are unchanged and cannot be tapped, web addresses inside them included.
+- Only the Buy me a coffee button opens anything, and it opens the browser. The game itself never uses the network, and the screen works in airplane mode; the button then just opens the browser, which shows its own offline page.
+- After the browser, coming back to the game shows the About screen. If Android closed the game in the meantime, coming back is an app start and shows the title screen (15.0).
 - The text scrolls when it does not fit. Back returns to the title screen (15.0).
 
 ## 16. Acceptance tests
@@ -1353,7 +1368,7 @@ These run on a Galaxy Z Fold5, or in the editor with the window set to each size
 
 **AT-72 Title screen on every start** (App)
 - Steps: fresh install and launch. Kill the app and launch again. Start a puzzle, play a little, kill the app and launch again. Then, mid puzzle, send the app to the background without killing it and come back. Last, on the title screen, press Android Back.
-- Expected: every launch opens the title screen: the wordmark, the hero, then PLAY, MENU, INFO and ABOUT, top to bottom, with no Continue button and no lesson offer. Coming back from the background without a kill shows the puzzle with the pause menu open, not the title screen. Back on the title screen closes the app, and on the next launch the puzzle is still in progress (PLAY resumes it).
+- Expected: every launch opens the title screen: the wordmark, the hero, then PLAY, MENU, INFO, ABOUT and Buy me a coffee, top to bottom, with Buy me a coffee less prominent than the other four, no Continue button and no lesson offer. Coming back from the background without a kill shows the puzzle with the pause menu open, not the title screen. Back on the title screen closes the app, and on the next launch the puzzle is still in progress (PLAY resumes it).
 
 **AT-73 The first PLAY offers lesson 1** (App)
 - Steps: fresh install, launch, tap PLAY. Press Android Back. Tap PLAY again. Kill the app, launch, tap PLAY. Tap Skip. Note the level, score and timer. Kill the app, launch, tap PLAY. Then fresh install again, launch, tap PLAY, tap Start lesson, leave the lesson, press Back on the main menu, and tap PLAY.
@@ -1380,9 +1395,17 @@ These run on a Galaxy Z Fold5, or in the editor with the window set to each size
 - Expected: the Info screen opens over the title screen and shows the text of 15.5 word for word, with its fifteen headings in order, from How to play to Settings, and none of the bracketed section numbers. Every line can be reached by scrolling and nothing is cut off. Back returns to the title screen. The numbers match 9.1 exactly, the example gives 160 plus 50, which is 210, as in 9.3, and the skin names and lesson titles match the screens. The text has no em dash and no double hyphen.
 
 **AT-78 About screen** (Core, App)
-- Steps (App): turn on airplane mode. On the title screen tap ABOUT. Read the whole screen, scrolling to the end. Press Back.
+- Steps (App): turn on airplane mode. On the title screen tap ABOUT. Read the whole screen, scrolling to the end. Tap the email address, the privacy address, the card's other lines, and every web address in the notices. Press Back. (The Buy me a coffee button is AT-86.)
 - Steps (Core): build the About screen's text and compare it with what the engine returns at run time and with the project's version setting.
-- Expected: in order: "Sudoku"; "Version" followed by the version in the project settings; "Copyright 2026 Bart Basi. All rights reserved."; the paragraph of 15.6 word for word; "Made with the Godot Engine." as the last line of the card; the heading "Open source notices" with no sentence under it; the caption "Godot Engine" and the engine's license; the heading "Third party components" and the component notices; the heading "Licenses" and the license texts. The notices are not empty and list the third party components the engine reports. The engine's license, the component notices and the license texts match what the engine returns word for word, including their own web addresses; the only difference allowed is that line breaks inside a paragraph are joined. The card (from "Sudoku" to "Made with the Godot Engine.") contains no "http" and no "www". Nothing on the whole screen contains "github" (in any letter case). Tapping anywhere on the screen, including on every web address in the notices, opens nothing and does nothing. The screen works in airplane mode. Back returns to the title screen. A search of the repo for the first line of the engine's license text, as the screen shows it, finds nothing.
+- Expected: in order: "Sudoku"; "Version" followed by the version in the project settings; "Designed and written by Bart Basi."; "Copyright 2026 Play, Inc. All rights reserved."; the paragraph of 15.6 word for word; "If you enjoy it and want to support the game, you can buy me a coffee." followed by the Buy me a coffee button; "Questions, feedback and notices: bartbasi@gmail.com"; "Privacy policy: bartbasi.github.io/Sudoku/privacy"; "Made with the Godot Engine." as the last line of the card; the heading "Open source notices" with no sentence under it; the caption "Godot Engine" and the engine's license; the heading "Third party components" and the component notices; the heading "Licenses" and the license texts. The notices are not empty and list the third party components the engine reports. The engine's license, the component notices and the license texts match what the engine returns word for word, including their own web addresses; the only difference allowed is that line breaks inside a paragraph are joined. The card (from "Sudoku" to "Made with the Godot Engine.") contains no "http" and no "www", and the coffee address is not shown as text. The email and privacy addresses are plain text: tapping them, any other line of the card, or anywhere in the notices, including on every web address there, opens nothing and does nothing. The only things that react to a tap are Back and the Buy me a coffee button. The screen works in airplane mode. Back returns to the title screen. A search of the repo for the first line of the engine's license text, as the screen shows it, finds nothing.
+
+**AT-86 Buy me a coffee** (App)
+- Steps, part 1: fresh install. Tap MENU, New puzzle, Easy, so the lesson offer is not yet answered. Select a cell, switch to Cross Out and play until the timer shows 2:00. Go to the title screen (Pause, Menu, Back). Note Easy Started. With the phone online and `adb logcat` running, tap Buy me a coffee. Read the browser's address bar and the intent line in the log. Switch back to Sudoku with the recent apps button. Then tap ABOUT, scroll to the button, tap it, and switch back to Sudoku the same way. Press Back, then tap PLAY.
+- Expected, part 1: each tap opens the phone's web browser on exactly https://buymeacoffee.com/playinc, with nothing added to the address, and the log shows one view intent with that address per tap. Nothing else happens in the game. Switching back shows the title screen the first time and the About screen the second time, as left, with no dialog and no lesson offer. PLAY then shows the lesson 1 offer, so the coffee taps did not answer it. After Skip, the Easy puzzle is as left: every digit and mark, the same cell selected, Cross Out on, the timer running on from 2:00 and never counting the time in the browser. Easy Started is unchanged, and Settings and Stats are as before.
+- Steps, part 2: turn on airplane mode. Tap Buy me a coffee on the title screen, switch back, then tap it on the About screen and switch back.
+- Expected, part 2: each tap opens the browser, which shows its own offline page. The game shows no message and no error, and switching back shows the screen as left.
+- Steps, part 3: with no puzzle in progress, on the title screen tap PLAY and at once tap Buy me a coffee, several times, while the making a puzzle card shows.
+- Expected, part 3: the browser does not open. The new puzzle starts as AT-75 describes, and its level's Started goes up by exactly 1.
 
 ### Show candidates
 

@@ -1,6 +1,6 @@
 # Sudoku: Design System
 
-Owner: senior-graphic-designer. Status: Phase 2, 2026-10-11; Phase 3 addition 2026-10-12, the hint cross chip (Bart, Hard Stop 2; sections 1, 2.7 to 2.9); 2026-10-12, the SUDOKU wordmark and the icon placeholder (sections 7.1, 7.2 and 9); 2026-10-12, the final app icon, Ring, made bolder (sections 7.1 and 9); 2026-10-12, number pad labels fit their faces down to 320 by 568 dp (sections 3.2, 3.5, 4.6, 5 and 10); 2026-10-12, Phase 4: the header row, Continue and the hint panel fit their design, the making a puzzle wait, the lesson card's wrong tap tag and height, and which sizes are Layout constants (sections 1, 3.2, 3.6, 4.6, 4.8, 5, 6, 7 and 10); 2026-10-12, Phase 6: window shapes for foldables and split screen, side by side and too small (sections 4.7, 4.8, 4.9, 4.11, 7.6 and 10); 2026-10-14, the title screen, Info and About (Bart, title screen; sections 4.6, 4.9, 4.11, 7.15 to 7.17). This is the contract the artists and developers build Phase 3 from. If something you need is missing or would force a guess, ask the senior-graphic-designer through the Development Manager; do not invent a value locally.
+Owner: senior-graphic-designer. Status: Phase 2, 2026-10-11; Phase 3 addition 2026-10-12, the hint cross chip (Bart, Hard Stop 2; sections 1, 2.7 to 2.9); 2026-10-12, the SUDOKU wordmark and the icon placeholder (sections 7.1, 7.2 and 9); 2026-10-12, the final app icon, Ring, made bolder (sections 7.1 and 9); 2026-10-12, number pad labels fit their faces down to 320 by 568 dp (sections 3.2, 3.5, 4.6, 5 and 10); 2026-10-12, Phase 4: the header row, Continue and the hint panel fit their design, the making a puzzle wait, the lesson card's wrong tap tag and height, and which sizes are Layout constants (sections 1, 3.2, 3.6, 4.6, 4.8, 5, 6, 7 and 10); 2026-10-12, Phase 6: window shapes for foldables and split screen, side by side and too small (sections 4.7, 4.8, 4.9, 4.11, 7.6 and 10); 2026-10-14, the title screen, Info and About (Bart, title screen; sections 4.6, 4.9, 4.11, 7.15 to 7.17); 2026-10-17, Buy me a coffee on the title screen and the About card, and the new About card (Bart; sections 4.4, 4.6, 4.11, 7.15 and 7.17). This is the contract the artists and developers build Phase 3 from. If something you need is missing or would force a guess, ask the senior-graphic-designer through the Development Manager; do not invent a value locally.
 
 Bart's Hard Stop 1 decisions behind it: direction Pop, with the Phase 2 fixes from [design/ranking.md](design/ranking.md); v1 ships two skins, Pop light (the default) and Pop dark; candidate ring layout A, reading rows; Godot's built-in font, no font files; a digit crossed by hand is drawn on top of its X with a thin outline; the game fits and works at 320 by 568 dp and readability is judged at 360 dp wide; an app icon whose background follows Pop's palette; "New best time" and "New best score" on the completion screen. The game is called Sudoku for now, a placeholder name Bart may change. The app icon is Ring (section 9).
 
@@ -488,7 +488,7 @@ The scale is `space_xs` 4, `space_s` 8, `space_m` 12, `space_l` 16 and `space_xl
 ### 4.4 Touch targets
 
 - Everything the player taps has a touch area of at least 48 by 48 dp. The face may be smaller; its touch area then extends into the gaps around it and over its own shadow, never into another control's touch area.
-- Keys: faces at least 40 dp tall, with 8 dp gaps, so each touch area is at least 48 dp. Icon buttons (Pause, back, close): 40 dp faces, 48 dp touch areas.
+- Keys: faces at least 40 dp tall, with 8 dp gaps, so each touch area is at least 48 dp. Icon buttons (Pause, back, close) and the small Buy me a coffee button (7.15): 40 dp faces, 48 dp touch areas.
 - Cells are not held to 48 dp (they are 27 to 66 dp); the board's 81 cells are the one deliberate exception, as on every Sudoku.
 
 ### 4.5 Safe areas
@@ -516,7 +516,7 @@ The same in every skin, so not skin tokens. They are the constants of the `Layou
 | `KEY_ASPECT_MAX` | 1.6 | A digit key's face is never wider than this many times its height; the pad narrows and centers instead (4.7) |
 | `COLUMN_MAX` | 600 | Widest content column, centered, on tablets |
 | `HINT_FACE_W` | 64 | Width of the Hint button's face |
-| `ICON_FACE` | 40 | Face of every icon button (Pause, back, close on screens) and height of the header faces (Hint, time, score); its touch area is `TOUCH_MIN` |
+| `ICON_FACE` | 40 | Face of every icon button (Pause, back, close on screens), height of the header faces (Hint, time, score) and of the Buy me a coffee face (7.15); its touch area is `TOUCH_MIN` |
 | `CLOSE_FACE` | 32 | Face of the close button on the hint panel and the lesson card; touch area `TOUCH_MIN` |
 | `BUTTON_TALL` | 56 | Face height of full width buttons: title screen, main menu, pause menu, completion, the first launch offer, the lesson NEXT button |
 | `TIME_MIN_W` | 80 | Narrowest time block (it grows to fit 1:02:05) |
@@ -671,7 +671,7 @@ The breakpoints, in content box dp:
 
 Every screen reads the same arrangement. Stacked, every screen is as in section 7. Side by side:
 
-- **Title screen:** as the main menu below, with its four buttons (264 dp, the main menu's stack) on the right; see 7.15.
+- **Title screen:** as the main menu below, with its four tall buttons (264 dp, the main menu's stack) on the right. They fill the right half at the smallest height, so the small Buy me a coffee button moves to the bottom of the left half, under the hero; see 7.15.
 - **Main menu and first launch offer:** two halves of the column `min(W, COLUMN_MAX)`, `space_xl` apart. Left: the wordmark at the top and the hero under it, filling the height left (64 to 200, 7.1). Right: the buttons (on the first launch offer, the card and its two buttons), centered vertically. At the inner top half the halves are 288 wide; the left has 352 - 66 - 48 = 238 for the hero, so it is 200; the buttons take 264 of 352.
 - **Pause menu:** two halves the same way. Left: PAUSED, the level sticker and the paused time (about 118). Right: RESUME, SETTINGS and MENU (196), centered.
 - **Completion:** two halves. Left: the starburst with SOLVED! and the level sticker, shrinking to the height. Right: the receipt, then PLAY AGAIN and MENU pinned at the bottom. When the receipt with both NEW BEST labels does not fit above the buttons, the receipt scrolls; the buttons never move.
@@ -1123,7 +1123,7 @@ Every color here is a pair the checker already holds (`sticker_text` on `sticker
 
 ### 7.15 Title screen
 
-Bart, 2026-10-14: every app start opens the title screen. PLAY goes straight into a puzzle (ARCHITECTURE `App.play_now`), MENU opens the main menu (Bart, 2026-10-14, a fourth button under PLAY), INFO and ABOUT open the two text screens below. Android Back on the title screen closes the app; Back on the main menu now opens the title screen.
+Bart, 2026-10-14: every app start opens the title screen. PLAY goes straight into a puzzle (ARCHITECTURE `App.play_now`), MENU opens the main menu (Bart, 2026-10-14, a fourth button under PLAY), INFO and ABOUT open the two text screens below. Android Back on the title screen closes the app; Back on the main menu now opens the title screen. Bart, 2026-10-17: a fifth button, Buy me a coffee, after ABOUT and less prominent than the other four, opens https://buymeacoffee.com/playinc in the phone's browser (`OS.shell_open`; the game itself still sends nothing, GDD 15.0).
 
 ```
 ┌──────────────────────────────────────┐ safe top + 8
@@ -1131,29 +1131,33 @@ Bart, 2026-10-14: every app start opens the title screen. PLAY goes straight int
 │         ╔══════════════╗             │ SUDOKU: the main menu's wordmark
 │         ║   SUDOKU     ║             │ (7.1), unchanged
 │         ╚══════════════╝             │
-│                                      │ 24
+│                                      │ 16 (the main menu has 24)
 │            ┌────────┐                │ hero: the main menu's hero (7.1),
 │            │  icon  │                │ 64 to 200 square, centered
 │            └────────┘                │
-│                                      │ 24
+│                                      │ 16
 │ [ PLAY                             ] │ BUTTON_PRIMARY, BUTTON_TALL 56
 │ [ MENU                             ] │ BUTTON_SECONDARY, 56, gaps 12
 │ [ INFO                             ] │ BUTTON_SECONDARY, 56
 │ [ ABOUT                            ] │ BUTTON_SECONDARY, 56
-└──────────────────────────────────────┘ safe bottom - 8
+│                                      │ 8 between faces
+│         [ BUY ME A COFFEE ]          │ BUTTON_SECONDARY, 40 face, 48 touch,
+└──────────────────────────────────────┘ as wide as its label; safe bottom - 8
 ```
 
-- **Built from the main menu's parts, nothing new.** A `HalvesBox` made exactly as the main menu makes it (`stacked_mode` FILL_FIRST, `side_gap` `space_xl`), in the screen's `ScreenColumn`. First part: the main menu's brand, the wordmark (`CELEBRATE_STICKER` holding `CELEBRATE_DISPLAY`, tilted `sticker_tilt`) over the hero (`HeroIcon`, gap `space_xl`), the same code as 7.1. Second part: the four buttons in a VBox, `space_m` apart, with room for the shadow under the last one (`UiKit.with_shadow_room`), as on the main menu.
-- **Buttons.** Full column width, `Layout.BUTTON_TALL` (56) faces, `space_m` (12) gaps: PLAY in `BUTTON_PRIMARY`, then MENU, INFO and ABOUT in `BUTTON_SECONDARY`, in that order. Labels: the source strings are "Play", "Menu", "Info" and "About" in sentence case; the button role sets them in capitals at display time (3.1), so they read PLAY, MENU, INFO and ABOUT, as Bart wrote them. No icons. The stack is 4 rows of 56, 3 gaps of 12 and the 4 dp shadow: 264 dp, exactly the main menu's stack with Continue (7.1), so every height rule the main menu meets, the title screen meets too.
+- **Built from the main menu's parts, nothing new.** A `HalvesBox` made exactly as the main menu makes it (`stacked_mode` FILL_FIRST, `side_gap` `space_xl`), in the screen's `ScreenColumn`. First part: the main menu's brand, the wordmark (`CELEBRATE_STICKER` holding `CELEBRATE_DISPLAY`, tilted `sticker_tilt`) over the hero (`HeroIcon`), the same code as 7.1, with one change: on the title screen the hero's gap above and below is `space_l` (16), not `space_xl` (24), to make room for the fifth button. The main menu keeps `space_xl`. Second part, centered vertically: the four tall buttons in a VBox, `space_m` apart, with room for the shadow under the last one (`UiKit.with_shadow_room`), as on the main menu; then Buy me a coffee right under that shadow room.
+- **The four tall buttons.** Full column width, `Layout.BUTTON_TALL` (56) faces, `space_m` (12) gaps: PLAY in `BUTTON_PRIMARY`, then MENU, INFO and ABOUT in `BUTTON_SECONDARY`, in that order. Labels: the source strings are "Play", "Menu", "Info" and "About" in sentence case; the button role sets them in capitals at display time (3.1), so they read PLAY, MENU, INFO and ABOUT, as Bart wrote them. No icons. The stack is 4 rows of 56, 3 gaps of 12 and the 4 dp shadow: 264 dp, exactly the main menu's stack with Continue (7.1).
+- **Buy me a coffee.** `UiKit.small_button(BUTTON_SECONDARY, "Buy me a coffee", Layout.ICON_FACE)`: a 40 dp face, only as wide as its label (about 165 dp), centered in a 48 dp touch area (4.4) and centered under the stack. The source string is in sentence case; the button role sets it in capitals, BUY ME A COFFEE. It reads as less prominent than the four above by size alone: a shorter face and a face that does not fill the column, in the same style and colors. Its touch area starts right under ABOUT's 4 dp shadow room, so there are 8 dp between ABOUT's face and its face, and its own shadow sits in the 4 dp under its face. No icon. Tapping it opens the browser and nothing else (GDD 15.0); while a puzzle is being made, it does nothing, like every title button.
 - PLAY is the one primary button, because it is what nearly every visit is for. It always says PLAY, with or without a puzzle in progress: the title screen shows no level or time (that stays Continue on the main menu).
 - Nothing else on the screen is tappable: no back button, no settings. Back is Android Back.
-- **Stacked heights.** The hero takes the height the wordmark (66) and the buttons (264) leave, less a `space_xl` gap above and below it (48), clamped to 64 to 200 dp and centered when it stops at 200.
-  - 360 by 800 (32 dp notch, 24 dp gesture bar): 728 inside the margins; 728 minus 66, 264 and 48 leaves 350, so the hero is 200, with 75 dp of page above and below it.
-  - 320 by 568, the same insets: 496 inside the margins; 496 minus 66, 264 and 48 leaves 118, so the hero is 118 dp. Everything fits.
-- **Side by side** (4.11): the main menu's halves. Left: the wordmark at the top and the hero under it. Right: the four buttons, centered vertically. Inner top half (674 by 352): halves 288 wide, the hero 200 (238 available), the buttons 264 of 352. At the smallest supported height, 264 (`CONTENT_MIN_H`, which is this very stack): the hero is 264 minus 66 and 48, 150 dp, and the buttons fill the right half exactly, 264 of 264. Buttons are at least 271 dp wide at the narrowest side by side window (567 dp), so the labels have room to spare.
+- **Stacked heights.** The buttons take 264 plus the 48 dp coffee touch area, 312. The hero takes the height the wordmark (66) and the buttons leave, less a `space_l` gap above and below it (32), clamped to 64 to 200 dp and centered when it stops at 200.
+  - 360 by 800 (32 dp notch, 24 dp gesture bar): 728 inside the margins; 728 minus 66, 312 and 32 leaves 318, so the hero is 200, with 59 dp of page above and below it.
+  - 320 by 568, the same insets: 496 inside the margins; 496 minus 66, 312 and 32 leaves 86, so the hero is 86 dp.
+  - The smallest stacked window, 320 by 507 plus its insets (content box 491, 4.11): 491 minus 66, 312 and 32 leaves 81, above the 64 dp minimum. With the main menu's `space_xl` it would have been 65, too close to the floor; that is why the title screen uses `space_l`.
+- **Side by side** (4.11): the main menu's halves. Right: the four tall buttons, centered vertically. Left: the wordmark at the top, the hero under it, and Buy me a coffee at the bottom of the left half, centered under the hero. It moves there because at the smallest supported height, 264 (`CONTENT_MIN_H`, which is the four button stack), the four tall buttons fill the right half exactly and leave no room for it. The screen moves the button between the halves when the arrangement changes. Left half at 264: 66 for the wordmark, 32 of gaps and 48 for the coffee button leave a 118 dp hero. Inner top half (674 by 352): halves 288 wide, the hero 200 (206 available), the buttons 264 of 352. Halves are at least 271 dp wide at the narrowest side by side window (567 dp), so every label, the coffee label included, has room to spare.
 - Too small windows get the too small layer (4.11), as every screen.
-- **Motion.** No entrance animation on app start: the screen is there on the first frame after the boot background. The buttons press as every button (4.2). Info and About come in with `SCREEN_IN` and leave with `SCREEN_OUT`, as every pushed screen.
-- **Colors.** Every pair is one the main menu already uses and the checker already holds: `celebrate_text` on `celebrate_bg`, `button_primary_text` on `button_primary_bg`, `button_text` on `button_bg`, the hero's own colors on `page_bg`.
+- **Motion.** No entrance animation on app start: the screen is there on the first frame after the boot background. The buttons press as every button (4.2), Buy me a coffee included. Info and About come in with `SCREEN_IN` and leave with `SCREEN_OUT`, as every pushed screen. Leaving for the browser has no animation of its own: the browser takes the screen.
+- **Colors.** Every pair is one the main menu already uses and the checker already holds: `celebrate_text` on `celebrate_bg`, `button_primary_text` on `button_primary_bg`, `button_text` on `button_bg` (Buy me a coffee too), the hero's own colors on `page_bg`.
 
 ### 7.16 Info
 
@@ -1188,24 +1192,40 @@ A text screen that explains the game: scoring, the time bonus, hints and their c
 
 ### 7.17 About
 
-The game name and version, Bart's copyright line, a short paragraph (free, offline, collects nothing), then the open source notices for Godot and what it ships, read from the engine at run time (ARCHITECTURE: `Engine.get_license_text()`, `Engine.get_copyright_info()`, `Engine.get_license_info()`; no notice text is copied into the repo). The words other than the engine's are the lead-game-designer's (GDD); the copyright line is Bart's, exactly: "Copyright 2026 Bart Basi. All rights reserved."
+A card with the game name and version, the credit, the copyright line, a short paragraph (free, offline, collects nothing), the support line with Buy me a coffee, the contact and privacy lines and the Godot line; then the open source notices for Godot and what it ships, read from the engine at run time (ARCHITECTURE: `Engine.get_license_text()`, `Engine.get_copyright_info()`, `Engine.get_license_info()`; no notice text is copied into the repo). The words other than the engine's are the lead-game-designer's (GDD 15.6). Bart, 2026-10-17: the copyright line is exactly "Copyright 2026 Play, Inc. All rights reserved." and the credit is "Designed and written by Bart Basi." (this replaces the 2026-10-14 line). The repo is public, so the old rule that nothing on the screen says "github" is retired.
 
 ```
 │ [<]  ABOUT                             │ title row 48, as Stats
 │                                        │ 8
 │ ┌────────────────────────────────────┐ │ CARD
 │ │ SUDOKU                             │ │ TITLE
+│ │                                    │ │ 8
 │ │ VERSION 1.0                        │ │ CAPTION
 │ │                                    │ │ 8
-│ │ Copyright 2026 Bart Basi. All      │ │ BODY_SMALL
+│ │ Designed and written by Bart Basi. │ │ BODY_SMALL
+│ │                                    │ │ 8
+│ │ Copyright 2026 Play, Inc. All      │ │ BODY_SMALL
 │ │ rights reserved.                   │ │
 │ │                                    │ │ 8
-│ │ Sudoku is free and works offline.  │ │ BODY
-│ │ It collects nothing.               │ │
+│ │ Sudoku is free. It works offline,  │ │ BODY
+│ │ with no ads and no accounts...     │ │
+│ │                                    │ │ 8
+│ │ If you enjoy it and want to        │ │ BODY
+│ │ support the game, you can buy me   │ │
+│ │ a coffee.                          │ │
+│ │                                    │ │ 8
+│ │ [ BUY ME A COFFEE ]                │ │ the title screen's small button,
+│ │                                    │ │ left aligned; 48 touch, 8
+│ │ Questions, feedback and notices:   │ │ BODY_SMALL
+│ │ bartbasi@gmail.com                 │ │
+│ │                                    │ │ 8
+│ │ Privacy policy:                    │ │ BODY_SMALL
+│ │ bartbasi.github.io/Sudoku/privacy  │ │
+│ │                                    │ │ 8
+│ │ Made with the Godot Engine.        │ │ BODY
 │ └────────────────────────────────────┘ │
 │                                        │ 24
 │ OPEN SOURCE NOTICES                    │ HEADING, on the page
-│ This game is made with Godot...        │ BODY_SMALL
 │                                        │ 24
 │ GODOT ENGINE                           │ CAPTION
 │ Copyright (c) 2014-present Godot       │ BODY_SMALL_12, the MIT text
@@ -1224,9 +1244,21 @@ The game name and version, Bart's copyright line, a short paragraph (free, offli
 ```
 
 - **Title row:** as Info, `UiKit.title_row("About", space_s, back)`, reading ABOUT. Back returns to the title screen. Under it, `space_s` below, the same `ScrollContainer` as Info (horizontal scrolling disabled) holding one VBox.
-- **The card** (`CARD`, full list width, shadow room under it as on Info): the name "Sudoku" in `TITLE` (capitals: SUDOKU); under it, with no gap, "Version 1.0" in `CAPTION`, the version from `ProjectSettings` `application/config/version`; then `space_s` and the copyright line in `BODY_SMALL`; then `space_s` and the short paragraph in `BODY`. All wrap.
+- **The card** (`CARD`, full list width, shadow room under it as on Info) holds ten items, each `space_s` below the one above, in this order and style:
+  1. "Sudoku" in `TITLE` (capitals: SUDOKU).
+  2. "Version 1.0" in `CAPTION`, the version from `ProjectSettings` `application/config/version`.
+  3. "Designed and written by Bart Basi." in `BODY_SMALL`.
+  4. "Copyright 2026 Play, Inc. All rights reserved." in `BODY_SMALL`.
+  5. The short paragraph in `BODY`.
+  6. "If you enjoy it and want to support the game, you can buy me a coffee." in `BODY`.
+  7. The Buy me a coffee button, the same small button as on the title screen (7.15: `BUTTON_SECONDARY`, a 40 dp face only as wide as its label, in a 48 dp touch area), left aligned in the card. Its touch area is the item, so its face sits 4 dp further in at the top and bottom than the `space_s` gap alone.
+  8. "Questions, feedback and notices: bartbasi@gmail.com" in `BODY_SMALL`.
+  9. "Privacy policy: bartbasi.github.io/Sudoku/privacy" in `BODY_SMALL`.
+  10. "Made with the Godot Engine." in `BODY`, the last line of the card.
+
+  Every text item wraps. The email and privacy addresses are plain text in the same style as their line, not links: no underline, no link color, nothing happens on a tap. On the whole screen only Back and Buy me a coffee take taps. `BODY` (14 dp) carries the sentences a player reads; `BODY_SMALL` (13 dp) carries the credit, copyright and contact lines, so the two groups differ by size, not by color.
 - **The notices** sit on the page under the card, not in a card: they are far too long for one, and a card thousands of dp tall reads as a wall. Their labels line up with the card's face: the same left edge, and the list width less `shadow_offset` at the right. Top to bottom, `space_xl` under the card:
-  1. "Open source notices" in `HEADING`, then `space_xs` and a one or two sentence lead in `BODY_SMALL` (GDD words).
+  1. "Open source notices" in `HEADING`, with no lead sentence under it (GDD 15.6).
   2. `space_xl`, then "Godot Engine" in `CAPTION`, `space_xs`, and `Engine.get_license_text()` in `BODY_SMALL_12`.
   3. A `RULE` with `space_xl` above and below, then a heading in `HEADING` for the component list (GDD words, for example "Third party components"). Then, for each entry of `Engine.get_copyright_info()` in the engine's order, `space_m` above it: its name in `CAPTION`, `space_xs`, then for each of its parts, in `BODY_SMALL_12`, one line per copyright holder, "Copyright " followed by the engine's string, and a last line "License: " followed by the license name. The parts' file lists are left out: they are source paths, meaningless to a player, and the copyright and license lines carry the notice.
   4. A `RULE` the same way, a heading in `HEADING` for the license texts (GDD words, for example "Licenses"), then for each entry of `Engine.get_license_info()`, `space_m` above it: the license name in `CAPTION`, `space_xs`, and its full text in `BODY_SMALL_12`.
@@ -1238,7 +1270,7 @@ The game name and version, Bart's copyright line, a short paragraph (free, offli
   - The card and the notices heading are built with the screen; the notice blocks are built after the screen's first frame, a few at a time over the following frames, appended at the bottom. The screen slides in (`SCREEN_IN`) without a dropped frame, and Back works at once. Nobody reaches the bottom before the list is complete.
 - It opens at the top each time.
 - **Side by side** (4.11): no change, as Info.
-- **Colors:** `text` and `text_muted` on `page_bg` (both held by the checker; `text_muted` on `page_bg` is already used by the SKIN caption on Settings), `text` on `surface_bg` inside the card, `outline` for the rules.
+- **Colors:** `text` and `text_muted` on `page_bg` (both held by the checker; `text_muted` on `page_bg` is already used by the SKIN caption on Settings), `text` and `text_muted` on `surface_bg` inside the card, `button_text` on `button_bg` for Buy me a coffee (as on the title screen), `outline` for the rules.
 
 **Styles for 7.15 to 7.17.** All exist today; no new theme style is needed: `CELEBRATE_STICKER`, `CELEBRATE_DISPLAY`, `BUTTON_PRIMARY`, `BUTTON_SECONDARY`, `ICON_BUTTON` (inside `UiKit.title_row`), `TITLE`, `HEADING`, `BODY`, `BODY_SMALL`, `BODY_SMALL_12`, `CAPTION`, `CARD`, `RULE`, `PAGE`. Layout constants: `BUTTON_TALL`, `HEADER_ROW`, `ICON_FACE`, `TOUCH_MIN`, `COLUMN_MAX`. The scroll bar is the one the other lists use today.
 

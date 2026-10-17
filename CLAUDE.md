@@ -6,7 +6,7 @@ Sudoku (working name in older docs: bartssudoku; Bart may choose a final name la
 
 - Godot 4.7.2 stable, Compatibility renderer. GDScript, statically typed (untyped declarations are compile errors in this project). No C#, no GDExtension.
 - v1 is Android, portrait only. Develop and iterate in the editor on Windows.
-- Repo: github.com/bartbasi/Sudoku, private.
+- Repo: github.com/bartbasi/Sudoku (public as of 2026-10-17; GitHub Pages serves the gh-pages branch).
 - Nothing paid, nothing third party. Every visual and every sound is made in code. No image, audio or font files, no asset store downloads, no addons. Text uses Godot's built-in font.
 - Puzzles are generated and graded by our own code. No outside puzzle files, packs or databases.
 - No network code anywhere. No accounts, ads, analytics or leaderboards. Release builds request no Android permissions.
@@ -60,6 +60,12 @@ Sudoku (working name in older docs: bartssudoku; Bart may choose a final name la
   - Marks are kept while hidden and show exactly as left when turned back on. Auto Cross keeps working out of sight.
   - A hint that points to a candidate to cross shows just that candidate in its cell; the rest stay hidden.
   - Lessons always show the ring.
+
+- 2026-10-17, support, credits and privacy (Bart):
+  - A "Buy me a coffee" button on the title screen (after ABOUT, less prominent) and on the About card opens https://buymeacoffee.com/playinc in the phone's browser (OS.shell_open). The game itself still sends nothing, has no network code and requests no permissions.
+  - Copyright is held by Play, Inc.: "Copyright 2026 Play, Inc. All rights reserved." Credit stays: "Designed and written by Bart Basi." This replaces the 2026-10-14 copyright line.
+  - Questions, feedback, privacy and notices go to bartbasi@gmail.com, shown on the About card as plain text.
+  - The privacy policy is published with GitHub Pages from the gh-pages branch: https://bartbasi.github.io/Sudoku/privacy/ (the About card shows "Privacy policy: bartbasi.github.io/Sudoku/privacy"). The repo is now public, so the "no GitHub address" rule is retired.
 
 ## Ownership
 

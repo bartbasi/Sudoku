@@ -312,13 +312,26 @@ func _check_main_menu(window: Shape, with_puzzle: bool) -> void:
 	_ok(_inside(_rect(wordmark), window.safe), "%s: the wordmark inside the safe rect" % where)
 
 
-## The title screen (7.15): PLAY, MENU, INFO and ABOUT, the wordmark and hero.
+## The title screen (7.15): PLAY, MENU, INFO, ABOUT and Buy me a coffee,
+## the wordmark and hero. Stacked, Buy me a coffee sits under ABOUT; side by
+## side, under the hero in the left half.
 func _check_title(window: Shape) -> void:
 	_new_app(window)
 	_ok(_app.current_screen() == AppService.TITLE, "%s: the app opens on the title screen" % window.label)
 	var screen: Control = await _fit(window)
 	var where: String = "%s, title" % window.label
-	_check_buttons([screen.get(&"play_button"), screen.get(&"menu_button"), screen.get(&"info_button"), screen.get(&"about_button")], window.safe, where)
+	var about: Button = screen.get(&"about_button") as Button
+	var coffee: Button = screen.get(&"coffee_button") as Button
+	_check_buttons([screen.get(&"play_button"), screen.get(&"menu_button"), screen.get(&"info_button"), about, coffee], window.safe, where)
+	var coffee_touch: Rect2 = _touch(coffee)
+	_ok(_inside(coffee_touch, window.safe), "%s: the coffee touch area %s inside the safe rect" % [where, coffee_touch])
+	_ok(absf(_rect(coffee).size.y - Layout.ICON_FACE) <= SLACK, "%s: the coffee face %.1f is 40 dp, shorter than ABOUT" % [where, _rect(coffee).size.y])
+	_ok(_rect(coffee).size.x < _rect(about).size.x - SLACK, "%s: the coffee face is narrower than ABOUT" % where)
+	var hero: Rect2 = _rect(screen.find_child("Hero", true, false) as Control)
+	if window.expected == Layout.Arrangement.SIDE:
+		_ok(coffee_touch.position.y >= hero.end.y - SLACK and coffee_touch.end.x <= _rect(about).position.x, "%s: Buy me a coffee under the hero, left of the buttons" % where)
+	else:
+		_ok(coffee_touch.position.y >= _rect(about).end.y - SLACK, "%s: Buy me a coffee under ABOUT" % where)
 	_check_halves(screen.get(&"halves") as HalvesBox, window, where)
 	var wordmark: Control = screen.find_child("Wordmark", true, false) as Control
 	_ok(_inside(_rect(wordmark), window.safe), "%s: the wordmark inside the safe rect" % where)

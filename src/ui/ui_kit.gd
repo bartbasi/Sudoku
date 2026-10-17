@@ -39,6 +39,15 @@ static func button(variation: StringName, text: String, height: float, icon: Str
 	return node
 
 
+## A small text button: a face of the given height (under 48 dp), only as
+## wide as its label, in a 48 dp touch area (DESIGN_SYSTEM.md 4.4). Returns
+## the touch area; its button is touch.button. Used for Buy me a coffee.
+static func small_button(variation: StringName, text: String, face: float) -> TouchTarget:
+	var touch: TouchTarget = TouchTarget.new()
+	touch.set_button(button(variation, text, face))
+	return touch
+
+
 ## An icon button (back, close, pause): a 40 dp face in a 48 dp touch area
 ## (DESIGN_SYSTEM.md 4.4). Returns the touch area; its button is
 ## touch.button.
