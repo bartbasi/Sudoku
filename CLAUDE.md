@@ -67,13 +67,15 @@ Sudoku (working name in older docs: bartssudoku; Bart may choose a final name la
   - Questions, feedback, privacy and notices go to bartbasi@gmail.com, shown on the About card as plain text.
   - The privacy policy is published with GitHub Pages from the gh-pages branch: https://bartbasi.github.io/Sudoku/privacy/ (the About card shows "Privacy policy: bartbasi.github.io/Sudoku/privacy"). The repo is now public, so the "no GitHub address" rule is retired.
 
+- 2026-10-18, license (Bart): Sudoku is open source, free software under the GNU GPL version 3 with two section 7 additional terms: 7(b) every copy and modified version keeps "Copyright 2026 Play, Inc." and "Designed and written by Bart Basi." in its About screen; 7(c) modified versions are marked as changed. The license text is COPYING and the notice and terms are NOTICE, both at the repo root (Development Manager), both ship in the app and show in About. The copyright line is now "Copyright 2026 Play, Inc." without "All rights reserved." All of Bart's game repos are public on purpose.
+
 ## Ownership
 
 Each path has one owner. Edit only what you own.
 
 | Path | Owner |
 | --- | --- |
-| CLAUDE.md, docs/BRIEF.md, docs/ARCHITECTURE.md, .claude/agents/, tests/run_tests.gd, tests/unit_test.gd | Development Manager |
+| CLAUDE.md, COPYING, NOTICE, docs/BRIEF.md, docs/ARCHITECTURE.md, .claude/agents/, tests/run_tests.gd, tests/unit_test.gd | Development Manager |
 | README.md, project.godot, export_presets.cfg, .gitignore, .gitattributes, tools/build/ | platform-dev |
 | docs/GDD.md | lead-game-designer |
 | docs/LESSONS.md, src/lessons/data/ | lesson-designer |

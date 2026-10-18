@@ -481,13 +481,27 @@ func test_about_shows_version_copyright_and_the_engine_notices() -> void:
 		ThemeFactory.display_text(ThemeFactory.TITLE, "Sudoku"),
 		ThemeFactory.display_text(ThemeFactory.CAPTION, "Version " + version),
 		"Designed and written by Bart Basi.",
-		"Copyright 2026 Play, Inc. All rights reserved.",
+		"Copyright 2026 Play, Inc.",
 		"Sudoku is free. It works offline, with no ads and no accounts, and it collects no data. Everything you do stays on this device.",
+		"Sudoku is free software under the GNU General Public License, version 3, with additional terms. It comes with no warranty. The license and its terms are below. Source code: github.com/bartbasi/Sudoku",
 		"If you enjoy it and want to support the game, you can buy me a coffee.",
 		"Questions, feedback and notices: bartbasi@gmail.com",
 		"Privacy policy: bartbasi.github.io/Sudoku/privacy",
 		"Made with the Godot Engine.",
-	]), "GDD 15.6 items 1 to 9 in order")
+	]), "GDD 15.6 card items in order")
+	for text: String in card_texts:
+		assert_false(text.to_lower().contains("all rights reserved"), "no All rights reserved in the card: %s" % text)
+	# The attributions are license terms: whole, as written, and shown.
+	for pair: Array in [["Designed and written by Bart Basi.", ThemeFactory.BODY_SMALL], ["Copyright 2026 Play, Inc.", ThemeFactory.BODY_SMALL]]:
+		var found: Label = null
+		for label: Label in _labels(card):
+			if label.text == pair[0]:
+				found = label
+		assert_true(found != null, "%s in the card" % pair[0])
+		assert_eq(found.theme_type_variation, pair[1], "%s in its own style" % pair[0])
+		assert_true(found.visible, "%s shown" % pair[0])
+		assert_eq(found.text_overrun_behavior, TextServer.OVERRUN_NO_TRIMMING, "%s never cut" % pair[0])
+		assert_eq(found.max_lines_visible, -1, "%s never cut" % pair[0])
 	# The button sits right after the support line, before the contact line.
 	var coffee: Button = screen.get(&"coffee_button") as Button
 	assert_eq(coffee.text, "BUY ME A COFFEE")
@@ -503,7 +517,7 @@ func test_about_shows_version_copyright_and_the_engine_notices() -> void:
 	assert_eq(card_texts[card_texts.size() - 1], "Made with the Godot Engine.", "still the last line")
 	for text: String in card_texts:
 		assert_false(text.contains("http") or text.contains("www"), "no web link in the card: %s" % text)
-		assert_eq(text.to_lower().contains("github"), text == "Privacy policy: bartbasi.github.io/Sudoku/privacy", "github only in the privacy line")
+		assert_eq(text.to_lower().contains("github"), text == "Privacy policy: bartbasi.github.io/Sudoku/privacy" or text == AboutScreen.LICENSE, "github only in the privacy and license lines")
 		assert_false(text.contains("—") or text.contains("--"), "no em dash or double hyphen")
 	assert_false(bool(screen.call(&"is_complete")), "the notice blocks wait for the frames after the first")
 	screen.call(&"build_all_notices")
@@ -590,3 +604,80 @@ func test_notice_paragraphs_join_lines_and_keep_dividers() -> void:
 	var got: PackedStringArray = AboutScreen.notice_paragraphs(text)
 	assert_eq(got, PackedStringArray(["First line goes on here.", "Second one.", "--------", "Third part."]))
 	assert_eq(AboutScreen.notice_paragraphs(""), PackedStringArray())
+	# Windows line ends split exactly like plain ones.
+	assert_eq(AboutScreen.notice_paragraphs("a b\r\nc d\r\n\r\ne f"), PackedStringArray(["a b c d", "e f"]))
+	assert_eq(AboutScreen.notice_paragraphs("a b\r\nc d\r\n\r\ne f"), AboutScreen.notice_paragraphs("a b\nc d\n\ne f"))
+	for paragraph: String in got:
+		assert_false(paragraph.contains("\r") or paragraph.contains("\n"), "no line break left: %s" % paragraph)
+
+
+func test_notice_paragraphs_keep_short_title_lines_in_the_game_files() -> void:
+	var text: String = "Sudoku\r\nCopyright 2026 Play, Inc.\r\nDesigned and written by Bart Basi.\r\n\r\nThis is a long wrapped line of prose that goes past forty\r\ncharacters and joins.\r\n"
+	assert_eq(AboutScreen.notice_paragraphs(text, true), PackedStringArray([
+		"Sudoku\nCopyright 2026 Play, Inc.\nDesigned and written by Bart Basi.",
+		"This is a long wrapped line of prose that goes past forty characters and joins.",
+	]))
+	# Without it (the engine's text) every line joins, as before.
+	assert_eq(AboutScreen.notice_paragraphs(text)[0], "Sudoku Copyright 2026 Play, Inc. Designed and written by Bart Basi.")
+
+
+## text with every run of white space made one space, ends trimmed.
+func _words(text: String) -> String:
+	var out: String = text.replace("\r", " ").replace("\n", " ").replace("\t", " ")
+	while out.contains("  "):
+		out = out.replace("  ", " ")
+	return out.strip_edges()
+
+
+func test_about_files_ship_and_are_read() -> void:
+	for path: String in [AboutScreen.NOTICE_PATH, AboutScreen.COPYING_PATH]:
+		assert_true(FileAccess.file_exists(path), "%s in the project" % path)
+		assert_true(AboutScreen.read_text(path).length() > 1000, "%s read and not empty" % path)
+	assert_eq(AboutScreen.read_text("res://no_such_notice_file"), "", "a missing file reads as nothing")
+	assert_eq(AboutScreen.notice_paragraphs(AboutScreen.read_text("res://no_such_notice_file"), true), PackedStringArray())
+
+
+func test_about_shows_the_sudoku_notice_and_the_gpl_before_godot() -> void:
+	var app: AppService = _app()
+	_attach(app)
+	app.goto(AppService.ABOUT)
+	var screen: Control = app.current_screen_node()
+	screen.call(&"build_all_notices")
+	var notices: Node = screen.get(&"notices")
+	var texts: PackedStringArray = _texts(notices)
+	var sudoku: int = texts.find(ThemeFactory.display_text(ThemeFactory.CAPTION, "Sudoku"))
+	var gpl: int = texts.find(ThemeFactory.display_text(ThemeFactory.CAPTION, "GNU General Public License, version 3"))
+	var godot: int = texts.find(ThemeFactory.display_text(ThemeFactory.CAPTION, "Godot Engine"))
+	assert_eq(sudoku, 1, "the Sudoku notice right under the heading")
+	assert_true(gpl > sudoku and godot > gpl, "then the GPL, then Godot")
+	# Each section holds its file word for word; only line breaks are joined.
+	var notice_text: String = AboutScreen.read_text(AboutScreen.NOTICE_PATH)
+	var gpl_text: String = AboutScreen.read_text(AboutScreen.COPYING_PATH)
+	var notice_shown: PackedStringArray = texts.slice(sudoku + 1, gpl)
+	var gpl_shown: PackedStringArray = texts.slice(gpl + 1, godot)
+	assert_eq(_words(" ".join(notice_shown)), _words(notice_text), "NOTICE word for word")
+	assert_eq(_words(" ".join(gpl_shown)), _words(gpl_text), "COPYING word for word")
+	assert_eq(notice_shown, AboutScreen.notice_paragraphs(notice_text, true), "one label per paragraph")
+	assert_eq(gpl_shown, AboutScreen.notice_paragraphs(gpl_text, true), "one label per paragraph")
+	assert_true(_words(gpl_text).contains("TERMS AND CONDITIONS"), "the real license")
+	assert_true(" ".join(notice_shown).contains("Copyright 2026 Play, Inc.") and " ".join(notice_shown).contains("Designed and written by Bart Basi."), "the attributions in the notice")
+	# Paragraph labels in the small notice style, captions as captions, and
+	# a rule between the GPL and Godot.
+	var labels: Array[Label] = _labels(notices)
+	# Each caption sits space_xl under what is above it (7.17), the first
+	# one too, as the Godot caption did when it came first.
+	var space_xl: float = (screen.call(&"skin") as GameSkin).space_xl
+	assert_true(space_xl > 0.0)
+	for i: int in [sudoku, gpl]:
+		var gap: Control = notices.get_child(labels[i].get_index() - 1) as Control
+		assert_false(gap is Label, "a gap above caption %d" % i)
+		assert_eq(gap.custom_minimum_size.y, space_xl, "space_xl above caption %d" % i)
+	var godot_index: int = labels[godot].get_index()
+	assert_true(notices.get_child(godot_index - 2) is HSeparator, "a rule right before the Godot section")
+	for i: int in labels.size():
+		if i == sudoku or i == gpl:
+			assert_eq(labels[i].theme_type_variation, ThemeFactory.CAPTION, "a caption")
+		elif i > sudoku and i < godot:
+			assert_eq(labels[i].theme_type_variation, ThemeFactory.BODY_SMALL_12, "notice paragraph style")
+		assert_eq(labels[i].mouse_filter, Control.MOUSE_FILTER_IGNORE, "nothing is a link")
+	_free_all([app])

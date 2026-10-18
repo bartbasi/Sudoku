@@ -1,37 +1,54 @@
 extends UiScreen
 ## The About screen (GDD 15.6, DESIGN_SYSTEM.md 7.17): a card with the name,
 ## the version, the credit and copyright lines, the short paragraph, the
-## support line with the Buy me a coffee button, the contact and privacy
-## lines and the Godot line; then the open source notices, read from the
-## engine at run time (Engine.get_license_text, get_copyright_info and
-## get_license_info), so no notice text is copied into the game.
+## license line with the source code address, the support line with the
+## Buy me a coffee button, the contact and privacy lines and the Godot line;
+## then the open source notices: the game's own notice and the GNU General
+## Public License, version 3, read at run time from res://NOTICE and
+## res://COPYING, then the engine's notices, read from the engine
+## (Engine.get_license_text, get_copyright_info and get_license_info). No
+## notice text is copied into the game.
+##
+## The credit and copyright lines are license terms (NOTICE, section 7(b)):
+## they are never cut, recased, made smaller or hidden.
 ##
 ## Only Back and Buy me a coffee react to a tap. Buy me a coffee hands the
 ## support page to the phone's web browser (App.open_support_page), as on
-## the title screen; the game itself sends nothing. The email and privacy
-## addresses are plain text, and nothing in the notices can be tapped.
+## the title screen; the game itself sends nothing. The source code, email
+## and privacy addresses are plain text, and nothing in the notices can be
+## tapped.
 ##
-## The notices are long (about 80,000 characters), so the screen builds the
+## The notices are long (about 115,000 characters), so the screen builds the
 ## card and the notices heading at once and the notice labels after its
 ## first frame, a few per frame, appended at the bottom. One label per
 ## paragraph; every label wraps (smart word wrap, minimum width 1), so
-## nothing scrolls sideways. The engine's hard wrapped lines are joined into
-## paragraphs (notice_paragraphs); only white space changes.
+## nothing scrolls sideways. Hard wrapped lines are joined into paragraphs
+## (notice_paragraphs); only white space changes.
 ## Owner: ui-systems-dev.
 
 const NAME: String = "Sudoku"
 const CREDIT: String = "Designed and written by Bart Basi."
-const COPYRIGHT: String = "Copyright 2026 Play, Inc. All rights reserved."
+const COPYRIGHT: String = "Copyright 2026 Play, Inc."
 const PARAGRAPH: String = "Sudoku is free. It works offline, with no ads and no accounts, and it collects no data. Everything you do stays on this device."
+const LICENSE: String = "Sudoku is free software under the GNU General Public License, version 3, with additional terms. It comes with no warranty. The license and its terms are below. Source code: github.com/bartbasi/Sudoku"
 const SUPPORT: String = "If you enjoy it and want to support the game, you can buy me a coffee."
 const COFFEE: String = "Buy me a coffee"
 const CONTACT: String = "Questions, feedback and notices: bartbasi@gmail.com"
 const PRIVACY: String = "Privacy policy: bartbasi.github.io/Sudoku/privacy"
 const MADE_WITH: String = "Made with the Godot Engine."
 const NOTICES_HEADING: String = "Open source notices"
+const NOTICE_CAPTION: String = "Sudoku"
+const GPL_CAPTION: String = "GNU General Public License, version 3"
 const ENGINE_CAPTION: String = "Godot Engine"
 const COMPONENTS_HEADING: String = "Third party components"
 const LICENSES_HEADING: String = "Licenses"
+## The game's own notice and license, shipped in the package.
+const NOTICE_PATH: String = "res://NOTICE"
+const COPYING_PATH: String = "res://COPYING"
+## In the game's own files, a line shorter than this ends its line instead
+## of joining the next (title lines such as "Sudoku" over its copyright).
+## Their wrapped prose lines are all longer.
+const SHORT_LINE: int = 40
 ## Notice labels made per frame after the first frame (7.17).
 const LABELS_PER_FRAME: int = 24
 
@@ -143,8 +160,9 @@ func _card(s: GameSkin) -> PanelContainer:
 	# Each entry space_s below the one above. An empty variation is the
 	# Buy me a coffee button, right under the support line.
 	var entries: Array[Array] = [[ThemeFactory.BODY_SMALL, CREDIT], [ThemeFactory.BODY_SMALL, COPYRIGHT],
-		[ThemeFactory.BODY, PARAGRAPH], [ThemeFactory.BODY, SUPPORT], [&"", COFFEE],
-		[ThemeFactory.BODY_SMALL, CONTACT], [ThemeFactory.BODY_SMALL, PRIVACY], [ThemeFactory.BODY, MADE_WITH]]
+		[ThemeFactory.BODY, PARAGRAPH], [ThemeFactory.BODY_SMALL, LICENSE], [ThemeFactory.BODY, SUPPORT],
+		[&"", COFFEE], [ThemeFactory.BODY_SMALL, CONTACT], [ThemeFactory.BODY_SMALL, PRIVACY],
+		[ThemeFactory.BODY, MADE_WITH]]
 	for entry: Array in entries:
 		var space: Control = Control.new()
 		space.custom_minimum_size.y = s.space_s
@@ -179,11 +197,35 @@ static func version_line() -> String:
 	return "Version %s" % str(ProjectSettings.get_setting("application/config/version", ""))
 
 
-## Every notice item under the heading, in order (7.17): the engine's
-## license, the third party components with their copyright and license
-## lines (no file lists), then every license text.
+## The text of a file shipped in the package, or "" when it is missing or
+## cannot be read. Read as plain text only.
+static func read_text(path: String) -> String:
+	if not FileAccess.file_exists(path):
+		return ""
+	var file: FileAccess = FileAccess.open(path, FileAccess.READ)
+	if file == null:
+		return ""
+	var text: String = file.get_as_text()
+	file.close()
+	return text
+
+
+## Every notice item under the heading, in order (7.17): the game's notice,
+## the GNU General Public License, version 3, then the engine's license,
+## the third party components with their copyright and license lines (no
+## file lists), then every license text. A missing file shows nothing.
 static func notice_items(s: GameSkin) -> Array[Array]:
 	var items: Array[Array] = []
+	var own: bool = false
+	for pair: Array in [[NOTICE_CAPTION, NOTICE_PATH], [GPL_CAPTION, COPYING_PATH]]:
+		var text: String = read_text(pair[1])
+		if notice_paragraphs(text, true).is_empty():
+			continue
+		items.append([ThemeFactory.CAPTION, pair[0], s.space_xl])
+		_add_text(items, text, s.space_xs, s, true)
+		own = true
+	if own:
+		items.append([ThemeFactory.RULE, "", s.space_xl])
 	items.append([ThemeFactory.CAPTION, ENGINE_CAPTION, s.space_xl])
 	_add_text(items, Engine.get_license_text(), s.space_xs, s)
 	items.append([ThemeFactory.RULE, "", s.space_xl])
@@ -210,9 +252,9 @@ static func notice_items(s: GameSkin) -> Array[Array]:
 	return items
 
 
-static func _add_text(items: Array[Array], text: String, first_gap: float, s: GameSkin) -> void:
+static func _add_text(items: Array[Array], text: String, first_gap: float, s: GameSkin, keep_short_lines: bool = false) -> void:
 	var first: bool = true
-	for paragraph: String in notice_paragraphs(text):
+	for paragraph: String in notice_paragraphs(text, keep_short_lines):
 		items.append([ThemeFactory.BODY_SMALL_12, paragraph, first_gap if first else s.space_s])
 		first = false
 
@@ -220,26 +262,38 @@ static func _add_text(items: Array[Array], text: String, first_gap: float, s: Ga
 ## Splits a hard wrapped text into paragraphs (7.17): at blank lines, and
 ## around any line with no letter or digit (a divider), which stays a
 ## paragraph of its own. Inside a paragraph the lines are joined with one
-## space. Only white space changes: every word stays, in order.
-static func notice_paragraphs(text: String) -> PackedStringArray:
+## space. With keep_short_lines (the game's own files), a line shorter than
+## SHORT_LINE ends with a line break instead. Only white space changes:
+## every word stays, in order.
+static func notice_paragraphs(text: String, keep_short_lines: bool = false) -> PackedStringArray:
 	var paragraphs: PackedStringArray = PackedStringArray()
-	var current: Array[String] = []
-	for raw: String in text.replace("
-", "
-").split("
-"):
+	var current: String = ""
+	var open: bool = false
+	for raw: String in text.replace("\r\n", "\n").split("\n"):
 		var line: String = raw.strip_edges()
 		var divider: bool = not line.is_empty() and not _has_letter_or_digit(line)
 		if line.is_empty() or divider:
-			if not current.is_empty():
-				paragraphs.append(" ".join(PackedStringArray(current)))
-				current.clear()
+			if open:
+				paragraphs.append(current)
+				current = ""
+				open = false
 			if divider:
 				paragraphs.append(line)
 			continue
-		current.append(line)
-	if not current.is_empty():
-		paragraphs.append(" ".join(PackedStringArray(current)))
+		if open:
+			current += line
+		else:
+			current = line
+			open = true
+		# The joint after this line, dropped if the paragraph ends here.
+		if keep_short_lines and line.length() < SHORT_LINE:
+			current += "\n"
+		else:
+			current += " "
+	if open:
+		paragraphs.append(current)
+	for i: int in paragraphs.size():
+		paragraphs[i] = paragraphs[i].rstrip(" \n")
 	return paragraphs
 
 

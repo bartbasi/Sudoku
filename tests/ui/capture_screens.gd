@@ -7,6 +7,7 @@ extends SceneTree
 ##   timeout 300 godot --path . --script res://tests/ui/capture_screens.gd -- windows
 ##   timeout 300 godot --path . --script res://tests/ui/capture_screens.gd -- title <folder>
 ##   timeout 300 godot --path . --script res://tests/ui/capture_screens.gd -- candidates <folder>
+##   timeout 300 godot --path . --script res://tests/ui/capture_screens.gd -- license <folder>
 ##
 ## Writes build/ui/<size>-<skin>-<screen>.png. Saves go to
 ## user://ui_capture/, which is wiped first, so real saves are untouched.
@@ -19,9 +20,12 @@ extends SceneTree
 ## "candidates" captures Settings at 360 by 800, then a Medium puzzle with
 ## Show candidates off on TITLE_SIZES: with hand crosses hidden, and with an
 ## elimination hint showing only its candidates to cross (GDD 4.5, SC-3).
+## "license" captures About at 360 by 800 in Pop light: the card, then the
+## notices scrolled to the Sudoku notice and to the GNU GPL.
 
 const OUT_DIR: String = "res://build/ui/"
 const SAVE_DIR: String = "user://ui_capture"
+const AboutScreen := preload("res://src/ui/about_screen.gd")
 
 ## The 4.11 windows of the "windows" run (no insets on desktop).
 const WINDOW_SIZES: Array[Vector2i] = [Vector2i(344, 882), Vector2i(690, 829), Vector2i(345, 829), Vector2i(690, 400)]
@@ -34,6 +38,7 @@ var _size: Vector2i = Vector2i(360, 800)
 var _windows: bool = false
 var _title: bool = false
 var _candidates: bool = false
+var _license: bool = false
 var _out_dir: String = OUT_DIR
 var _app: AppService = null
 var _skins: Node = null
@@ -43,9 +48,10 @@ func _initialize() -> void:
 	var args: PackedStringArray = OS.get_cmdline_user_args()
 	if args.size() > 0 and args[0] == "windows":
 		_windows = true
-	elif args.size() > 0 and (args[0] == "title" or args[0] == "candidates"):
+	elif args.size() > 0 and (args[0] == "title" or args[0] == "candidates" or args[0] == "license"):
 		_title = args[0] == "title"
 		_candidates = args[0] == "candidates"
+		_license = args[0] == "license"
 		if args.size() > 1:
 			_out_dir = args[1].replace("\\", "/")
 			if not _out_dir.ends_with("/"):
@@ -93,6 +99,9 @@ func _run() -> void:
 		return
 	if _candidates:
 		await _run_candidates()
+		return
+	if _license:
+		await _run_license()
 		return
 	await _shot("light", "title")
 	_app.play_now()
@@ -249,6 +258,33 @@ func _run_title() -> void:
 		scroll.scroll_vertical = int(notices.get_global_rect().position.y - scroll.get_global_rect().position.y) + 600
 		await _shot("light", "about_notices")
 		_app.go_back()
+	_wipe(SAVE_DIR)
+	quit(0)
+
+
+## About in Pop light at 360 by 800: the card at the top, then the notices
+## with the Sudoku caption and then the GPL caption at the top of the page.
+func _run_license() -> void:
+	_resize(TITLE_SIZES[0])
+	_app.set_skin(&"pop_light")
+	_app.goto(AppService.TITLE)
+	_app.goto(AppService.ABOUT)
+	await _shot("light", "about")
+	var about: Control = _app.current_screen_node()
+	about.call(&"build_all_notices")
+	await _settle()
+	var scroll: ScrollContainer = about.get(&"scroll") as ScrollContainer
+	var notices: Control = about.get(&"notices") as Control
+	var names: Array[Array] = [[AboutScreen.NOTICE_CAPTION, "about_sudoku_notice"], [AboutScreen.GPL_CAPTION, "about_gpl"]]
+	for pair: Array in names:
+		var caption: String = ThemeFactory.display_text(ThemeFactory.CAPTION, pair[0])
+		for child: Node in notices.get_children():
+			if child is Label and (child as Label).text == caption:
+				var top: float = (child as Control).get_global_rect().position.y - scroll.get_global_rect().position.y + float(scroll.scroll_vertical)
+				scroll.scroll_vertical = int(top) - 8
+				break
+		await _shot("light", pair[1])
+	_app.go_back()
 	_wipe(SAVE_DIR)
 	quit(0)
 

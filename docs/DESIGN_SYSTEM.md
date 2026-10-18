@@ -1,6 +1,6 @@
 # Sudoku: Design System
 
-Owner: senior-graphic-designer. Status: Phase 2, 2026-10-11; Phase 3 addition 2026-10-12, the hint cross chip (Bart, Hard Stop 2; sections 1, 2.7 to 2.9); 2026-10-12, the SUDOKU wordmark and the icon placeholder (sections 7.1, 7.2 and 9); 2026-10-12, the final app icon, Ring, made bolder (sections 7.1 and 9); 2026-10-12, number pad labels fit their faces down to 320 by 568 dp (sections 3.2, 3.5, 4.6, 5 and 10); 2026-10-12, Phase 4: the header row, Continue and the hint panel fit their design, the making a puzzle wait, the lesson card's wrong tap tag and height, and which sizes are Layout constants (sections 1, 3.2, 3.6, 4.6, 4.8, 5, 6, 7 and 10); 2026-10-12, Phase 6: window shapes for foldables and split screen, side by side and too small (sections 4.7, 4.8, 4.9, 4.11, 7.6 and 10); 2026-10-14, the title screen, Info and About (Bart, title screen; sections 4.6, 4.9, 4.11, 7.15 to 7.17); 2026-10-17, Buy me a coffee on the title screen and the About card, and the new About card (Bart; sections 4.4, 4.6, 4.11, 7.15 and 7.17). This is the contract the artists and developers build Phase 3 from. If something you need is missing or would force a guess, ask the senior-graphic-designer through the Development Manager; do not invent a value locally.
+Owner: senior-graphic-designer. Status: Phase 2, 2026-10-11; Phase 3 addition 2026-10-12, the hint cross chip (Bart, Hard Stop 2; sections 1, 2.7 to 2.9); 2026-10-12, the SUDOKU wordmark and the icon placeholder (sections 7.1, 7.2 and 9); 2026-10-12, the final app icon, Ring, made bolder (sections 7.1 and 9); 2026-10-12, number pad labels fit their faces down to 320 by 568 dp (sections 3.2, 3.5, 4.6, 5 and 10); 2026-10-12, Phase 4: the header row, Continue and the hint panel fit their design, the making a puzzle wait, the lesson card's wrong tap tag and height, and which sizes are Layout constants (sections 1, 3.2, 3.6, 4.6, 4.8, 5, 6, 7 and 10); 2026-10-12, Phase 6: window shapes for foldables and split screen, side by side and too small (sections 4.7, 4.8, 4.9, 4.11, 7.6 and 10); 2026-10-14, the title screen, Info and About (Bart, title screen; sections 4.6, 4.9, 4.11, 7.15 to 7.17); 2026-10-17, Buy me a coffee on the title screen and the About card, and the new About card (Bart; sections 4.4, 4.6, 4.11, 7.15 and 7.17); 2026-10-18, the GPL v3 license on About: the copyright line without "All rights reserved.", the license line on the card, and the game's NOTICE and COPYING first in the notices (Bart; section 7.17). This is the contract the artists and developers build Phase 3 from. If something you need is missing or would force a guess, ask the senior-graphic-designer through the Development Manager; do not invent a value locally.
 
 Bart's Hard Stop 1 decisions behind it: direction Pop, with the Phase 2 fixes from [design/ranking.md](design/ranking.md); v1 ships two skins, Pop light (the default) and Pop dark; candidate ring layout A, reading rows; Godot's built-in font, no font files; a digit crossed by hand is drawn on top of its X with a thin outline; the game fits and works at 320 by 568 dp and readability is judged at 360 dp wide; an app icon whose background follows Pop's palette; "New best time" and "New best score" on the completion screen. The game is called Sudoku for now, a placeholder name Bart may change. The app icon is Ring (section 9).
 
@@ -1192,7 +1192,9 @@ A text screen that explains the game: scoring, the time bonus, hints and their c
 
 ### 7.17 About
 
-A card with the game name and version, the credit, the copyright line, a short paragraph (free, offline, collects nothing), the support line with Buy me a coffee, the contact and privacy lines and the Godot line; then the open source notices for Godot and what it ships, read from the engine at run time (ARCHITECTURE: `Engine.get_license_text()`, `Engine.get_copyright_info()`, `Engine.get_license_info()`; no notice text is copied into the repo). The words other than the engine's are the lead-game-designer's (GDD 15.6). Bart, 2026-10-17: the copyright line is exactly "Copyright 2026 Play, Inc. All rights reserved." and the credit is "Designed and written by Bart Basi." (this replaces the 2026-10-14 line). The repo is public, so the old rule that nothing on the screen says "github" is retired.
+A card with the game name and version, the credit, the copyright line, a short paragraph (free, offline, collects nothing), the license line, the support line with Buy me a coffee, the contact and privacy lines and the Godot line; then the open source notices: the game's own NOTICE and COPYING, read from `res://` at run time, then the notices for Godot and what it ships, read from the engine at run time (ARCHITECTURE: `Engine.get_license_text()`, `Engine.get_copyright_info()`, `Engine.get_license_info()`; no engine notice text is copied into the repo). The words other than the engine's and the two files' are the lead-game-designer's (GDD 15.6). Bart, 2026-10-17: the credit is "Designed and written by Bart Basi." (this replaces the 2026-10-14 line). The repo is public, so the old rule that nothing on the screen says "github" is retired. Bart, 2026-10-18: Sudoku is free software under the GNU General Public License, version 3, with additional terms under its section 7 (NOTICE; the full license is COPYING). The copyright line is exactly "Copyright 2026 Play, Inc.", with no "All rights reserved.", and the card gains the license line.
+
+**The credit and copyright lines are license terms** (NOTICE, section 7(b)). They always show in full, in the words, capitals and style given here: never cut off, recased, shrunk, stepped down or hidden, at any window size.
 
 ```
 │ [<]  ABOUT                             │ title row 48, as Stats
@@ -1204,11 +1206,15 @@ A card with the game name and version, the credit, the copyright line, a short p
 │ │                                    │ │ 8
 │ │ Designed and written by Bart Basi. │ │ BODY_SMALL
 │ │                                    │ │ 8
-│ │ Copyright 2026 Play, Inc. All      │ │ BODY_SMALL
-│ │ rights reserved.                   │ │
+│ │ Copyright 2026 Play, Inc.          │ │ BODY_SMALL
 │ │                                    │ │ 8
 │ │ Sudoku is free. It works offline,  │ │ BODY
 │ │ with no ads and no accounts...     │ │
+│ │                                    │ │ 8
+│ │ Sudoku is free software under the  │ │ BODY_SMALL
+│ │ GNU General Public License, ...    │ │
+│ │ Source code: github.com/           │ │
+│ │ bartbasi/Sudoku                    │ │
 │ │                                    │ │ 8
 │ │ If you enjoy it and want to        │ │ BODY
 │ │ support the game, you can buy me   │ │
@@ -1227,6 +1233,17 @@ A card with the game name and version, the credit, the copyright line, a short p
 │                                        │ 24
 │ OPEN SOURCE NOTICES                    │ HEADING, on the page
 │                                        │ 24
+│ SUDOKU                                 │ CAPTION
+│ Sudoku                                 │ BODY_SMALL_12, the NOTICE text;
+│ Copyright 2026 Play, Inc.              │ short lines keep their break
+│ Designed and written by Bart Basi.     │
+│ ...                                    │
+│                                        │ 24
+│ GNU GENERAL PUBLIC LICENSE, VERSION 3  │ CAPTION
+│ GNU GENERAL PUBLIC LICENSE             │ BODY_SMALL_12, the COPYING text
+│ Version 3, 29 June 2007                │
+│ ...                                    │
+│ ────────────────────────────────────── │ RULE, 24 above and below
 │ GODOT ENGINE                           │ CAPTION
 │ Copyright (c) 2014-present Godot       │ BODY_SMALL_12, the MIT text
 │ Engine contributors...                 │
@@ -1244,28 +1261,31 @@ A card with the game name and version, the credit, the copyright line, a short p
 ```
 
 - **Title row:** as Info, `UiKit.title_row("About", space_s, back)`, reading ABOUT. Back returns to the title screen. Under it, `space_s` below, the same `ScrollContainer` as Info (horizontal scrolling disabled) holding one VBox.
-- **The card** (`CARD`, full list width, shadow room under it as on Info) holds ten items, each `space_s` below the one above, in this order and style:
+- **The card** (`CARD`, full list width, shadow room under it as on Info) holds eleven items, each `space_s` below the one above, in this order and style:
   1. "Sudoku" in `TITLE` (capitals: SUDOKU).
   2. "Version 1.0" in `CAPTION`, the version from `ProjectSettings` `application/config/version`.
   3. "Designed and written by Bart Basi." in `BODY_SMALL`.
-  4. "Copyright 2026 Play, Inc. All rights reserved." in `BODY_SMALL`.
+  4. "Copyright 2026 Play, Inc." in `BODY_SMALL`, with nothing after it.
   5. The short paragraph in `BODY`.
-  6. "If you enjoy it and want to support the game, you can buy me a coffee." in `BODY`.
-  7. The Buy me a coffee button, the same small button as on the title screen (7.15: `BUTTON_SECONDARY`, a 40 dp face only as wide as its label, in a 48 dp touch area), left aligned in the card. Its touch area is the item, so its face sits 4 dp further in at the top and bottom than the `space_s` gap alone.
-  8. "Questions, feedback and notices: bartbasi@gmail.com" in `BODY_SMALL`.
-  9. "Privacy policy: bartbasi.github.io/Sudoku/privacy" in `BODY_SMALL`.
-  10. "Made with the Godot Engine." in `BODY`, the last line of the card.
+  6. "Sudoku is free software under the GNU General Public License, version 3, with additional terms. It comes with no warranty. The license and its terms are below. Source code: github.com/bartbasi/Sudoku" in `BODY_SMALL`.
+  7. "If you enjoy it and want to support the game, you can buy me a coffee." in `BODY`.
+  8. The Buy me a coffee button, the same small button as on the title screen (7.15: `BUTTON_SECONDARY`, a 40 dp face only as wide as its label, in a 48 dp touch area), left aligned in the card. Its touch area is the item, so its face sits 4 dp further in at the top and bottom than the `space_s` gap alone.
+  9. "Questions, feedback and notices: bartbasi@gmail.com" in `BODY_SMALL`.
+  10. "Privacy policy: bartbasi.github.io/Sudoku/privacy" in `BODY_SMALL`.
+  11. "Made with the Godot Engine." in `BODY`, the last line of the card.
 
-  Every text item wraps. The email and privacy addresses are plain text in the same style as their line, not links: no underline, no link color, nothing happens on a tap. On the whole screen only Back and Buy me a coffee take taps. `BODY` (14 dp) carries the sentences a player reads; `BODY_SMALL` (13 dp) carries the credit, copyright and contact lines, so the two groups differ by size, not by color.
+  Every text item wraps. The email, privacy and source addresses are plain text in the same style as their line, not links: no underline, no link color, nothing happens on a tap. On the whole screen only Back and Buy me a coffee take taps. `BODY` (14 dp) carries the sentences a player reads; `BODY_SMALL` (13 dp) carries the credit, copyright, license and contact lines, so the two groups differ by size, not by color.
 - **The notices** sit on the page under the card, not in a card: they are far too long for one, and a card thousands of dp tall reads as a wall. Their labels line up with the card's face: the same left edge, and the list width less `shadow_offset` at the right. Top to bottom, `space_xl` under the card:
   1. "Open source notices" in `HEADING`, with no lead sentence under it (GDD 15.6).
-  2. `space_xl`, then "Godot Engine" in `CAPTION`, `space_xs`, and `Engine.get_license_text()` in `BODY_SMALL_12`.
-  3. A `RULE` with `space_xl` above and below, then a heading in `HEADING` for the component list (GDD words, for example "Third party components"). Then, for each entry of `Engine.get_copyright_info()` in the engine's order, `space_m` above it: its name in `CAPTION`, `space_xs`, then for each of its parts, in `BODY_SMALL_12`, one line per copyright holder, "Copyright " followed by the engine's string, and a last line "License: " followed by the license name. The parts' file lists are left out: they are source paths, meaningless to a player, and the copyright and license lines carry the notice.
-  4. A `RULE` the same way, a heading in `HEADING` for the license texts (GDD words, for example "Licenses"), then for each entry of `Engine.get_license_info()`, `space_m` above it: the license name in `CAPTION`, `space_xs`, and its full text in `BODY_SMALL_12`.
+  2. `space_xl`, then "Sudoku" in `CAPTION`, `space_xs`, and the text of `res://NOTICE` in `BODY_SMALL_12`.
+  3. `space_xl`, then "GNU General Public License, version 3" in `CAPTION`, `space_xs`, and the text of `res://COPYING` in `BODY_SMALL_12`. Both files are read at run time, so the screen always matches them word for word. If a file is missing, its caption and text are left out.
+  4. A `RULE` with `space_xl` above and below, then "Godot Engine" in `CAPTION`, `space_xs`, and `Engine.get_license_text()` in `BODY_SMALL_12`, as before.
+  5. A `RULE` with `space_xl` above and below, then a heading in `HEADING` for the component list (GDD words, for example "Third party components"). Then, for each entry of `Engine.get_copyright_info()` in the engine's order, `space_m` above it: its name in `CAPTION`, `space_xs`, then for each of its parts, in `BODY_SMALL_12`, one line per copyright holder, "Copyright " followed by the engine's string, and a last line "License: " followed by the license name. The parts' file lists are left out: they are source paths, meaningless to a player, and the copyright and license lines carry the notice.
+  6. A `RULE` the same way, a heading in `HEADING` for the license texts (GDD words, for example "Licenses"), then for each entry of `Engine.get_license_info()`, `space_m` above it: the license name in `CAPTION`, `space_xs`, and its full text in `BODY_SMALL_12`.
 - **Every line wraps; nothing scrolls sideways.** Every label wraps with smart word wrap and a minimum width of 1 (`UiKit.label(variation, text, true)`), and fills the width (size flags expand fill). Smart word wrap also breaks inside a word that is longer than the line. That matters here: three of the license texts (glslang, FTL and MPL-2.0) hold divider lines of 80 hyphens, about 480 dp at 12 dp, and some lines hold long web addresses; they break across lines instead of widening the page.
-- **Paragraphs, not the engine's line breaks.** The engine's license texts are hard wrapped at 66 to 82 characters for an 80 column terminal. On a 300 dp line (about 45 characters at 12 dp) every one of those lines would wrap again into one long and one short line, a ragged column that is hard to read. So the screen splits each text into paragraphs at blank lines and, inside a paragraph, joins the lines with a single space. A line with no letter or digit in it (a divider) stays a paragraph of its own. Only white space changes; every word of the notice shows, in order. Each paragraph is its own label, `space_s` apart.
+- **Paragraphs, not the engine's line breaks.** The engine's license texts are hard wrapped at 66 to 82 characters for an 80 column terminal. On a 300 dp line (about 45 characters at 12 dp) every one of those lines would wrap again into one long and one short line, a ragged column that is hard to read. So the screen splits each text into paragraphs at blank lines and, inside a paragraph, joins the lines with a single space. A line with no letter or digit in it (a divider) stays a paragraph of its own. Only white space changes; every word of the notice shows, in order. Each paragraph is its own label, `space_s` apart. One exception, for the game's own NOTICE and COPYING only: a line shorter than 40 characters keeps its line break, so titles and short heads ("Sudoku", "Copyright 2026 Play, Inc.", "GNU GENERAL PUBLIC LICENSE", "Version 3, 29 June 2007") stay on lines of their own instead of running into the next sentence. The engine's texts are joined as before.
 - **Type.** Headings in `HEADING` (16 dp Heavy capitals), names in `CAPTION` (10 dp Heavy capitals, `text_muted`), notice text in `BODY_SMALL_12` (12 dp Semibold, line height 1.3, `text`). The three differ by size, weight and capitals, not by color alone. 12 dp is the hint panel's step down size, readable at arm's length and small enough that the notices are not endless; it is fixed here, never stepped.
-- **Size and speed.** Godot 4.7.2 gives about 77,000 characters of license text (19 licenses), 102 components and the 1,100 character MIT text (measured from the 4.7.2 editor binary; the export template ships fewer modules and may list fewer). At 320 dp wide that is roughly 35,000 dp of page, about 50 screen heights. Two rules keep it at 60 fps:
+- **Size and speed.** Godot 4.7.2 gives about 77,000 characters of license text (19 licenses), 102 components and the 1,100 character MIT text (measured from the 4.7.2 editor binary; the export template ships fewer modules and may list fewer), plus about 35,000 characters of COPYING and 2,000 of NOTICE. At 320 dp wide the engine's part alone is roughly 35,000 dp of page, about 50 screen heights, and the game's two files add about a third more. Two rules keep it at 60 fps:
   - One label per paragraph, never one label for a whole license or the whole page. The renderer then skips labels that are off screen, and no single label holds hundreds of lines.
   - The card and the notices heading are built with the screen; the notice blocks are built after the screen's first frame, a few at a time over the following frames, appended at the bottom. The screen slides in (`SCREEN_IN`) without a dropped frame, and Back works at once. Nobody reaches the bottom before the list is complete.
 - It opens at the top each time.

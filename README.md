@@ -91,7 +91,16 @@ The game is free. If you enjoy it, you can buy me a coffee at https://buymeacoff
 
 Questions, feedback, privacy and notices: bartbasi@gmail.com
 
-## Copyright
+## License
 
-Copyright 2026 Play, Inc. All rights reserved. Designed and written by Bart Basi.
+Copyright 2026 Play, Inc. Designed and written by Bart Basi.
+
+Sudoku is free software under the GNU General Public License, version 3, with two additional terms under section 7 of that license:
+
+- 7(b): every copy and every modified version keeps the attributions "Copyright 2026 Play, Inc." and "Designed and written by Bart Basi." in its About screen.
+- 7(c): a modified version must be marked as changed from the original, and its About screen must say that it is a modified version of Sudoku.
+
+The full license text is in [COPYING](COPYING). The additional terms, in their exact wording, are in [NOTICE](NOTICE). Both ship inside the app and can be read in its About screen.
+
+The Godot Engine is under the MIT license. The About screen shows the engine's license and the notices for the parts it includes.
 

@@ -1,0 +1,44 @@
+Sudoku
+Copyright 2026 Play, Inc.
+Designed and written by Bart Basi.
+
+Sudoku is free software: you can redistribute it and/or modify it under the
+terms of the GNU General Public License, version 3, as published by the Free
+Software Foundation, with the additional terms below.
+
+Sudoku is distributed in the hope that it will be useful, but WITHOUT ANY
+WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
+A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License along with
+Sudoku, in the file COPYING. If not, see <https://www.gnu.org/licenses/>.
+
+
+Additional terms under section 7 of the GNU General Public License, version 3
+
+These terms are permitted by section 7(b) and section 7(c) of the license.
+They apply to every copy of Sudoku and to every modified version of it.
+
+1. Attribution (section 7(b)). You must keep the attributions
+   "Copyright 2026 Play, Inc." and "Designed and written by Bart Basi." in
+   the Appropriate Legal Notices shown in the About screen. A modified
+   version, and any work that contains Sudoku or a substantial part of it,
+   must show both attributions in its own About screen, or in the place
+   where it shows its Appropriate Legal Notices.
+
+2. Marking modified versions (section 7(c)). A modified version must be
+   marked in reasonable ways as different from the original. Its About
+   screen must say that it is a modified version of Sudoku, and it must not
+   misrepresent the changed material as the original.
+
+
+Third party parts
+
+Sudoku is built with the Godot Engine, which is under the MIT license, with
+notices for the parts the engine includes. The About screen shows the full
+engine license and every notice, read from the engine itself.
+
+
+Contact
+
+Questions, feedback and notices: bartbasi@gmail.com
