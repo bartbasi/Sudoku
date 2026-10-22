@@ -7,6 +7,14 @@ extends UiScreen
 ## shows with nothing over the board. The hint panel and the full board
 ## message do not stop it; the pause menu and any other screen do (GDD 8).
 ## Back opens the pause menu, and in the pause menu Back resumes.
+##
+## The pause menu's About opens the About screen over this one, and its Buy
+## me a coffee hands the support page to the browser (GDD 15.7); the puzzle
+## stays paused for both, and neither does anything while a puzzle is being
+## made. The coffee cup in the band, under Pause, pauses first and then
+## opens the support page; it hides while the hint panel or the full board
+## message covers Pause, and the pause menu and the too small message draw
+## over it.
 ## Owner: ui-systems-dev.
 
 const PlayAreaScene := preload("res://scenes/board/play_area.tscn")
@@ -16,6 +24,10 @@ var session: GameSession = null
 var hud: PlayHud = null
 var play_area: PlayArea = null
 var level_sticker: Control = null
+## The coffee cup (GDD 15.7): an icon button in a 48 dp touch area in the
+## band, under Pause. coffee_button is its face.
+var coffee_touch: Control = null
+var coffee_button: Button = null
 var hint_panel: HintPanel = null
 var board_message: PanelContainer = null
 var pause_menu: PauseMenu = null
@@ -50,6 +62,18 @@ func build() -> void:
 	level_sticker = UiKit.sticker(ThemeFactory.STICKER, ThemeFactory.STICKER_LABEL, "", s.sticker_tilt)
 	level_sticker.name = "LevelSticker"
 	add_child(level_sticker)
+	# Side by side the sticker is placed from its right end, so place it
+	# again when its size changes (the theme or the level name arrives).
+	level_sticker.minimum_size_changed.connect(_place_band_items)
+
+	# Before the info zone and the pause menu, so both draw over it.
+	var cup: UiKit.TouchTarget = UiKit.icon_button(Icons.COFFEE)
+	cup.name = "Coffee"
+	coffee_touch = cup
+	coffee_button = cup.button
+	coffee_button.name = "CoffeeButton"
+	coffee_button.pressed.connect(coffee_cup)
+	add_child(cup)
 
 	zone = ZoneBox.new()
 	zone.name = "InfoZone"
@@ -68,6 +92,9 @@ func build() -> void:
 	board_message.add_child(message)
 	board_message.visible = false
 	zone.add_child(board_message)
+	hint_panel.visibility_changed.connect(_update_cup)
+	board_message.visibility_changed.connect(_update_cup)
+	_update_cup()
 
 	pause_menu = PauseMenu.new()
 	pause_menu.name = "PauseMenu"
@@ -75,6 +102,8 @@ func build() -> void:
 	pause_menu.resume_pressed.connect(resume)
 	pause_menu.settings_pressed.connect(func() -> void: app.goto(AppService.SETTINGS))
 	pause_menu.menu_pressed.connect(func() -> void: app.goto(AppService.MAIN_MENU))
+	pause_menu.about_pressed.connect(_on_about)
+	pause_menu.coffee_pressed.connect(_on_coffee)
 	add_child(pause_menu)
 
 	resized.connect(_layout)
@@ -167,6 +196,38 @@ func on_shown() -> void:
 	hud.refresh()
 
 
+## About from the pause menu opens over this screen, which hides, so the
+## timer stays stopped; Back comes back to the pause menu (GDD 15.7).
+func _on_about() -> void:
+	if app != null and not app.is_generating():
+		app.goto(AppService.ABOUT)
+
+
+## The coffee cup (GDD 15.7): first exactly what Pause does (the timer
+## stops, the board hides, the pause menu opens, the puzzle is saved), then
+## the support page goes to the browser, so coming back shows the pause
+## menu. Ignored while a puzzle is being made and once the puzzle is
+## finished.
+func coffee_cup() -> void:
+	if app == null or app.is_generating() or session == null or session.is_completed:
+		return
+	show_pause()
+	app.open_support_page()
+
+
+## The cup is covered exactly when Pause is: the hint panel and the full
+## board message cover the header row, so the cup hides with them, even
+## where a short panel would leave the band showing.
+func _update_cup() -> void:
+	coffee_touch.visible = not hint_panel.visible and not board_message.visible
+
+
+## Buy me a coffee from the pause menu: the puzzle is already paused.
+func _on_coffee() -> void:
+	if app != null and not app.is_generating():
+		app.open_support_page()
+
+
 ## The Hint button: finds the next step and buys it (ARCHITECTURE section
 ## 11). NextStep.find is fast enough for the main thread.
 func buy_hint() -> void:
@@ -254,8 +315,11 @@ func _layout() -> void:
 
 
 ## The HUD sits in PlayArea's header row, mirrored when side by side. The
-## level sticker sits in the band, space_s above the board's left end
-## (stacked) or the pad's left end (side by side). The hint panel and the
+## band is mirrored with it: the coffee cup sits at the top of the band,
+## right under Pause (the right end stacked, the left end, next to the
+## board, side by side), and the level sticker at the other end, space_s
+## above the board's left end (stacked) or the pad's right end (side by
+## side). The hint panel and the
 ## full board message cover the info zone: the header row and the band, down
 ## to space_s above the board or the pad, never a cell.
 func _place_band_items() -> void:
@@ -264,13 +328,21 @@ func _place_band_items() -> void:
 	var s: GameSkin = skin()
 	var to_local: Transform2D = get_global_transform().affine_inverse()
 	var header: Rect2 = to_local * play_area.header_rect_global()
-	hud.set_mirrored(play_area.arrangement() == Layout.Arrangement.SIDE)
+	var side: bool = play_area.arrangement() == Layout.Arrangement.SIDE
+	hud.set_mirrored(side)
 	hud.position = header.position
 	hud.size = header.size
 	var band: Rect2 = to_local * play_area.band_rect_global()
 	var sticker_size: Vector2 = level_sticker.get_combined_minimum_size()
 	level_sticker.size = sticker_size
-	level_sticker.position = Vector2(band.position.x + s.space_s, band.end.y - s.space_s - sticker_size.y)
+	var sticker_x: float = band.end.x - s.space_s - sticker_size.x if side else band.position.x + s.space_s
+	level_sticker.position = Vector2(sticker_x, band.end.y - s.space_s - sticker_size.y)
+	# The coffee cup right under Pause, at the top of the band: the right end
+	# stacked, the left end (next to the board) side by side.
+	var cup_size: Vector2 = coffee_touch.get_combined_minimum_size()
+	coffee_touch.size = cup_size
+	var cup_x: float = header.position.x if side else header.end.x - cup_size.x
+	coffee_touch.position = Vector2(cup_x, band.position.y)
 	var info: Rect2 = to_local * play_area.info_zone_rect_global()
 	zone.position = info.position
 	zone.size = info.size

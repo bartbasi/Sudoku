@@ -6,7 +6,7 @@ extends "res://tests/unit_test.gd"
 
 const CONTRACT: Array[StringName] = [
 	&"undo", &"erase", &"mode_place", &"mode_cross_out", &"hint", &"pause",
-	&"play", &"settings", &"back", &"close", &"check", &"lock",
+	&"play", &"settings", &"back", &"close", &"check", &"lock", &"coffee",
 ]
 const SIDES: Array[float] = [10.0, 20.0, 24.0, 48.0, 96.0, 512.0]
 const SKIN_PATHS: Array[String] = ["res://src/skins/pop_light.tres", "res://src/skins/pop_dark.tres"]
@@ -20,9 +20,33 @@ func _skins() -> Array[GameSkin]:
 
 
 func test_icon_list_matches_the_contract() -> void:
-	assert_eq(Icons.ALL.size(), CONTRACT.size(), "twelve icons")
+	assert_eq(Icons.ALL.size(), CONTRACT.size(), "thirteen icons")
 	for icon: StringName in CONTRACT:
 		assert_true(Icons.has_icon(icon), "has %s" % icon)
+
+
+func test_coffee_icon_is_a_mug_with_steam() -> void:
+	assert_eq(Icons.COFFEE, &"coffee", "the HUD reads Icons.COFFEE")
+	assert_true(Icons.has_icon(Icons.COFFEE), "has coffee")
+	for side: float in [Icons.SIZE_BUTTON, Icons.SIZE_ICON_BUTTON, 48.0]:
+		var rect: Rect2 = Rect2(0.0, 0.0, side, side)
+		var shapes: Array[PackedVector2Array] = Icons.polygons(Icons.COFFEE, rect)
+		assert_true(shapes.size() > 3, "body, handle and steam at %d" % side)
+		var top: float = side
+		var bottom: float = 0.0
+		var right: float = 0.0
+		for shape: PackedVector2Array in shapes:
+			for point: Vector2 in shape:
+				assert_true(rect.has_point(point) or rect.grow(0.01).has_point(point), "inside at %d" % side)
+				top = minf(top, point.y)
+				bottom = maxf(bottom, point.y)
+				right = maxf(right, point.x)
+		# Steam rises well above the mug and the handle reaches past its side.
+		assert_true(top < 0.1 * side, "steam near the top at %d" % side)
+		assert_true(bottom > 0.85 * side, "foot near the bottom at %d" % side)
+		assert_true(right > 0.8 * side, "handle at the right at %d" % side)
+	var texture: Texture2D = Icons.texture(Icons.COFFEE, Icons.SIZE_ICON_BUTTON)
+	assert_eq(texture.get_width(), 24, "coffee texture at the icon button size")
 
 
 func test_stroke_and_sizes_match_section_4_1() -> void:

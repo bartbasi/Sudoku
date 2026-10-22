@@ -20,8 +20,9 @@ const SECTIONS: Array[Array] = [
 	]],
 	["Getting around", [
 		"The title screen has PLAY, MENU, INFO, ABOUT and Buy me a coffee. Back on the title screen closes the game. Your puzzle is saved.",
-		"Buy me a coffee opens a page in your web browser where you can support the game if you want to. It is the only thing in the game that opens anything. The game itself never uses the internet.",
-		"MENU on the title screen opens the main menu. During a puzzle, tap the Pause button, then Menu. You also get there from Menu when you finish a puzzle. The main menu has Continue (when a puzzle is in progress), New puzzle, Lessons, Stats and Settings. Back on the main menu takes you to the title screen.",
+		"MENU on the title screen opens the main menu. During a puzzle, tap the Pause button, then Menu. You also get there from Menu when you finish a puzzle. The main menu has Continue (when a puzzle is in progress), New puzzle, Lessons, Stats, Settings, About and Buy me a coffee. Back on the main menu takes you to the title screen.",
+		"About shows the game's version, who made it, its license, how to get in touch, the privacy policy and the open source notices. Open it from ABOUT on the title screen, or from About on the main menu, the pause menu or Settings. Back takes you to where you opened it. If you open it while a puzzle is paused, the puzzle stays paused.",
+		"Buy me a coffee opens a page in your web browser where you can support the game if you want to. You find it on the title screen, the main menu, the pause menu, Settings, About and the finish screen. During a puzzle, the coffee cup under the Pause button pauses the game first, so the timer stops while you are away. Buy me a coffee is the only thing in the game that opens anything. The game itself never uses the internet.",
 	]],
 	["The board", [
 		"Some digits are there from the start. They are called givens. They look different from the digits you place, and they cannot be changed.",
@@ -59,7 +60,7 @@ const SECTIONS: Array[Array] = [
 	]],
 	["Timer and pause", [
 		"The timer starts when the board appears. The time it takes to make the puzzle does not count. The timer runs only while you can see the board.",
-		"Tap the Pause button, or press Back, to open the pause menu. It hides the board and stops the timer. It has Resume, Settings and Menu.",
+		"Tap the Pause button, or press Back, to open the pause menu. It hides the board and stops the timer. It has Resume, Settings, Menu, About and Buy me a coffee.",
 		"When you leave the game, or another app takes over the screen, the game pauses too, and the pause menu is waiting when you come back. Time while the game is closed never counts.",
 		"If the game's window gets too small to play in, a message says so and the game pauses until the window is bigger again.",
 	]],

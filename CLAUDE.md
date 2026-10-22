@@ -69,6 +69,8 @@ Sudoku (working name in older docs: bartssudoku; Bart may choose a final name la
 
 - 2026-10-18, license (Bart): Sudoku is open source, free software under the GNU GPL version 3 with two section 7 additional terms: 7(b) every copy and modified version keeps "Copyright 2026 Play, Inc." and "Designed and written by Bart Basi." in its About screen; 7(c) modified versions are marked as changed. The license text is COPYING and the notice and terms are NOTICE, both at the repo root (Development Manager), both ship in the app and show in About. The copyright line is now "Copyright 2026 Play, Inc." without "All rights reserved." All of Bart's game repos are public on purpose.
 
+- 2026-10-22, easier to donate (Bart): the small Buy me a coffee button is also on the main menu, the pause menu, the settings screen and the completion screen. The play screen has a coffee cup icon in the band with the level sticker, under Pause (it did not fit in the header row at 320 dp; Bart chose this spot). The main menu is Continue, New puzzle, then Lessons | Stats and Settings | About in two rows of two, then the coffee button. The cup tapping it pauses the game first, then opens the browser. Not shown in lessons. About is also reachable from the main menu, the pause menu and the settings screen; Back returns to where it was opened, and a paused puzzle stays paused.
+
 ## Ownership
 
 Each path has one owner. Edit only what you own.

@@ -9,8 +9,10 @@ extends SceneTree
 ##
 ## For every window the game plays in, it checks the play screen (the
 ## arrangement, everything inside the safe rect, nothing overlapping, touch
-## targets of 48 dp or more, the header row mirrored side by side), the
-## main menu, the first launch offer, the pause menu, the completion screen,
+## targets of 48 dp or more, the header row mirrored side by side, the coffee
+## cup in the band under Pause), the
+## main menu, the first launch offer, the pause menu, the completion screen
+## (with About and Buy me a coffee where GDD 15.7 puts them, Settings too),
 ## the lists and the confirm dialog. Prints one line per failure and exits 0
 ## only when every check passes. Saves go to user://window_check, which is
 ## wiped before and after.
@@ -286,10 +288,30 @@ func _check_play(window: Shape) -> void:
 		_ok(hint_x < time_x and time_x < pause_x, "%s: Hint, time and score, then Pause" % where)
 		_ok(zone.end.y <= board.position.y + SLACK, "%s: the hint panel sits above the board" % where)
 
+	# The coffee cup (GDD 15.7): a 48 dp touch area at the top of the band,
+	# right under Pause, off the board, the keys, the sticker and the row.
+	var cup_button: Button = screen.get(&"coffee_button") as Button
+	var cup: Rect2 = _touch(cup_button)
+	var band: Rect2 = _local(area.band_rect_global())
+	var pause_rect: Rect2 = _rect(hud.pause_touch)
+	_ok(cup_button.is_visible_in_tree(), "%s: the coffee cup shows" % where)
+	_check_touch(cup_button, where)
+	_ok(_inside(cup, window.safe), "%s: the coffee cup %s inside the safe rect" % [where, cup])
+	_ok(_inside(cup, band), "%s: the coffee cup %s inside the band %s" % [where, cup, band])
+	for pair: Array in [["board", board], ["keys", keys], ["sticker", sticker], ["header row", header]]:
+		_ok(not _overlap(cup, pair[1] as Rect2), "%s: the coffee cup %s and the %s %s overlap" % [where, cup, pair[0], pair[1]])
+	_ok(absf(cup.get_center().x - pause_rect.get_center().x) <= SLACK and cup.position.y >= pause_rect.end.y - SLACK, "%s: the coffee cup %s right under Pause %s" % [where, cup, pause_rect])
+	_ok(_inside(cup, zone.grow_side(SIDE_BOTTOM, _skin.space_s)), "%s: the coffee cup within the info zone the panels cover" % where)
+	if arrangement == Layout.Arrangement.SIDE:
+		_ok(cup.end.x < sticker.position.x, "%s: side by side the cup at the board's end of the band, the sticker at the far end" % where)
+	else:
+		_ok(cup.position.x > sticker.end.x, "%s: stacked the sticker at the left, the cup at the right" % where)
+
 	# A hint on screen stays inside the info zone and off the board.
 	screen.call(&"buy_hint")
 	await process_frame
 	await process_frame
+	_ok(not cup_button.is_visible_in_tree(), "%s: the hint panel covers the coffee cup with Pause" % where)
 	var panel: HintPanel = screen.get(&"hint_panel") as HintPanel
 	var panel_rect: Rect2 = _rect(panel)
 	_ok(_inside(panel_rect, zone), "%s: the hint panel %s inside the info zone %s" % [where, panel_rect, zone])
@@ -306,10 +328,37 @@ func _check_main_menu(window: Shape, with_puzzle: bool) -> void:
 	_app.goto(AppService.MAIN_MENU)
 	var screen: Control = await _fit(window)
 	var where: String = "%s, main menu%s" % [window.label, " with Continue" if with_puzzle else ""]
-	_check_buttons([screen.get(&"continue_button"), screen.get(&"new_button"), screen.get(&"lessons_button"), screen.get(&"stats_button"), screen.get(&"settings_button")], window.safe, where)
+	var about: Button = screen.get(&"about_button") as Button
+	var coffee: Button = screen.get(&"coffee_button") as Button
+	_check_buttons([screen.get(&"continue_button"), screen.get(&"new_button"), screen.get(&"lessons_button"), screen.get(&"stats_button"), screen.get(&"settings_button"), about, coffee], window.safe, where)
+	var stats: Button = screen.get(&"stats_button") as Button
+	var lessons: Button = screen.get(&"lessons_button") as Button
+	var settings: Button = screen.get(&"settings_button") as Button
+	_ok(absf(_rect(lessons).position.y - _rect(stats).position.y) <= SLACK and absf(_rect(settings).position.y - _rect(about).position.y) <= SLACK, "%s: Lessons and Stats share a row, Settings and About the next" % where)
+	_ok(_rect(about).position.y > _rect(stats).end.y and _rect(settings).position.x < _rect(about).position.x, "%s: Settings and About under Lessons and Stats, About at the right" % where)
+	var content_end: float = window.safe.grow(-_skin.page_margin).end.x
+	for button: Button in [stats, about]:
+		_ok(_rect(button).end.x <= content_end + SLACK, "%s: %s ends at %.0f inside the content box %.0f" % [where, button.name, _rect(button).end.x, content_end])
+	for button: Button in [lessons, stats, settings, about]:
+		_ok(button.get_combined_minimum_size().x <= _rect(button).size.x + SLACK, "%s: %s %.0f wide holds its label (needs %.0f)" % [where, button.name, _rect(button).size.x, button.get_combined_minimum_size().x])
+	_check_coffee(coffee, about, screen.find_child("Hero", true, false) as Control, window, where)
 	_check_halves(screen.get(&"halves") as HalvesBox, window, where)
 	var wordmark: Control = screen.find_child("Wordmark", true, false) as Control
 	_ok(_inside(_rect(wordmark), window.safe), "%s: the wordmark inside the safe rect" % where)
+
+
+## Buy me a coffee (GDD 15.7): a 40 dp face in a touch area inside the
+## safe rect. Stacked it sits under last; side by side under first_part (the
+## hero or the paused time) and left of last. With first_part null it sits
+## under last in both arrangements.
+func _check_coffee(coffee: Button, last: Button, first_part: Control, window: Shape, where: String) -> void:
+	var touch: Rect2 = _touch(coffee)
+	_ok(_inside(touch, window.safe), "%s: the coffee touch area %s inside the safe rect" % [where, touch])
+	_ok(absf(_rect(coffee).size.y - Layout.ICON_FACE) <= SLACK, "%s: the coffee face %.1f is 40 dp" % [where, _rect(coffee).size.y])
+	if first_part != null and window.expected == Layout.Arrangement.SIDE:
+		_ok(touch.position.y >= _rect(first_part).end.y - SLACK and touch.end.x <= _rect(last).position.x, "%s: Buy me a coffee under %s, left of the buttons" % [where, first_part.name])
+	else:
+		_ok(touch.position.y >= _rect(last).end.y - SLACK, "%s: Buy me a coffee under %s" % [where, last.name])
 
 
 ## The title screen (7.15): PLAY, MENU, INFO, ABOUT and Buy me a coffee,
@@ -356,7 +405,9 @@ func _check_pause(window: Shape) -> void:
 	await _settle(screen)
 	var pause: PauseMenu = screen.get(&"pause_menu") as PauseMenu
 	var where: String = "%s, pause menu" % window.label
-	_check_buttons([pause.resume_button, pause.settings_button, pause.menu_button], window.safe, where)
+	_check_buttons([pause.resume_button, pause.settings_button, pause.menu_button, pause.about_button, pause.coffee_button], window.safe, where)
+	_ok(_rect(pause.about_button).position.y > _rect(pause.menu_button).end.y, "%s: About under Menu" % where)
+	_check_coffee(pause.coffee_button, pause.about_button, pause.time_label, window, where)
 	_check_halves(pause.halves, window, where)
 	for control: Control in [pause.time_label, pause.level_box]:
 		_ok(_inside(_rect(control), window.safe), "%s: %s inside the safe rect" % [where, control.name])
@@ -381,14 +432,16 @@ func _check_completion(window: Shape) -> void:
 	var where: String = "%s, completion" % window.label
 	var play_again: Button = screen.get(&"play_again_button") as Button
 	var menu: Button = screen.get(&"menu_button") as Button
-	_check_buttons([play_again, menu], window.safe, where)
+	var coffee: Button = screen.get(&"coffee_button") as Button
+	_check_buttons([play_again, menu, coffee], window.safe, where)
+	_check_coffee(coffee, play_again, null, window, where)
 	_check_halves(screen.get(&"halves") as HalvesBox, window, where)
 	var scroll: ScrollContainer = screen.get(&"receipt_scroll") as ScrollContainer
 	var shown: Rect2 = _rect(scroll)
 	_ok(_inside(shown, window.safe), "%s: the receipt %s inside the safe rect" % [where, shown])
 	_ok(shown.end.y <= _rect(play_again).position.y + SLACK, "%s: the receipt sits above the buttons" % where)
 	var content: Rect2 = window.safe.grow(-_skin.page_margin)
-	_ok(_rect(play_again).end.y >= content.end.y - _skin.shadow_offset - 1.0, "%s: the buttons are pinned at the bottom" % where)
+	_ok(_touch(coffee).end.y >= content.end.y - 1.0, "%s: Buy me a coffee is pinned at the bottom, the buttons right above it" % where)
 	var receipt: Control = screen.find_child("Receipt", true, false) as Control
 	if window.expected == Layout.Arrangement.SIDE:
 		_ok(scroll.vertical_scroll_mode == ScrollContainer.SCROLL_MODE_AUTO, "%s: the receipt scrolls side by side" % where)
@@ -419,10 +472,27 @@ func _check_lists(window: Shape) -> void:
 			_ok(rect.size.x <= Layout.COLUMN_MAX + SLACK, "%s: one column at most 600 wide" % where)
 			var list: Control = scroll.get_child(0) as Control
 			_ok(list.size.x <= rect.size.x + SLACK, "%s: the list %.0f is no wider than its scroll %.0f" % [where, list.size.x, rect.size.x])
+		if screen_id == AppService.SETTINGS:
+			await _check_settings_end(screen, window, where)
 		var back: Control = screen.find_child("Back", true, false) as Control
 		_ok(back != null and _inside(_rect(back), window.safe), "%s: the title row's Back inside the safe rect" % where)
 		if back != null:
 			_ok(_rect(back).size.y >= Layout.TOUCH_MIN - SLACK and _rect(back).size.x >= Layout.TOUCH_MIN - SLACK, "%s: Back is 48 by 48" % where)
+
+
+## Settings ends with Reset stats, About and Buy me a coffee (GDD 15.7):
+## scrolled to the end, all three show inside the list, in that order, none
+## on another, each with a 48 dp touch area.
+func _check_settings_end(screen: Control, window: Shape, where: String) -> void:
+	var scroll: ScrollContainer = _first_scroll(screen)
+	scroll.scroll_vertical = int(scroll.get_v_scroll_bar().max_value)
+	await _settle(screen)
+	var reset: Button = screen.get(&"reset_button") as Button
+	var about: Button = screen.get(&"about_button") as Button
+	var coffee: Button = screen.get(&"coffee_button") as Button
+	_check_buttons([reset, about, coffee], _rect(scroll), where + " scrolled to the end")
+	_ok(_rect(about).position.y >= _rect(reset).end.y + _skin.shadow_offset - SLACK, "%s: About under Reset stats and its shadow" % where)
+	_check_coffee(coffee, about, null, window, where)
 
 
 func _first_scroll(node: Node) -> ScrollContainer:

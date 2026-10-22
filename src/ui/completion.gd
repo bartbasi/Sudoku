@@ -3,9 +3,12 @@ extends UiScreen
 ## CompletionResult it is opened with: level, final time, points after
 ## hints, time bonus, final score, hints used, and NEW BEST TIME or NEW BEST
 ## SCORE when the result says so. Play again starts a new puzzle at the same
-## level with no dialog; Menu and Back go to the main menu. The buttons work
-## from the first frame. Side by side (4.11) the starburst takes the left
-## half and the receipt and buttons the right half.
+## level with no dialog; Menu and Back go to the main menu. Under them the
+## smaller Buy me a coffee button hands the support page to the phone's web
+## browser (App.open_support_page, GDD 15.7); it does nothing while a puzzle
+## is being made, so after Play again it stays quiet. The buttons work from
+## the first frame. Side by side (4.11) the starburst takes the left half
+## and the receipt, the buttons and Buy me a coffee the right half.
 ## Owner: ui-systems-dev.
 
 var result: CompletionResult = null
@@ -18,6 +21,9 @@ var new_best_time: Control = null
 var new_best_score: Control = null
 var play_again_button: Button = null
 var menu_button: Button = null
+## The face of Buy me a coffee; coffee_touch is its 48 dp touch area.
+var coffee_button: Button = null
+var coffee_touch: Control = null
 ## The starburst, SOLVED! and the level first; the receipt and the buttons
 ## second (DESIGN_SYSTEM.md 4.11).
 var halves: HalvesBox = null
@@ -106,6 +112,11 @@ func build() -> void:
 	menu_button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	menu_button.pressed.connect(_on_menu)
 	buttons.add_child(menu_button)
+	var coffee: UiKit.TouchTarget = UiKit.coffee_button()
+	coffee_touch = coffee
+	coffee_button = coffee.button
+	coffee_button.pressed.connect(_on_coffee)
+	results.add_child(coffee)
 	_animate(solved)
 
 
@@ -134,6 +145,11 @@ func handle_back() -> bool:
 func _on_play_again() -> void:
 	if app != null:
 		app.start_new_puzzle(result.level)
+
+
+func _on_coffee() -> void:
+	if app != null and not app.is_generating():
+		app.open_support_page()
 
 
 func _on_menu() -> void:

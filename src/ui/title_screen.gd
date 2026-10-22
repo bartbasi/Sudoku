@@ -62,12 +62,9 @@ func build() -> void:
 	buttons.add_child(about_button)
 	# Under ABOUT's shadow room: a 40 dp face in a 48 dp touch area, only as
 	# wide as its label, so it reads as smaller than the four above.
-	var coffee: UiKit.TouchTarget = UiKit.small_button(ThemeFactory.BUTTON_SECONDARY, "Buy me a coffee", Layout.ICON_FACE)
-	coffee.name = "Coffee"
-	coffee.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	var coffee: UiKit.TouchTarget = UiKit.coffee_button()
 	coffee_touch = coffee
 	coffee_button = coffee.button
-	coffee_button.name = "CoffeeButton"
 	coffee_button.pressed.connect(_on_coffee)
 	second.add_child(coffee)
 	halves.arranged.connect(_on_arranged)
@@ -85,11 +82,7 @@ func _on_coffee() -> void:
 
 ## Stacked, Buy me a coffee sits under ABOUT; side by side, under the hero.
 func _on_arranged(side: bool) -> void:
-	var target: Node = halves.get_child(0) if side else halves.get_child(1)
-	if coffee_touch.get_parent() == target:
-		return
-	coffee_touch.get_parent().remove_child(coffee_touch)
-	target.add_child(coffee_touch)
+	MainMenu.move_to_half(halves, coffee_touch, side)
 
 
 func _open(screen: StringName) -> void:

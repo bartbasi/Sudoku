@@ -8,6 +8,7 @@ extends SceneTree
 ##   timeout 300 godot --path . --script res://tests/ui/capture_screens.gd -- title <folder>
 ##   timeout 300 godot --path . --script res://tests/ui/capture_screens.gd -- candidates <folder>
 ##   timeout 300 godot --path . --script res://tests/ui/capture_screens.gd -- license <folder>
+##   timeout 300 godot --path . --script res://tests/ui/capture_screens.gd -- coffee <folder>
 ##
 ## Writes build/ui/<size>-<skin>-<screen>.png. Saves go to
 ## user://ui_capture/, which is wiped first, so real saves are untouched.
@@ -22,6 +23,8 @@ extends SceneTree
 ## elimination hint showing only its candidates to cross (GDD 4.5, SC-3).
 ## "license" captures About at 360 by 800 in Pop light: the card, then the
 ## notices scrolled to the Sudoku notice and to the GNU GPL.
+## "coffee" captures the screens with About and Buy me a coffee (GDD 15.7)
+## into the folder given (absolute): see _run_coffee.
 
 const OUT_DIR: String = "res://build/ui/"
 const SAVE_DIR: String = "user://ui_capture"
@@ -39,6 +42,7 @@ var _windows: bool = false
 var _title: bool = false
 var _candidates: bool = false
 var _license: bool = false
+var _coffee: bool = false
 var _out_dir: String = OUT_DIR
 var _app: AppService = null
 var _skins: Node = null
@@ -48,10 +52,11 @@ func _initialize() -> void:
 	var args: PackedStringArray = OS.get_cmdline_user_args()
 	if args.size() > 0 and args[0] == "windows":
 		_windows = true
-	elif args.size() > 0 and (args[0] == "title" or args[0] == "candidates" or args[0] == "license"):
+	elif args.size() > 0 and (args[0] == "title" or args[0] == "candidates" or args[0] == "license" or args[0] == "coffee"):
 		_title = args[0] == "title"
 		_candidates = args[0] == "candidates"
 		_license = args[0] == "license"
+		_coffee = args[0] == "coffee"
 		if args.size() > 1:
 			_out_dir = args[1].replace("\\", "/")
 			if not _out_dir.ends_with("/"):
@@ -99,6 +104,9 @@ func _run() -> void:
 		return
 	if _candidates:
 		await _run_candidates()
+		return
+	if _coffee:
+		await _run_coffee()
 		return
 	if _license:
 		await _run_license()
@@ -342,6 +350,55 @@ func _run_candidates() -> void:
 	_wipe(SAVE_DIR)
 	quit(0)
 
+
+
+## Buy me a coffee and About on more screens (GDD 15.7): the main menu, the
+## pause menu, Settings (top and scrolled to the end), the completion
+## screen and the play screen at 360 by 800 in Pop light and 320 by 568 in
+## Pop dark, then the play screen, the main menu and the pause menu at 690
+## by 400 in Pop light.
+func _run_coffee() -> void:
+	_app.answer_first_launch()
+	_app.start_new_puzzle(Levels.MEDIUM)
+	_app.session.add_time(380.0)
+	var result: CompletionResult = CompletionResult.new()
+	result.level = Levels.HARD
+	result.seconds = 1350
+	result.points_after_hints = 420
+	result.time_bonus = 175
+	result.final_score = 595
+	result.hints_used = 2
+	result.new_best = Stats.NEW_BEST_TIME | Stats.NEW_BEST_SCORE
+	var runs: Array[Array] = [[Vector2i(360, 800), &"pop_light"], [Vector2i(320, 568), &"pop_dark"]]
+	for run: Array in runs:
+		_resize(run[0] as Vector2i)
+		_app.set_skin(run[1] as StringName)
+		var skin_name: String = String(run[1]).trim_prefix("pop_")
+		_app.goto(AppService.MAIN_MENU)
+		await _shot(skin_name, "main_menu")
+		_app.goto(AppService.SETTINGS)
+		await _shot(skin_name, "settings")
+		for node: Node in _app.current_screen_node().find_children("*", "ScrollContainer", true, false):
+			(node as ScrollContainer).scroll_vertical = 100000
+		await _shot(skin_name, "settings_end")
+		_app.goto(AppService.PLAY)
+		await _shot(skin_name, "play")
+		_app.current_screen_node().call(&"show_pause")
+		await _shot(skin_name, "pause")
+		_app.current_screen_node().call(&"resume")
+		_app.goto(AppService.COMPLETION, result)
+		await _shot(skin_name, "completion")
+	_resize(Vector2i(690, 400))
+	_app.set_skin(&"pop_light")
+	_app.goto(AppService.MAIN_MENU)
+	await _shot("light", "main_menu")
+	_app.goto(AppService.PLAY)
+	await _shot("light", "play")
+	_app.current_screen_node().call(&"show_pause")
+	await _shot("light", "pause")
+	_app.abandon_puzzle()
+	_wipe(SAVE_DIR)
+	quit(0)
 
 ## Gives the window a new size, as a fold or a split screen divider would.
 ## App hears size_changed and re-checks the arrangement.

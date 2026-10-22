@@ -432,7 +432,7 @@ static func build(skin: GameSkin) -> Theme
 
 class_name Icons extends RefCounted
 static func draw(canvas: CanvasItem, icon: StringName, rect: Rect2, color: Color) -> void
-# icons: undo, erase, mode_place, mode_cross_out, hint, pause, play, settings, back, close, check, lock
+# icons: undo, erase, mode_place, mode_cross_out, hint, pause, play, settings, back, close, check, lock, coffee
 
 class_name IconView extends Control
 @export var icon: StringName

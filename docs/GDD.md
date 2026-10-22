@@ -2,7 +2,7 @@
 
 Owner: lead-game-designer. Approved by Bart at Hard Stop 1, 2026-10-11. Where this document disagrees with docs/BRIEF.md, the brief wins, unless Bart decided otherwise (CLAUDE.md, "Decisions from Bart after the brief").
 
-Change log: 2026-10-11, Phase 2: updated for Bart's Hard Stop 1 decisions (his answers to the three questions, the New best rule in 12.1 with AT-67, a hand-crossed digit drawn on top of its X, ring layout A, the Pop light and Pop dark skins, the screen sizes in AT-66), and corrected the example scores in section 13 and AT-53 to match the score formula. Later in Phase 2: added the Settings line for Auto Cross (5.2), and the rule that taps after a lesson step's answer are ignored until Next (15.4, AT-63). 2026-10-12, Phase 3: updated for Bart's Hard Stop 2 decisions: a givens floor for Beginner and Easy (11.4, AT-68) and the hint highlight of candidates to cross (2.3, 10.2, AT-69). 2026-10-12, Phase 6: window shapes for foldables and split screen, with Hint at the far end in side by side (2.4), the too small message and what it does to the puzzle (8, 8.1, 14), and AT-70 and AT-71. 2026-10-14: Bart's title screen. Every app start opens it, with PLAY, INFO and ABOUT (15.0); the lesson 1 offer moved from app start to the first PLAY (15.3); the main menu (15.1); the last level started is saved (14, 15.2); the exact Info screen text (15.5) and About screen text (15.6); Continue became PLAY in 7.3 and in the restart tests; AT-72 to AT-78. 2026-10-14, later: Bart's Show candidates switch (4.5), with the matching lines in 1, 2.1, 3.1, 4.2, 5.1, 7.1, 10.2, 14, 15.4, 15.5 and 16, and AT-79 to AT-85. Bart's MENU button on the title screen (1, 15.0, 15.1, 15.5 Getting around, AT-72, AT-76). 2026-10-17: Bart's Buy me a coffee button on the title screen and the About screen, and the new About card: credit, Play, Inc. copyright, contact and privacy lines; the rule against "github" retired (1, 15.0, 15.5 Getting around, 15.6, AT-72, AT-78, AT-86). 2026-10-18: Bart's GPL v3 license: the copyright line without "All rights reserved.", the license line on the About card, and the game's NOTICE and COPYING first in the open source notices (1, 15.6, AT-78).
+Change log: 2026-10-11, Phase 2: updated for Bart's Hard Stop 1 decisions (his answers to the three questions, the New best rule in 12.1 with AT-67, a hand-crossed digit drawn on top of its X, ring layout A, the Pop light and Pop dark skins, the screen sizes in AT-66), and corrected the example scores in section 13 and AT-53 to match the score formula. Later in Phase 2: added the Settings line for Auto Cross (5.2), and the rule that taps after a lesson step's answer are ignored until Next (15.4, AT-63). 2026-10-12, Phase 3: updated for Bart's Hard Stop 2 decisions: a givens floor for Beginner and Easy (11.4, AT-68) and the hint highlight of candidates to cross (2.3, 10.2, AT-69). 2026-10-12, Phase 6: window shapes for foldables and split screen, with Hint at the far end in side by side (2.4), the too small message and what it does to the puzzle (8, 8.1, 14), and AT-70 and AT-71. 2026-10-14: Bart's title screen. Every app start opens it, with PLAY, INFO and ABOUT (15.0); the lesson 1 offer moved from app start to the first PLAY (15.3); the main menu (15.1); the last level started is saved (14, 15.2); the exact Info screen text (15.5) and About screen text (15.6); Continue became PLAY in 7.3 and in the restart tests; AT-72 to AT-78. 2026-10-14, later: Bart's Show candidates switch (4.5), with the matching lines in 1, 2.1, 3.1, 4.2, 5.1, 7.1, 10.2, 14, 15.4, 15.5 and 16, and AT-79 to AT-85. Bart's MENU button on the title screen (1, 15.0, 15.1, 15.5 Getting around, AT-72, AT-76). 2026-10-17: Bart's Buy me a coffee button on the title screen and the About screen, and the new About card: credit, Play, Inc. copyright, contact and privacy lines; the rule against "github" retired (1, 15.0, 15.5 Getting around, 15.6, AT-72, AT-78, AT-86). 2026-10-18: Bart's GPL v3 license: the copyright line without "All rights reserved.", the license line on the About card, and the game's NOTICE and COPYING first in the open source notices (1, 15.6, AT-78). 2026-10-22: Bart's Buy me a coffee on more screens (the main menu, the pause menu, Settings, the completion screen, and a coffee cup in the play screen's band, under Pause, that pauses first) and About reachable from the main menu, the pause menu and Settings, with Back returning to where it was opened (1, 2.4, 3.1, 8, 8.1, 12, 15.0, 15.1, 15.5 Getting around and Timer and pause, 15.6, new 15.7, AT-70, AT-76, AT-79, AT-86, new AT-87 to AT-89).
 
 ## 1. Summary for Bart
 
@@ -53,7 +53,9 @@ Play
 - Completion locks the board and shows level, time, and the score with its parts, plus a New best label when the result beats the level's previous best. [12]
 - Stats are exactly the brief's list. [13]
 - Every app start opens the title screen: PLAY, MENU, INFO and ABOUT (Bart, 2026-10-14), then a less prominent Buy me a coffee (Bart, 2026-10-17). MENU opens the main menu. PLAY resumes the puzzle in progress, or starts a new one at the level of the last puzzle started (Easy the first time). Back on the main menu opens the title screen. [15.0]
-- Buy me a coffee, on the title screen and the About screen, hands https://buymeacoffee.com/playinc to the phone's web browser. It is the only thing in the game that opens anything outside it. The game itself never uses the network. [15.0, 15.6]
+- Buy me a coffee hands https://buymeacoffee.com/playinc to the phone's web browser. It is the only thing in the game that opens anything outside it. The game itself never uses the network. [15.0, 15.6]
+- Buy me a coffee everywhere (Bart, 2026-10-22): the same small button also comes last on the main menu, the pause menu, Settings and the completion screen. On the play screen a coffee cup in the band, on Pause's side, pauses the game first, then opens the browser; coming back shows the pause menu. Not in lessons. Every coffee button does nothing while a puzzle is being made. [15.7]
+- About everywhere (Bart, 2026-10-22): the main menu, the pause menu and Settings get an About button, before Buy me a coffee. Back on About returns to the screen it was opened from. Over a paused puzzle, the puzzle stays paused the whole time. [15.7]
 - About (Bart, 2026-10-17): copyright is held by Play, Inc. The card credits Bart Basi as designer and writer and gives bartbasi@gmail.com for questions, feedback and notices. [15.6]
 - License (Bart, 2026-10-18): Sudoku is free software under the GNU General Public License, version 3, with section 7 additional terms. The copyright line drops "All rights reserved." The About card says so and gives the source address; the notices show the game's NOTICE and COPYING before the engine's. The credit and copyright lines always show in full. [15.6]
 - Starting a puzzle while one is in progress asks once for confirmation. The first PLAY offers lesson 1, once. [15]
@@ -129,9 +131,9 @@ Bart, Phase 6: split screen is allowed, and the game must lay out well in any wi
 - The game rules do not depend on the arrangement. Every control is there in both, does the same thing and has a touch area of at least 48 by 48 dp. Cells are the one exception, as in DESIGN_SYSTEM 4.4. Nothing overlaps, and no hint text, panel or message ever covers a cell.
 - The 320 by 568 dp promise of Hard Stop 1 still holds: that screen is stacked (AT-66).
 
-Decision: side by side, the header row is mirrored. Pause sits at the end next to the board, the time and score in the middle, and Hint at the far end, away from the board.
+Decision: side by side, the header row is mirrored. Pause sits at the end next to the board, the time and score in the middle, and Hint at the far end, away from the board. The coffee cup sits in the band, at Pause's end (15.7).
 - Reason: Hint must never sit next to the board, where a finger slipping off a cell would buy a hint. That is why Hint moved away from the board in Phase 2. A slip onto Pause only pauses, which costs nothing.
-- Example: Fold5 inner screen, game in the top half of a split screen (690 by 400 dp). The board is 345 dp at the left. The side column is 306 dp wide, 16 dp to the right of the board. Its header row reads, left to right: Pause, the time, the score, Hint. The hint panel, when shown, covers the side column's header row and band, never the board.
+- Example: Fold5 inner screen, game in the top half of a split screen (690 by 400 dp). The board is 345 dp at the left. The side column is 306 dp wide, 16 dp to the right of the board. Its header row reads, left to right: Pause, the time, the score, Hint. Under it, the band has the coffee cup at the left, under Pause, and the level sticker at the right. The hint panel, when shown, covers the side column's header row and band, never the board.
 
 Decision: changing the window's shape during play changes only the layout. The digits, the ring, the selection, the mode, a hint on screen, the score and the undo history stay exactly as they were. The change itself never stops or resets the timer; the timer stops only where section 8 says, for example when the game loses focus to the other app in split screen, or when the window becomes too small (8.1).
 - Reason: a fold or a dragged divider is not a player action, so it must not cost anything or change the puzzle.
@@ -141,7 +143,7 @@ Decision: changing the window's shape during play changes only the layout. The d
 
 ### 3.1 Controls
 
-Number pad 1 to 9, a mode toggle with Place and Cross Out (it always shows which is on), Erase and Undo. The Hint button is in the HUD (section 10). Erase and Undo do the same thing in both modes. With Show candidates off, the mode toggle is hidden and Place is always on (4.5).
+Number pad 1 to 9, a mode toggle with Place and Cross Out (it always shows which is on), Erase and Undo. The Hint button is in the HUD (section 10), and so are Pause and, in the band below it, the coffee cup (15.7). Erase and Undo do the same thing in both modes. With Show candidates off, the mode toggle is hidden and Place is always on (4.5).
 
 ### 3.2 Every action
 
@@ -424,8 +426,8 @@ Decision: undo history survives closing the app. It is saved with the puzzle in 
 
 - The timer starts at 0:00 when a new puzzle's board first appears. Time spent generating the puzzle is not counted.
 - It runs only while the puzzle screen is showing with nothing over the board. The hint panel and the full board message do not stop it.
-- It pauses while the pause menu is open (including Settings opened from it), while the app is in the background or has lost focus, while the window is too small (8.1), and while the player is on any other screen (title, Info, About, main menu, lessons, stats) with a puzzle in progress.
-- When the app comes back from the background during a puzzle, the pause menu is showing. The timer resumes when the player taps Resume.
+- It pauses while the pause menu is open (including Settings and About opened from it, and About opened from that Settings; 15.7), while the app is in the background or has lost focus, while the window is too small (8.1), and while the player is on any other screen (title, Info, About, main menu, lessons, stats) with a puzzle in progress.
+- When the app comes back from the background during a puzzle, the pause menu is showing. The timer resumes when the player taps Resume. The coffee cup in the band pauses the same way before it opens the browser (15.7). If the player left from Settings or About opened from the pause menu, that screen shows as left, over the still paused puzzle.
 - Android Back on the puzzle screen opens the pause menu. Back in the pause menu resumes, except while the window is too small (8.1).
 - It stops for good at completion.
 - It counts whole seconds, shown as m:ss, or h:mm:ss from one hour. The final time t is the whole seconds at completion.
@@ -448,7 +450,7 @@ Rules:
 - The message covers every screen, full screen, and takes every tap. Nothing on it can be tapped, and a tap on it changes nothing underneath and plays no sound.
 - On the play screen, the moment the window becomes too small: the timer stops and the pause menu opens under the message, exactly as when the app loses focus (section 8). The puzzle is saved, as on focus loss.
 - Nothing is lost. Every digit, every ring mark, the selection, the mode, a hint on screen, the score, the undo history and the timer's value stay as they were. On other screens the state underneath stays too: a lesson stays on its step, a dialog stays open with nothing chosen, Settings keeps what was set.
-- When the window grows back to stacked or side by side, the message goes and the screen underneath shows as it was left. On the play screen that is the pause menu (or Settings, if the player had opened it from the pause menu before the window shrank), so the puzzle comes back paused. The timer runs again only when the player taps Resume.
+- When the window grows back to stacked or side by side, the message goes and the screen underneath shows as it was left. On the play screen that is the pause menu (or Settings or About, if the player had opened it from the pause menu before the window shrank), so the puzzle comes back paused. The timer runs again only when the player taps Resume.
 - A puzzle that is being made when the window becomes too small opens paused, with the timer at 0:00, as when the app loses focus while a puzzle is made. Its level's Started goes up when its board first appears, under the pause menu, as usual (section 13).
 - Android Back while the message shows: in the pause menu it does nothing. Everywhere else it does what it does on the screen underneath.
 - Reason for the Back rule: Back in the pause menu resumes play. Under the message that would start the clock on a board the player cannot see, and the player would come back to a running timer instead of the pause menu.
@@ -685,7 +687,7 @@ Decision (Bart, Hard Stop 2): a generated Beginner puzzle has at least 36 givens
 
 - The puzzle completes the moment a placement or replacement leaves every cell filled with no conflict.
 - At that moment, in this order: the timer stops; the board locks (no input, Undo and Hint disabled, any hint closes); the final score is computed (section 9); the New best labels are decided (12.1); stats update and are saved (section 13); the saved puzzle and its undo history are deleted; the completion screen shows.
-- The completion screen shows the level, the final time, the final score with its parts (points after hints, time bonus, total), the number of hints used, and any New best label (12.1). Buttons: Play again (a new puzzle at the same level, with no dialog, since nothing is in progress) and Menu.
+- The completion screen shows the level, the final time, the final score with its parts (points after hints, time bonus, total), the number of hints used, and any New best label (12.1). Buttons: Play again (a new puzzle at the same level, with no dialog, since nothing is in progress) and Menu, then under them the small Buy me a coffee button (Bart, 2026-10-22; 15.7).
 - Example: the Hard example in 9.3 shows "Hard, 22:30, points 420, time bonus 175, score 595, 2 hints", plus any label 12.1 gives it.
 
 ### 12.1 New best labels
@@ -782,21 +784,21 @@ Bart, 2026-10-14. These are his rules, not designer decisions.
   3. Else it starts a new puzzle at the level of the last puzzle started, or Easy if no puzzle was ever started. The making a puzzle card shows while it is made, as for every new puzzle (DESIGN_SYSTEM 7.14), and the puzzle starts exactly as 15.2 describes: its board appears with the timer at 0:00, and its level's Started goes up by 1.
 - A tap on PLAY while a puzzle is being made does nothing, so one tap never starts two puzzles.
 - The last level started is the level of the last new puzzle the game began to make, from level select, from Play again or from PLAY itself. It is saved with the settings (section 14). Abandoning, completing, lessons and Reset Stats do not change it. If the saved value is missing or unreadable it is Easy.
-- MENU opens the main menu (15.1), unchanged. Android Back on the main menu returns to the title screen. MENU never shows the lesson 1 offer, starts or resumes a puzzle, or changes stats or the timer; the offer stays on the first PLAY (15.3).
-- INFO opens the Info screen (15.5) and ABOUT opens the About screen (15.6), each over the title screen. Back on either returns to the title screen. That means Android Back, and also the screen's own back button if the design gives it one, as other pushed screens such as Settings have.
+- MENU opens the main menu (15.1). Android Back on the main menu returns to the title screen. MENU never shows the lesson 1 offer, starts or resumes a puzzle, or changes stats or the timer; the offer stays on the first PLAY (15.3).
+- INFO opens the Info screen (15.5) and ABOUT opens the About screen (15.6), each over the title screen. Back on either returns to the title screen. (About also opens from the main menu, the pause menu and Settings, and Back then returns there; 15.7.) That means Android Back, and also the screen's own back button if the design gives it one, as other pushed screens such as Settings have.
 - Buy me a coffee (Bart, 2026-10-17) hands the address https://buymeacoffee.com/playinc to the phone's web browser, which opens it. The game sends nothing itself: it does not check the network, fetch the page or add anything to the address. Nothing else happens in the game: no screen changes, no puzzle starts or resumes, stats, settings and the puzzle in progress do not change, and the lesson 1 offer stays on the first PLAY. The browser takes the screen, so the game goes to the background as it does when the player switches apps. Coming back to the game shows the title screen, as left. If Android closed the game while it was in the background, coming back is an app start and the title screen shows anyway.
 - With no network, for example in airplane mode, the button works the same: it opens the browser, and the browser shows its own offline page. The game shows no message of its own. If the phone has no app that can open a web page, nothing happens.
 - While a puzzle is being made, a tap on any title button, Buy me a coffee included, does nothing.
 - Example: with an Easy puzzle in progress at 2:00, the player taps Buy me a coffee. The browser opens https://buymeacoffee.com/playinc. The player switches back to Sudoku: the title screen shows, and PLAY resumes the Easy puzzle at 2:00, with Easy Started unchanged.
-- The main menu is unchanged (15.1). It is reached from MENU on the title screen, and from the pause menu's Menu and the completion screen's Menu, as before. Android Back on the main menu opens the title screen. This replaces the Phase 6 rule that Back on the main menu closes the app.
+- The main menu (15.1) is reached from MENU on the title screen, and from the pause menu's Menu and the completion screen's Menu, as before. Android Back on the main menu opens the title screen. This replaces the Phase 6 rule that Back on the main menu closes the app.
 - Example, a new player: install, open the app, and the title screen shows. Tap PLAY: the lesson 1 offer shows. Tap Skip: a new Easy puzzle starts at 0:00 with a score of 200. Play two minutes, then tap Pause, then Menu: the main menu shows Continue. Press Back: the title screen. Tap PLAY: the same Easy puzzle, same cell and mode, timer at 2:00 and running.
-- Example, MENU: with an Easy puzzle in progress at 2:00, the player launches the app and taps MENU. The main menu shows Continue, New puzzle, Lessons, Stats and Settings. The player opens Stats, presses Back twice and is on the title screen again. PLAY then resumes the Easy puzzle at 2:00.
+- Example, MENU: with an Easy puzzle in progress at 2:00, the player launches the app and taps MENU. The main menu shows Continue, New puzzle, Lessons, Stats, Settings, About and Buy me a coffee. The player opens Stats, presses Back twice and is on the title screen again. PLAY then resumes the Easy puzzle at 2:00.
 - Example, the last level: the player completes a Hard puzzle, taps Menu on the completion screen and presses Back. On the title screen PLAY starts a new Hard puzzle. If instead the player had started a Beginner puzzle from level select and then abandoned it for a Medium one, PLAY after completing the Medium puzzle starts Medium.
 
 ### 15.1 App start and the main menu
 
 - The app starts on the title screen (15.0), never on the main menu.
-- The main menu is reached from MENU on the title screen (15.0), from the pause menu's Menu and from the completion screen's Menu. Its buttons are as before: Continue first, only when a puzzle is in progress, then New puzzle, Lessons, Stats and Settings.
+- The main menu is reached from MENU on the title screen (15.0), from the pause menu's Menu and from the completion screen's Menu. Its buttons: Continue first, only when a puzzle is in progress, then New puzzle, Lessons, Stats, Settings and About, then the small Buy me a coffee button last (Bart, 2026-10-22; 15.7). Continue and New puzzle are full width; Lessons and Stats, then Settings and About, are two rows of two (15.7).
 - Continue opens the puzzle in progress with the saved cell selected, the saved mode on and the timer running.
 - Android Back on the main menu opens the title screen (15.0).
 
@@ -847,13 +849,15 @@ Every puzzle has exactly one answer, and you can always reach it by reasoning. Y
 
 Tap PLAY to start. It brings back the puzzle you were playing, or starts a new one at the level you last started. The very first time, that is Easy.
 
-**Getting around** [15.0, 15.1]
+**Getting around** [15.0, 15.1, 15.7]
 
 The title screen has PLAY, MENU, INFO, ABOUT and Buy me a coffee. Back on the title screen closes the game. Your puzzle is saved.
 
-Buy me a coffee opens a page in your web browser where you can support the game if you want to. It is the only thing in the game that opens anything. The game itself never uses the internet.
+MENU on the title screen opens the main menu. During a puzzle, tap the Pause button, then Menu. You also get there from Menu when you finish a puzzle. The main menu has Continue (when a puzzle is in progress), New puzzle, Lessons, Stats, Settings, About and Buy me a coffee. Back on the main menu takes you to the title screen.
 
-MENU on the title screen opens the main menu. During a puzzle, tap the Pause button, then Menu. You also get there from Menu when you finish a puzzle. The main menu has Continue (when a puzzle is in progress), New puzzle, Lessons, Stats and Settings. Back on the main menu takes you to the title screen.
+About shows the game's version, who made it, its license, how to get in touch, the privacy policy and the open source notices. Open it from ABOUT on the title screen, or from About on the main menu, the pause menu or Settings. Back takes you to where you opened it. If you open it while a puzzle is paused, the puzzle stays paused.
+
+Buy me a coffee opens a page in your web browser where you can support the game if you want to. You find it on the title screen, the main menu, the pause menu, Settings, About and the finish screen. During a puzzle, the coffee cup under the Pause button pauses the game first, so the timer stops while you are away. Buy me a coffee is the only thing in the game that opens anything. The game itself never uses the internet.
 
 **The board** [2.1 to 2.3]
 
@@ -911,11 +915,11 @@ Marks cost no points. They go away as soon as the clash is fixed.
 
 If the board is full but some digits clash, the puzzle is not finished. Fix the marked cells. A full board with no clash is always the right answer.
 
-**Timer and pause** [8, 8.1]
+**Timer and pause** [8, 8.1, 15.7]
 
 The timer starts when the board appears. The time it takes to make the puzzle does not count. The timer runs only while you can see the board.
 
-Tap the Pause button, or press Back, to open the pause menu. It hides the board and stops the timer. It has Resume, Settings and Menu.
+Tap the Pause button, or press Back, to open the pause menu. It hides the board and stops the timer. It has Resume, Settings, Menu, About and Buy me a coffee.
 
 When you leave the game, or another app takes over the screen, the game pauses too, and the pause menu is waiting when you come back. Time while the game is closed never counts.
 
@@ -989,7 +993,7 @@ Decision: the Info screen also has a "Getting around" section, beyond the list i
 
 ### 15.6 About screen text
 
-The About screen (ABOUT on the title screen) shows exactly this, in this order:
+The About screen (ABOUT on the title screen, and About on the main menu, the pause menu and Settings; 15.7) shows exactly this, in this order, wherever it is opened from:
 
 1. The title line: "Sudoku".
 2. "Version {version}", where {version} is the app's version as the project settings give it at run time (ARCHITECTURE section 11).
@@ -1019,7 +1023,44 @@ The About screen (ABOUT on the title screen) shows exactly this, in this order:
 - The only things on the screen that can be tapped are Back and the Buy me a coffee button. The open source notices are unchanged and cannot be tapped, web addresses inside them included.
 - Only the Buy me a coffee button opens anything, and it opens the browser. The game itself never uses the network, and the screen works in airplane mode; the button then just opens the browser, which shows its own offline page.
 - After the browser, coming back to the game shows the About screen. If Android closed the game in the meantime, coming back is an app start and shows the title screen (15.0).
-- The text scrolls when it does not fit. Back returns to the title screen (15.0).
+- The text scrolls when it does not fit. Back returns to the screen About was opened from: the title screen (15.0), the main menu, the pause menu or Settings (15.7).
+
+### 15.7 Buy me a coffee and About on more screens
+
+Bart, 2026-10-22: "make it simple for someone to donate", and About available from more screens. These are his rules; the designer decisions follow them.
+
+Buy me a coffee:
+- The main menu, the pause menu, the Settings screen and the completion screen each get the same small Buy me a coffee button as the title screen (15.0), after the screen's own buttons and less prominent than them. On the completion screen it sits under Play again and Menu. The design system sets its look.
+- The play screen gets a small icon button with a coffee cup, drawn in code, in the band (the row under the header row that holds the level sticker), at the end away from the sticker: under Pause when stacked, and on Pause's side, under Pause, when side by side. It has the size and touch area of Pause. (Bart, later on 2026-10-22: the header row has no room for it, about 304 dp where Hint, time, score, cup and Pause would need 357.)
+- Every one of them works exactly like the title screen's button (15.0): it hands https://buymeacoffee.com/playinc to the phone's web browser, the game sends nothing and adds nothing to the address, and with no network the browser shows its own offline page and the game shows no message. If the phone has no app that can open a web page, nothing happens beyond what this section says. Apart from the coffee cup's pause, nothing else changes in the game: no screen changes, no puzzle starts or resumes, stats, settings and the puzzle in progress stay as they are, and the lesson 1 offer stays on the first PLAY.
+- Coming back to the game shows the screen the button was on, as left. If that screen sits over a paused puzzle (the pause menu, or Settings or About opened from it), the puzzle is still paused and its timer has not moved. If Android closed the game in the meantime, coming back is an app start and the title screen shows (15.0).
+- The coffee cup first does exactly what Pause does: the timer stops, the board hides, the pause menu opens and the puzzle is saved (sections 8 and 14). Then it hands the address to the browser. Coming back shows the pause menu, and the timer runs again only after Resume. It is not an undo step. The board, the ring, the selection, the mode, the score and the undo history do not change.
+- The coffee cup shows, and is covered, exactly when Pause is: the hint panel and the full board message cover it as they cover Pause (DESIGN_SYSTEM 7.6), and the too small message covers it with everything else (8.1). Show candidates and Auto Cross do not change it.
+- Not in lessons: the lesson player has no header row, and its band holds the lesson card, so it has neither Pause nor the coffee cup.
+- While a puzzle is being made, every coffee button, the coffee cup included, does nothing: the browser does not open and nothing pauses.
+
+About:
+- The main menu, the pause menu and the Settings screen each get a button "About". It opens the About screen of 15.6, the same screen as ABOUT on the title screen.
+- Back on About, Android Back or the screen's own back button, returns to the screen it was opened from, as left. Settings keeps its own Back: from About opened in Settings, Back returns to Settings, and Back again returns to where Settings was opened from (the main menu or the pause menu).
+- Opened from the pause menu, or from Settings opened from the pause menu, the puzzle stays paused the whole time. The timer does not run while About shows, Back returns to the pause menu (or Settings) still paused, and the timer runs again only after Resume.
+- Opening About changes nothing else: no puzzle starts or resumes, and stats, settings and the lesson 1 offer stay as they are.
+- Coming back from the background to About shows About as left (15.6). If the window becomes too small while About shows, the message covers it, and when the window grows About shows as left (8.1).
+
+Decision: on the main menu, the pause menu and Settings, About comes right after the screen's own buttons, and Buy me a coffee comes after About, last. On Settings both come under the setting rows, after Reset stats.
+- Reason: About is a normal button of each screen, as ABOUT is on the title screen, and Bart's coffee button is the small last button everywhere, as on the title screen. The same order on every screen means the player always finds them in the same place.
+- Example: the pause menu reads Resume, Settings, Menu, About, then the small Buy me a coffee. The main menu with a puzzle in progress reads Continue, New puzzle, Lessons, Stats, Settings, About, then Buy me a coffee, laid out as the main menu rule below says. Settings reads Sound, Show candidates, Auto Cross, Skin, Reset stats, then About, then Buy me a coffee.
+
+Main menu layout (Bart, later on 2026-10-22, as built): Continue (only when a puzzle is in progress) and New puzzle full width, then Lessons and Stats side by side as one row of two, then Settings and About as a second row of two, then the small Buy me a coffee button last. The reading order, left to right and top to bottom, is still Continue, New puzzle, Lessons, Stats, Settings, About, Buy me a coffee.
+
+Coffee cup position (Bart, later on 2026-10-22; this replaces the designer's earlier choice of the header row): the header row stays as 2.4 and DESIGN_SYSTEM 7.5 have it, Hint, time, score, Pause (mirrored side by side). The coffee cup sits in the band, at the end away from the level sticker, under Pause.
+- Reason (Bart's): the header row has no room for a fifth 48 dp control at 320 dp wide or in the side column. Under Pause, the cup sits with the button it acts like, and Hint keeps the far end with nothing tappable near it.
+- Example: stacked at 360 by 800 dp, the header row reads Hint, time, score, Pause, left to right, and the band under it has the level sticker at the left and the coffee cup at the right, under Pause. Side by side in the 690 by 400 dp window of 2.4, the header row reads Pause, time, score, Hint, left to right, and the band has the coffee cup at the left, under Pause, and the sticker at the right.
+
+Examples:
+- The coffee cup: a Medium puzzle at 6:20 with r4c4 selected and Cross Out on. The player taps the coffee cup. The timer stops at 6:20, the pause menu shows, and the browser opens https://buymeacoffee.com/playinc. Two minutes later the player switches back: the pause menu shows at 6:20. After Resume the timer runs on from 6:20, r4c4 is selected, Cross Out is on, and one undo reverses the last change made before the tap.
+- About over a paused puzzle: a Hard puzzle at 10:05. The player taps Pause, then Settings, then About, reads for a minute, taps Buy me a coffee there and switches back after the browser: About shows. Back shows Settings, Back again shows the pause menu at 10:05, and after Resume the timer runs on from 10:05.
+- About from the main menu: the player taps MENU on the title screen, then Settings, then About. Back shows Settings, Back again shows the main menu, and Back once more shows the title screen.
+- The completion screen: the player completes an Easy puzzle and taps Buy me a coffee. Coming back shows the same completion screen with the same time, score and labels. Stats counted the completion once. Play again then starts a new Easy puzzle as usual.
 
 ## 16. Acceptance tests
 
@@ -1363,7 +1404,7 @@ These run on a Galaxy Z Fold5, or in the editor with the window set to each size
 | Inner, top two thirds, 690 by 553 | status bar | Side by side |
 | 700 by 420 | none | Side by side |
 
-- Expected: each window shows the arrangement in the table, and the board sizes match the table in docs/DESIGN_SYSTEM.md section 4.11 within 1 dp. Stacked: header row and band, board, pad, top to bottom. Side by side: the board at the left, and at the right the header row, the band with the level sticker, and the pad; the header row reads Pause, time, score, Hint from the board outward, so Hint is at the far end and never next to the board. In every window and on every screen: the board's cells are square; every control other than a cell has a touch area of at least 48 by 48 dp; nothing overlaps, is cut off, or sits under an inset; the hint panel never covers a cell; every input works as in a stacked window. Changing the window shape mid puzzle keeps every digit, ring mark, the selection, the mode, the hint on screen with its highlights, the score and the undo history; the timer is not reset, and it stops only if the game lost focus, in which case the pause menu is showing.
+- Expected: each window shows the arrangement in the table, and the board sizes match the table in docs/DESIGN_SYSTEM.md section 4.11 within 1 dp. Stacked: header row and band, board, pad, top to bottom. Side by side: the board at the left, and at the right the header row, the band with the level sticker, and the pad; the header row reads Pause, time, score, Hint from the board outward, with the coffee cup in the band under Pause, so Hint is at the far end and never next to the board. In every window and on every screen: the board's cells are square; every control other than a cell has a touch area of at least 48 by 48 dp; nothing overlaps, is cut off, or sits under an inset; the hint panel never covers a cell; every input works as in a stacked window. Changing the window shape mid puzzle keeps every digit, ring mark, the selection, the mode, the hint on screen with its highlights, the score and the undo history; the timer is not reset, and it stops only if the game lost focus, in which case the pause menu is showing.
 
 **AT-71 Too small window** (App)
 - Steps, part 1: on the inner full screen, start a Medium puzzle, place a digit, cross a candidate, buy a hint and leave it on screen, and play until the timer shows about 1:00. Change the window to the cover screen's top half (344 by 430 dp, status bar). Wait 30 s. Tap the middle of the message, tap where the pad was, and press Back. Grow the window back to the inner full screen. Note the timer, then tap Resume and undo twice.
@@ -1393,7 +1434,7 @@ These run on a Galaxy Z Fold5, or in the editor with the window set to each size
 
 **AT-76 Main menu and Back** (App)
 - Steps: with a puzzle in progress at a time T, tap Pause, then Menu. Open Stats and press Back. Press Back on the main menu. On the title screen tap MENU, note the level's Started on Stats, go back, wait 30 s on the main menu and press Back. Tap PLAY and complete the puzzle. On the completion screen tap Menu, then press Back. Tap MENU.
-- Expected: the main menu shows Continue, New puzzle, Lessons, Stats and Settings, as before, whether reached by Pause and Menu or by MENU. Back on Stats returns to the main menu. Back on the main menu opens the title screen every time and never closes the app. MENU starts no puzzle and leaves Started unchanged. PLAY resumes the puzzle at T, not counting the time on the main menu. After the completion, the main menu reached by MENU has no Continue.
+- Expected: the main menu shows Continue and New puzzle full width, then Lessons and Stats as a row of two, then Settings and About as a row of two, then the small Buy me a coffee, whether reached by Pause and Menu or by MENU. Back on Stats returns to the main menu. Back on the main menu opens the title screen every time and never closes the app. MENU starts no puzzle and leaves Started unchanged. PLAY resumes the puzzle at T, not counting the time on the main menu. After the completion, the main menu reached by MENU has no Continue.
 - Steps, part 2: fresh install, launch, tap MENU, press Back, tap PLAY.
 - Expected, part 2: MENU opens the main menu with no lesson offer and no Continue. The offer shows on the PLAY that follows.
 
@@ -1402,7 +1443,7 @@ These run on a Galaxy Z Fold5, or in the editor with the window set to each size
 - Expected: the Info screen opens over the title screen and shows the text of 15.5 word for word, with its fifteen headings in order, from How to play to Settings, and none of the bracketed section numbers. Every line can be reached by scrolling and nothing is cut off. Back returns to the title screen. The numbers match 9.1 exactly, the example gives 160 plus 50, which is 210, as in 9.3, and the skin names and lesson titles match the screens. The text has no em dash and no double hyphen.
 
 **AT-78 About screen** (Core, App)
-- Steps (App): turn on airplane mode. On the title screen tap ABOUT. Read the whole screen, scrolling to the end. Tap the email address, the privacy address, the source address, the card's other lines, and every web address in the notices. Press Back. Repeat the reading in a 320 by 568 dp window and in the 690 by 400 dp window of AT-70. (The Buy me a coffee button is AT-86.)
+- Steps (App): turn on airplane mode. On the title screen tap ABOUT. Read the whole screen, scrolling to the end. Tap the email address, the privacy address, the source address, the card's other lines, and every web address in the notices. Press Back. Repeat the reading in a 320 by 568 dp window and in the 690 by 400 dp window of AT-70. (The Buy me a coffee button is AT-86. About from other screens is AT-89.)
 - Steps (Core): build the About screen's text and compare it with the NOTICE and COPYING files at the root of the repo, with what the engine returns at run time and with the project's version setting.
 - Expected: in order: "Sudoku"; "Version" followed by the version in the project settings; "Designed and written by Bart Basi."; "Copyright 2026 Play, Inc." with nothing after it; the paragraph of 15.6 word for word; "Sudoku is free software under the GNU General Public License, version 3, with additional terms. It comes with no warranty. The license and its terms are below. Source code: github.com/bartbasi/Sudoku"; "If you enjoy it and want to support the game, you can buy me a coffee." followed by the Buy me a coffee button; "Questions, feedback and notices: bartbasi@gmail.com"; "Privacy policy: bartbasi.github.io/Sudoku/privacy"; "Made with the Godot Engine." as the last line of the card; the heading "Open source notices" with no sentence under it; the caption "Sudoku" and the text of NOTICE; the caption "GNU General Public License, version 3" and the text of COPYING; a rule; the caption "Godot Engine" and the engine's license; the heading "Third party components" and the component notices; the heading "Licenses" and the license texts. "All rights reserved" appears nowhere on the screen. "Designed and written by Bart Basi." and "Copyright 2026 Play, Inc." show in full at every size tried, never cut off, shortened or hidden. The NOTICE and COPYING texts match the files word for word, and the engine's notices are not empty, list the third party components the engine reports and match what the engine returns word for word, all including their own web addresses; the only difference allowed is that line breaks inside a paragraph are joined. The card (from "Sudoku" to "Made with the Godot Engine.") contains no "http" and no "www", and the coffee address is not shown as text. The email, privacy and source addresses are plain text: tapping them, any other line of the card, or anywhere in the notices, including on every web address there, opens nothing and does nothing. The only things that react to a tap are Back and the Buy me a coffee button. The screen works in airplane mode. Back returns to the title screen. A search of the repo for the first line of the engine's license text, as the screen shows it, finds nothing.
 
@@ -1413,12 +1454,39 @@ These run on a Galaxy Z Fold5, or in the editor with the window set to each size
 - Expected, part 2: each tap opens the browser, which shows its own offline page. The game shows no message and no error, and switching back shows the screen as left.
 - Steps, part 3: with no puzzle in progress, on the title screen tap PLAY and at once tap Buy me a coffee, several times, while the making a puzzle card shows.
 - Expected, part 3: the browser does not open. The new puzzle starts as AT-75 describes, and its level's Started goes up by exactly 1.
+- The coffee buttons on the other screens are AT-87, and the play screen's coffee cup is AT-88.
+
+**AT-87 Buy me a coffee on the main menu, pause menu, Settings and completion screen** (App)
+- Steps, part 1: with the lesson offer answered, start an Easy puzzle, select a cell, switch to Cross Out and play until the timer shows 2:00. Note Easy Started and the stats. With the phone online and `adb logcat` running, tap Pause. On the pause menu tap Buy me a coffee, then switch back to Sudoku with the recent apps button. Tap Settings, tap Buy me a coffee there and switch back. Tap About, tap its Buy me a coffee and switch back. Press Back twice. Tap Menu. On the main menu tap Buy me a coffee and switch back. Tap Settings, tap Buy me a coffee and switch back. Press Back, then tap Continue.
+- Expected, part 1: on each screen the button comes after the screen's own buttons and is less prominent than them: the pause menu reads Resume, Settings, Menu, About, Buy me a coffee; the main menu reads as AT-76 states; Settings reads as AT-79 states. Each tap opens the phone's web browser on exactly https://buymeacoffee.com/playinc, and the log shows one view intent with that address per tap. Each switch back shows the screen the button was on, as left, with no dialog. Every time the pause menu shows, its time reads 2:00. After Continue the puzzle is as left: every digit and mark, the same cell selected, Cross Out on, and the timer running on from 2:00, never counting the time in the browser or on the other screens. Easy Started, the other stats and every setting are unchanged.
+- Steps, part 2: complete the Easy puzzle. On the completion screen tap Buy me a coffee and switch back. Open Stats from the main menu (Menu, Stats).
+- Expected, part 2: the button sits under Play again and Menu and is less prominent than them. The tap opens the browser as in part 1. Switching back shows the same completion screen, with the same level, time, score parts, hints and labels. Stats show the completion counted once: Easy Completed went up by exactly 1.
+- Steps, part 3: turn on airplane mode. Tap Buy me a coffee once on the pause menu of a new puzzle, once on Settings and once on the main menu, switching back each time.
+- Expected, part 3: each tap opens the browser, which shows its own offline page. The game shows no message and no error, and switching back shows the screen as left.
+- Steps, part 4: complete a Beginner puzzle. On the completion screen tap Play again and at once tap where Buy me a coffee was, several times, while the making a puzzle card shows. Then do the same after choosing Medium in level select from the main menu (with no puzzle in progress), tapping the main menu's Buy me a coffee position.
+- Expected, part 4: the browser never opens. Each new puzzle starts with the timer at 0:00, not paused, and its level's Started goes up by exactly 1.
+
+**AT-88 The coffee cup pauses first** (App)
+- Steps, part 1: start a Medium puzzle. Select a cell, switch to Cross Out, cross a candidate, and play until the timer shows about 1:00. Note the score. With `adb logcat` running, tap the coffee cup in the band under Pause and note the time it showed. Stay in the browser for 30 s, then switch back to Sudoku with the recent apps button. Wait 30 s on the pause menu. Tap Resume. Undo once.
+- Expected, part 1: the tap stops the timer, hides the board and opens the pause menu, and the browser opens on exactly https://buymeacoffee.com/playinc, with one view intent in the log. Switching back shows the pause menu with the time noted at the tap, and it does not change while the pause menu shows. After Resume the timer runs on from that time, the same cell is selected, Cross Out is on, and the score is unchanged. The one undo reverses the cross, so the tap made no undo step.
+- Steps, part 2: tap the coffee cup, then, from the browser, open recent apps and swipe Sudoku away. Launch Sudoku and tap PLAY.
+- Expected, part 2: the launch opens the title screen. PLAY resumes the puzzle with the timer within one second of the time it showed at the tap.
+- Steps, part 3: look at the header row and the band in a 320 by 568 dp window, a 360 by 800 dp window and the 690 by 400 dp window of AT-70. Buy a hint and look again; press Back, then Resume. Close the hint. Turn Show candidates off and look again. Open a lesson from the Lessons screen.
+- Expected, part 3: the header row has no coffee cup. Stacked, it reads Hint, time, score, Pause, left to right, and the band under it has the level sticker at the left and the coffee cup at the right, under Pause. Side by side, the header row reads Pause, time, score, Hint from the board outward, and the band has the coffee cup at the board end, under Pause, and the sticker at the other end. The coffee cup has the size and 48 by 48 dp touch area of Pause, and nothing overlaps or is cut off. While the hint shows, the hint panel covers the coffee cup together with Pause, and Back still opens the pause menu. With Show candidates off the coffee cup is still there. The lesson shows no coffee cup and no Pause.
+- Steps, part 4: with the lesson offer answered and no puzzle in progress, tap PLAY on the title screen and, while the making a puzzle card shows, tap where the coffee cup sits, several times.
+- Expected, part 4: the browser does not open and nothing pauses. The puzzle's board appears with the timer at 0:00 and running, and no pause menu shows.
+
+**AT-89 About from the main menu, pause menu and Settings** (App)
+- Steps, part 1: start a Hard puzzle and play until the timer shows about 3:00. Tap Pause and note the time T. Tap About, scroll to the end, wait 60 s and press Back. Tap Settings, tap About, wait 30 s, press Back, then Back again. Tap About once more, send the app to the background for 30 s, come back, and press Back. Tap About again, shrink the window to 344 by 430 dp (as in AT-71), grow it back, and press Back. Tap Resume.
+- Expected, part 1: every About is the screen of 15.6, exactly as AT-78 describes. The first Back returns to the pause menu; from About opened in Settings, Back returns to Settings and Back again to the pause menu. Coming back from the background shows About as left, and Back then returns to the pause menu. When the window grows back, About shows as left, and Back returns to the pause menu. Every time the pause menu shows, its time reads T. After Resume the timer runs on from T and never counted the time on About or Settings.
+- Steps, part 2: tap Pause, then Menu. On the main menu tap About, then press Back. Tap Settings, tap About, press Back, then Back again, then Back once more. On the title screen tap ABOUT and press Back. Tap PLAY.
+- Expected, part 2: the main menu shows About next to Settings, in the row of two above Buy me a coffee. Back on About returns to the main menu; from About opened in Settings, Back returns to Settings, Back again to the main menu, and Back once more to the title screen. ABOUT on the title screen still returns to the title screen. PLAY resumes the Hard puzzle at the time it showed when Pause was tapped in part 2. No puzzle started, and the level's Started, the other stats and every setting are unchanged.
 
 ### Show candidates
 
 **AT-79 The Settings row and its default** (App, Core)
 - Steps (App): fresh install. Open Settings from the main menu. Read the rows top to bottom. Turn Show candidates off, kill the app, launch it and open Settings again. Turn it on, kill, launch, open Settings.
-- Expected (App): the rows are Sound, Show candidates, Auto Cross, Skin, Reset stats. The row's name is "Show candidates", its switch is on, and the line under it reads exactly "Shows the candidate ring in empty cells. Off, every tap places a digit. Your marks stay." After each relaunch the switch is as it was set. No other setting changed.
+- Expected (App): the rows are Sound, Show candidates, Auto Cross, Skin, Reset stats, followed by the About button and then the small Buy me a coffee button (15.7). The row's name is "Show candidates", its switch is on, and the line under it reads exactly "Shows the candidate ring in empty cells. Off, every tap places a digit. Your marks stay." After each relaunch the switch is as it was set. No other setting changed.
 - Steps (Core): save settings with Show candidates off and load them. Then load settings where Show candidates is missing, is the text "false", and is an empty list.
 - Expected (Core): off loads as off. Each damaged value loads as on, and the other settings load normally.
 

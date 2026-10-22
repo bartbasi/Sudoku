@@ -48,6 +48,19 @@ static func small_button(variation: StringName, text: String, face: float) -> To
 	return touch
 
 
+## Buy me a coffee (title, main menu, pause menu, settings, completion,
+## About): the small secondary button, a Layout.ICON_FACE face only as wide
+## as its label in a 48 dp touch area, centered in its column. Returns the
+## touch area, named Coffee; its face is touch.button, named CoffeeButton.
+## The screen connects the press.
+static func coffee_button() -> TouchTarget:
+	var touch: TouchTarget = small_button(ThemeFactory.BUTTON_SECONDARY, "Buy me a coffee", Layout.ICON_FACE)
+	touch.name = "Coffee"
+	touch.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	touch.button.name = "CoffeeButton"
+	return touch
+
+
 ## An icon button (back, close, pause): a 40 dp face in a 48 dp touch area
 ## (DESIGN_SYSTEM.md 4.4). Returns the touch area; its button is
 ## touch.button.

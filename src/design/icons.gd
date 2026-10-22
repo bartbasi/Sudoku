@@ -18,9 +18,10 @@ const BACK: StringName = &"back"
 const CLOSE: StringName = &"close"
 const CHECK: StringName = &"check"
 const LOCK: StringName = &"lock"
+const COFFEE: StringName = &"coffee"
 
 const ALL: Array[StringName] = [
-	UNDO, ERASE, MODE_PLACE, MODE_CROSS_OUT, HINT, PAUSE, PLAY, SETTINGS, BACK, CLOSE, CHECK, LOCK,
+	UNDO, ERASE, MODE_PLACE, MODE_CROSS_OUT, HINT, PAUSE, PLAY, SETTINGS, BACK, CLOSE, CHECK, LOCK, COFFEE,
 ]
 
 ## Stroke weight as a share of the icon side.
@@ -180,6 +181,17 @@ static func _parts(icon: StringName) -> Array[Part]:
 			shackle.append(Vector2(0.68, 0.48))
 			parts.append(Part.new(_OPEN, shackle))
 			parts.append(Part.new(_FILL, _box(Vector2(0.18, 0.46), Vector2(0.82, 0.88))))
+		COFFEE:
+			# A mug: a filled body narrowing a little to its foot, a round
+			# handle at the right and two wisps of steam rising above it.
+			parts.append(Part.new(_FILL, PackedVector2Array([Vector2(0.14, 0.46), Vector2(0.64, 0.46), Vector2(0.60, 0.88), Vector2(0.18, 0.88)])))
+			parts.append(Part.new(_OPEN, _arc(Vector2(0.64, 0.64), 0.15, -PI * 0.5, PI * 0.5, 16)))
+			for x: float in [0.27, 0.51]:
+				var wisp: PackedVector2Array = PackedVector2Array()
+				for i: int in 9:
+					var t: float = float(i) / 8.0
+					wisp.append(Vector2(x + 0.04 * sin(t * PI) - 0.02, lerpf(0.32, 0.10, t)))
+				parts.append(Part.new(_OPEN, wisp))
 	return parts
 
 

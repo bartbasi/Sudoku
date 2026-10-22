@@ -2,20 +2,33 @@ class_name PauseMenu
 extends Control
 ## The pause menu (GDD 8, DESIGN_SYSTEM.md 7.8): a full screen PAGE overlay
 ## that covers everything, the board included. Centered in the safe area:
-## PAUSED, the level sticker and the paused time, then Resume, Settings and
-## Menu. Side by side (4.11) the first three take the left half and the
-## buttons the right half. The play screen opens it and handles the buttons.
+## PAUSED, the level sticker and the paused time, then Resume, Settings,
+## Menu and About, then the smaller Buy me a coffee button (GDD 15.7). Side
+## by side (4.11) the first three take the left half and the buttons the
+## right half; the right half has no room left at the smallest height, so
+## there Buy me a coffee moves to the bottom of the left half, under the
+## time, as on the title screen. The play screen opens it and handles the
+## buttons: About opens over the paused puzzle, and Buy me a coffee hands
+## the support page to the browser; the puzzle stays paused for both.
 ## Owner: ui-systems-dev.
 
 signal resume_pressed()
 signal settings_pressed()
 signal menu_pressed()
+signal about_pressed()
+signal coffee_pressed()
+
+const MainMenuScript := preload("res://src/ui/main_menu.gd")
 
 var time_label: Label = null
 var level_box: CenterContainer = null
 var resume_button: Button = null
 var settings_button: Button = null
 var menu_button: Button = null
+var about_button: Button = null
+## The face of Buy me a coffee; coffee_touch is its 48 dp touch area.
+var coffee_button: Button = null
+var coffee_touch: Control = null
 ## PAUSED, the level and the time first, the buttons second: centered in one
 ## column when stacked, two halves side by side (DESIGN_SYSTEM.md 4.11).
 var halves: HalvesBox = null
@@ -61,7 +74,11 @@ func setup(skin: GameSkin) -> void:
 	info.add_child(time_label)
 	var buttons: VBoxContainer = UiKit.vbox(skin.space_m)
 	buttons.name = "Buttons"
-	halves.add_child(UiKit.with_shadow_room(buttons, skin))
+	var second: VBoxContainer = UiKit.vbox(0.0)
+	second.name = "Second"
+	second.alignment = BoxContainer.ALIGNMENT_CENTER
+	halves.add_child(second)
+	second.add_child(UiKit.with_shadow_room(buttons, skin))
 	resume_button = UiKit.button(ThemeFactory.BUTTON_PRIMARY, "Resume", Layout.BUTTON_TALL, Icons.PLAY)
 	resume_button.name = "Resume"
 	resume_button.pressed.connect(_emit_if_open.bind(resume_pressed))
@@ -74,6 +91,16 @@ func setup(skin: GameSkin) -> void:
 	menu_button.name = "Menu"
 	menu_button.pressed.connect(_emit_if_open.bind(menu_pressed))
 	buttons.add_child(menu_button)
+	about_button = UiKit.button(ThemeFactory.BUTTON_SECONDARY, "About", Layout.BUTTON_TALL)
+	about_button.name = "About"
+	about_button.pressed.connect(_emit_if_open.bind(about_pressed))
+	buttons.add_child(about_button)
+	var coffee: UiKit.TouchTarget = UiKit.coffee_button()
+	coffee_touch = coffee
+	coffee_button = coffee.button
+	coffee_button.pressed.connect(_emit_if_open.bind(coffee_pressed))
+	second.add_child(coffee)
+	halves.arranged.connect(func(side: bool) -> void: MainMenuScript.move_to_half(halves, coffee_touch, side))
 	visible = false
 
 

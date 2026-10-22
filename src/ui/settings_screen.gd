@@ -1,8 +1,12 @@
 extends UiScreen
-## Settings (GDD 4.5, 5.2, 13.2 and 14, DESIGN_SYSTEM.md 7.11): Sound, Show
-## candidates and Auto Cross with their one line each, the skin picker (Pop light and Pop dark), and Reset
-## Stats with its confirmation. Opens from the main menu and from the pause
-## menu; Back returns to where it came from.
+## Settings (GDD 4.5, 5.2, 13.2, 14 and 15.7, DESIGN_SYSTEM.md 7.11): Sound,
+## Show candidates and Auto Cross with their one line each, the skin picker
+## (Pop light and Pop dark), Reset Stats with its confirmation, then About
+## and, last, the smaller Buy me a coffee button. Opens from the main menu
+## and from the pause menu; Back returns to where it came from. About opens
+## over this screen and Back there comes back here. Buy me a coffee hands
+## the support page to the phone's web browser (App.open_support_page).
+## Both do nothing while a puzzle is being made.
 ## Owner: ui-systems-dev.
 
 const SHOW_CANDIDATES_LINE: String = "Shows the candidate ring in empty cells. Off, every tap places a digit. Your marks stay."
@@ -14,6 +18,10 @@ var show_candidates_switch: CheckButton = null
 var auto_cross_switch: CheckButton = null
 var skin_buttons: Dictionary[StringName, Button] = {}
 var reset_button: Button = null
+var about_button: Button = null
+## The face of Buy me a coffee; coffee_touch is its 48 dp touch area.
+var coffee_button: Button = null
+var coffee_touch: Control = null
 var confirm: ConfirmDialog = null
 
 
@@ -74,9 +82,16 @@ func build() -> void:
 	reset_button.name = "ResetStats"
 	reset_button.pressed.connect(_on_reset_pressed)
 	rows.add_child(reset_button)
-	var shadow_room: Control = Control.new()
-	shadow_room.custom_minimum_size.y = s.shadow_offset
-	rows.add_child(shadow_room)
+	about_button = UiKit.button(ThemeFactory.BUTTON_SECONDARY, "About", Layout.BUTTON_TALL)
+	about_button.name = "About"
+	about_button.pressed.connect(_on_about)
+	rows.add_child(about_button)
+	# The shadow room of About sits in the gap; Buy me a coffee ends the list.
+	var coffee: UiKit.TouchTarget = UiKit.coffee_button()
+	coffee_touch = coffee
+	coffee_button = coffee.button
+	coffee_button.pressed.connect(_on_coffee)
+	rows.add_child(coffee)
 
 	confirm = ConfirmDialog.new()
 	confirm.name = "Confirm"
@@ -108,6 +123,16 @@ func refresh() -> void:
 	auto_cross_switch.set_pressed_no_signal(app.settings.auto_cross)
 	for id: StringName in skin_buttons:
 		skin_buttons[id].set_pressed_no_signal(id == app.settings.skin_id)
+
+
+func _on_about() -> void:
+	if app != null and not app.is_generating():
+		app.goto(AppService.ABOUT)
+
+
+func _on_coffee() -> void:
+	if app != null and not app.is_generating():
+		app.open_support_page()
 
 
 func _on_reset_pressed() -> void:
