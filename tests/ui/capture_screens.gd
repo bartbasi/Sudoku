@@ -290,8 +290,8 @@ func _run_license() -> void:
 	var names: Array[Array] = [[AboutScreen.NOTICE_CAPTION, "about_sudoku_notice"], [AboutScreen.GPL_CAPTION, "about_gpl"]]
 	for pair: Array in names:
 		var caption: String = ThemeFactory.display_text(ThemeFactory.CAPTION, pair[0])
-		for child: Node in notices.get_children():
-			if child is Label and (child as Label).text == caption:
+		for child: Node in notices.find_children("*", "Label", true, false):
+			if (child as Label).text == caption:
 				var top: float = (child as Control).get_global_rect().position.y - scroll.get_global_rect().position.y + float(scroll.scroll_vertical)
 				scroll.scroll_vertical = int(top) - 8
 				break

@@ -38,6 +38,10 @@ Sudoku is built with the Godot Engine, which is under the MIT license, with
 notices for the parts the engine includes. The About screen shows the full
 engine license and every notice, read from the engine itself.
 
+The Android version also contains the AndroidX libraries and the Kotlin
+standard library, which Godot's Android export includes. They are under the
+Apache License, version 2.0, whose full text is shown in the About screen.
+
 
 Contact
 

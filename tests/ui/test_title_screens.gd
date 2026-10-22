@@ -520,6 +520,11 @@ func test_about_shows_version_copyright_and_the_engine_notices() -> void:
 		assert_eq(text.to_lower().contains("github"), text == "Privacy policy: bartbasi.github.io/Sudoku/privacy" or text == AboutScreen.LICENSE, "github only in the privacy and license lines")
 		assert_false(text.contains("—") or text.contains("--"), "no em dash or double hyphen")
 	assert_false(bool(screen.call(&"is_complete")), "the notice blocks wait for the frames after the first")
+	# Medium 1: each frame builds for a time budget, at least one item, so
+	# even a zero budget makes progress one item at a time.
+	var before: int = int(screen.get(&"_next"))
+	screen.call(&"_build_for", 0)
+	assert_eq(int(screen.get(&"_next")), before + 1, "at least one item a frame")
 	screen.call(&"build_all_notices")
 	assert_true(bool(screen.call(&"is_complete")))
 	var notices: Node = screen.get(&"notices")
@@ -668,12 +673,18 @@ func test_about_shows_the_sudoku_notice_and_the_gpl_before_godot() -> void:
 	# one too, as the Godot caption did when it came first.
 	var space_xl: float = (screen.call(&"skin") as GameSkin).space_xl
 	assert_true(space_xl > 0.0)
+	# The items sit in blocks under notices; flat is every item node in order.
+	var flat: Array[Node] = []
+	for block: Node in notices.get_children():
+		assert_true(block is VBoxContainer, "notices holds only blocks")
+		flat.append_array(block.get_children())
 	for i: int in [sudoku, gpl]:
-		var gap: Control = notices.get_child(labels[i].get_index() - 1) as Control
+		var gap: Control = flat[flat.find(labels[i]) - 1] as Control
+		assert_eq(gap.get_parent(), labels[i].get_parent(), "caption %d shares its block with its gap" % i)
 		assert_false(gap is Label, "a gap above caption %d" % i)
 		assert_eq(gap.custom_minimum_size.y, space_xl, "space_xl above caption %d" % i)
-	var godot_index: int = labels[godot].get_index()
-	assert_true(notices.get_child(godot_index - 2) is HSeparator, "a rule right before the Godot section")
+	var godot_index: int = flat.find(labels[godot])
+	assert_true(flat[godot_index - 2] is HSeparator, "a rule right before the Godot section")
 	for i: int in labels.size():
 		if i == sudoku or i == gpl:
 			assert_eq(labels[i].theme_type_variation, ThemeFactory.CAPTION, "a caption")

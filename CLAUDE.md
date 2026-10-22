@@ -62,7 +62,7 @@ Sudoku (working name in older docs: bartssudoku; Bart may choose a final name la
   - Lessons always show the ring.
 
 - 2026-10-17, support, credits and privacy (Bart):
-  - A "Buy me a coffee" button on the title screen (after ABOUT, less prominent) and on the About card opens https://buymeacoffee.com/playinc in the phone's browser (OS.shell_open). The game itself still sends nothing, has no network code and requests no permissions.
+  - A "Buy me a coffee" button on the title screen (after ABOUT, less prominent) and on the About card (more places from 2026-10-22, below) opens https://buymeacoffee.com/playinc in the phone's browser (OS.shell_open). The game itself still sends nothing, has no network code and requests no permissions.
   - Copyright is held by Play, Inc.: "Copyright 2026 Play, Inc. All rights reserved." Credit stays: "Designed and written by Bart Basi." This replaces the 2026-10-14 copyright line.
   - Questions, feedback, privacy and notices go to bartbasi@gmail.com, shown on the About card as plain text.
   - The privacy policy is published with GitHub Pages from the gh-pages branch: https://bartbasi.github.io/Sudoku/privacy/ (the About card shows "Privacy policy: bartbasi.github.io/Sudoku/privacy"). The repo is now public, so the "no GitHub address" rule is retired.

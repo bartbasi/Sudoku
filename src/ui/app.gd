@@ -168,6 +168,14 @@ func load_all() -> void:
 	if loaded != null:
 		# One source of truth for Auto Cross: the setting.
 		loaded.set_auto_cross(settings.auto_cross)
+		# With Show candidates off, Place is the only mode (GDD 4.5), as
+		# set_show_candidates makes it during a session. A puzzle saved in
+		# Cross out next to settings saved with it off (a kill between the
+		# two writes, or a damaged file) would otherwise cross hidden
+		# candidates with no button to switch back. Saved like any mode
+		# change.
+		if not settings.show_candidates and loaded.mode == GameSession.Mode.CROSS_OUT:
+			loaded.set_mode(GameSession.Mode.PLACE)
 	session_changed.emit(session)
 
 
@@ -546,9 +554,10 @@ func current_screen_node() -> Control:
 	return _stack.back() if not _stack.is_empty() else null
 
 
-## Opens a screen. The main menu, the first launch offer, the play screen and
-## the completion screen start a fresh stack; the others go on top of the
-## current screen, which stays under them, hidden, until Back. The payload
+## Opens a screen. The screens in ROOT_SCREENS (the title screen, the main
+## menu, the play screen and the completion screen) start a fresh stack; the
+## others, the first launch offer among them (over the title screen), go on
+## top of the current screen, which stays under them, hidden, until Back. The payload
 ## goes to the screen's open() before it enters the tree; a lesson gets it
 ## through LessonPlayer.start().
 func goto(screen: StringName, payload: Variant = null) -> void:
@@ -624,8 +633,10 @@ func open_first_lesson() -> void:
 		goto(LESSONS)
 
 
-## Opens the "Buy me a coffee" page in the web browser (the title screen
-## and About). The only place the game opens a web address.
+## Opens the "Buy me a coffee" page in the web browser. Every Buy me a
+## coffee button calls it (title screen, main menu, pause menu, Settings,
+## completion screen and About), and so does the coffee cup on the play
+## screen. The only place the game opens a web address.
 func open_support_page() -> void:
 	link_opener.call(SUPPORT_URL)
 

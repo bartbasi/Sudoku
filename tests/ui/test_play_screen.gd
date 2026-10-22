@@ -318,6 +318,47 @@ func test_show_candidates_reaches_the_play_area_on_open_and_on_change() -> void:
 	_teardown(parts)
 
 
+func test_a_saved_cross_out_puzzle_with_candidates_hidden_resumes_in_place() -> void:
+	# QA release prep Low 1, GDD 4.5: settings saved with Show candidates
+	# off next to a puzzle saved in Cross out. On load the mode is Place, so
+	# a digit tap places the digit instead of crossing a hidden candidate.
+	var parts: Array = _setup(&"pop_light", Levels.EASY)
+	var app: AppService = parts[0]
+	var cell: int = Fx.empty_cells(app.session)[0]
+	app.session.select(cell)
+	app.session.set_mode(GameSession.Mode.CROSS_OUT)
+	app.save_session()
+	app.settings.show_candidates = false
+	app.call(&"_save_settings")
+	assert_eq(app.load_session_file().mode, GameSession.Mode.CROSS_OUT, "the pair QA found is on disk")
+	var host: Control = parts[1]
+	var again: AppService = AppService.new()
+	again.save_dir = app.save_dir
+	again.use_thread = false
+	again.load_all()
+	assert_eq(again.session.mode, GameSession.Mode.PLACE, "Place on load")
+	assert_eq(again.load_session_file().mode, GameSession.Mode.PLACE, "and saved")
+	var host2: Control = Control.new()
+	host2.theme = host.theme
+	host2.size = host.size
+	host.get_parent().add_child(host2)
+	again.attach_host(host2)
+	again.play_now()
+	assert_eq(again.current_screen(), AppService.PLAY)
+	var area: PlayArea = _screen(again).get(&"play_area")
+	assert_false(area.pad.is_mode_visible(), "mode buttons hidden")
+	assert_eq(area.pad.mode(), GameSession.Mode.PLACE, "the pad shows Place")
+	assert_eq(again.session.selected, cell, "the selection was saved")
+	var digit: int = again.session.solution[cell]
+	area.pad.digit_pressed.emit(digit)
+	assert_eq(again.session.board.digits[cell], digit, "the tap places the digit")
+	assert_eq(again.session.board.marks[cell * 9 + digit - 1], 0, "and crosses nothing")
+	host2.get_parent().remove_child(host2)
+	host2.free()
+	again.free()
+	_teardown(parts)
+
+
 func test_play_screen_sets_only_theme_variations() -> void:
 	var parts: Array = _setup()
 	var app: AppService = parts[0]

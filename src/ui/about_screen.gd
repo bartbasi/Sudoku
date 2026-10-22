@@ -20,7 +20,8 @@ extends UiScreen
 ##
 ## The notices are long (about 115,000 characters), so the screen builds the
 ## card and the notices heading at once and the notice labels after its
-## first frame, a few per frame, appended at the bottom. One label per
+## first frame, appended at the bottom for at most FRAME_BUDGET_USEC each
+## frame. One label per
 ## paragraph; every label wraps (smart word wrap, minimum width 1), so
 ## nothing scrolls sideways. Hard wrapped lines are joined into paragraphs
 ## (notice_paragraphs); only white space changes.
@@ -49,16 +50,26 @@ const COPYING_PATH: String = "res://COPYING"
 ## of joining the next (title lines such as "Sudoku" over its copyright).
 ## Their wrapped prose lines are all longer.
 const SHORT_LINE: int = 40
-## Notice labels made per frame after the first frame (7.17).
-const LABELS_PER_FRAME: int = 24
+## Time spent making notice labels in one frame after the first frame
+## (7.17), in microseconds. At least one label is made each frame, so the
+## build always ends; the budget keeps each frame short whatever the
+## label sizes.
+const FRAME_BUDGET_USEC: int = 4000
+## Notice items per block. The items go into small boxes stacked in
+## notices, so adding one re-lays out only its own block and the short list
+## of blocks, not every label built so far.
+const BLOCK_ITEMS: int = 32
 
 ## The scrolling page, for tests.
 var scroll: ScrollContainer = null
 var version_label: Label = null
 ## The face of Buy me a coffee in the card.
 var coffee_button: Button = null
-## The notices under the heading; labels are appended here.
+## The notices under the heading: blocks of BLOCK_ITEMS items each, every
+## item's gap or rule in the same block as its label.
 var notices: VBoxContainer = null
+var _block: VBoxContainer = null
+var _block_items: int = 0
 
 ## Items still to build: [variation, text, gap above]. A RULE variation
 ## makes a rule instead of a label.
@@ -104,7 +115,7 @@ func _process(_delta: float) -> void:
 	_frames_seen += 1
 	if _frames_seen < 2:
 		return
-	_build_some(LABELS_PER_FRAME)
+	_build_for(FRAME_BUDGET_USEC)
 
 
 ## True once every notice label is built.
@@ -115,6 +126,19 @@ func is_complete() -> bool:
 ## Builds every notice label left, now. For tests, which run without frames.
 func build_all_notices() -> void:
 	_build_some(_pending.size())
+
+
+## Makes labels until budget_usec has passed, at least one.
+func _build_for(budget_usec: int) -> void:
+	var s: GameSkin = skin()
+	var start: int = Time.get_ticks_usec()
+	while _next < _pending.size():
+		_add_item(s, _pending[_next])
+		_next += 1
+		if Time.get_ticks_usec() - start >= budget_usec:
+			break
+	if is_complete():
+		set_process(false)
 
 
 func _build_some(count: int) -> void:
@@ -128,22 +152,28 @@ func _build_some(count: int) -> void:
 
 
 func _add_item(s: GameSkin, item: Array) -> void:
+	if _block == null or _block_items >= BLOCK_ITEMS:
+		_block = UiKit.vbox(0.0)
+		_block.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		notices.add_child(_block)
+		_block_items = 0
+	_block_items += 1
 	var gap: float = item[2]
 	if gap > 0.0:
 		var space: Control = Control.new()
 		space.custom_minimum_size.y = gap
 		space.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		notices.add_child(space)
+		_block.add_child(space)
 	var variation: StringName = item[0]
 	if variation == ThemeFactory.RULE:
 		var rule: HSeparator = HSeparator.new()
 		rule.theme_type_variation = ThemeFactory.RULE
 		rule.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		notices.add_child(rule)
+		_block.add_child(rule)
 		return
 	var line: Label = UiKit.label(variation, item[1], true)
 	line.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	notices.add_child(line)
+	_block.add_child(line)
 
 
 func _card(s: GameSkin) -> PanelContainer:

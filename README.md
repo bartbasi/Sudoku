@@ -55,6 +55,8 @@ tools/build/build_debug.sh      # renders the icons, exports build/sudoku-debug.
 tools/build/install_debug.sh    # installs it on the phone with adb install -r and starts it
 ```
 
+After the export, `build_debug.sh` checks with `unzip` that the APK contains `assets/COPYING` and `assets/NOTICE` exactly as they are in the repo, and fails if not. `tools/build/build_debug.sh --check-only some.apk` runs just that check.
+
 `build_debug.sh` first runs `tools/build/render_icons.gd`, which draws the launcher icons from `src/design/app_icon.gd` into `build/icons/`. That step needs a window, so a Godot window opens for a moment. The icons are build output and are never committed. The export itself is:
 
 ```

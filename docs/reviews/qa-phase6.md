@@ -27,7 +27,7 @@ Reviewer: qa-reviewer. Date: 2026-10-12. Commit reviewed: 05c8eb4 (working tree 
   - qa_save_perf.gd and qa_save_split.gd: save cost against undo history length.
   - qa_focus.gd: losing focus while a puzzle is being made.
   - qa_window.gd with draw_probe.gd: windowed captures at 320 by 568, 360 by 800, 1024 by 1366 and 700 by 420 (Expert puzzle, times over an hour and over ten hours, a hint with eliminations, a skin switch mid puzzle through Pause and Settings, completion and stats with long times), plus the busy board redraw time. Pictures are in build/qa/shots/.
-- Read only on the phone (adb serial R3CWA0Q2JQP): `dumpsys package com.bartbasi.sudoku` shows no requested or runtime permissions. aapt2 on build/sudoku-debug.apk and build/sudoku-release-unsigned.apk: no uses-permission entries, screenOrientation portrait, allowBackup false.
+- Read only on the phone (adb serial [device serial]): `dumpsys package com.bartbasi.sudoku` shows no requested or runtime permissions. aapt2 on build/sudoku-debug.apk and build/sudoku-release-unsigned.apk: no uses-permission entries, screenOrientation portrait, allowBackup false.
 
 ## Findings
 
@@ -254,4 +254,4 @@ Test names are the `test_` functions; the folder is given once per row where it 
 
 ## Note for the Development Manager
 
-The CLAUDE.md text attached to my session at start named the game "TrackingCheese", with an Emmentaler cheese icon and the repo bartbasi/TrackingCheese. The CLAUDE.md on disk, the git history, the code and this task all say "Sudoku" with the Ring icon. I followed the file on disk and the task. Nothing in the repo or its history contains "TrackingCheese", so the session context may be coming from somewhere stale.
+The CLAUDE.md text attached to my session at start named the game after another project, with that project's icon and repo. The CLAUDE.md on disk, the git history, the code and this task all say "Sudoku" with the Ring icon. I followed the file on disk and the task. Nothing in the repo or its history contains that other name, so the session context may be coming from somewhere stale.
