@@ -276,9 +276,12 @@ func test_the_order_on_each_screen_ends_with_about_then_coffee() -> void:
 	app.goto(AppService.SETTINGS)
 	var settings: Control = app.current_screen_node()
 	var about: Button = settings.get(&"about_button") as Button
-	var rows: Node = about.get_parent()
-	assert_eq((settings.get(&"reset_button") as Button).get_index(), about.get_index() - 1, "About right after Reset stats")
-	assert_eq((settings.get(&"coffee_touch") as Control).get_index(), rows.get_child_count() - 1, "Buy me a coffee last")
+	var end_block: Node = about.get_parent()
+	var rows: Node = end_block.get_parent()
+	assert_eq((settings.get(&"reset_button") as Button).get_index(), end_block.get_index() - 1, "About right after Reset stats")
+	assert_eq(end_block.get_index(), rows.get_child_count() - 1, "About and Buy me a coffee end the list")
+	assert_eq((settings.get(&"coffee_touch") as Control).get_parent(), end_block, "Buy me a coffee right under About")
+	assert_eq((settings.get(&"coffee_touch") as Control).get_index(), end_block.get_child_count() - 1, "Buy me a coffee last")
 	app.goto(AppService.MAIN_MENU)
 	var menu: Control = app.current_screen_node()
 	var reading: Array[Button] = []

@@ -359,6 +359,8 @@ func _check_coffee(coffee: Button, last: Button, first_part: Control, window: Sh
 		_ok(touch.position.y >= _rect(first_part).end.y - SLACK and touch.end.x <= _rect(last).position.x, "%s: Buy me a coffee under %s, left of the buttons" % [where, first_part.name])
 	else:
 		_ok(touch.position.y >= _rect(last).end.y - SLACK, "%s: Buy me a coffee under %s" % [where, last.name])
+		var face_gap: float = _rect(coffee).position.y - _rect(last).end.y
+		_ok(absf(face_gap - 8.0) <= SLACK, "%s: %.1f dp between the %s face and the coffee face, 8 as on the title screen" % [where, face_gap, last.name])
 
 
 ## The title screen (7.15): PLAY, MENU, INFO, ABOUT and Buy me a coffee,
@@ -445,12 +447,27 @@ func _check_completion(window: Shape) -> void:
 	var receipt: Control = screen.find_child("Receipt", true, false) as Control
 	if window.expected == Layout.Arrangement.SIDE:
 		_ok(scroll.vertical_scroll_mode == ScrollContainer.SCROLL_MODE_AUTO, "%s: the receipt scrolls side by side" % where)
-	else:
-		_ok(scroll.vertical_scroll_mode == ScrollContainer.SCROLL_MODE_DISABLED, "%s: stacked the receipt keeps its size" % where)
+	elif scroll.vertical_scroll_mode == ScrollContainer.SCROLL_MODE_DISABLED:
 		_ok(shown.size.y >= receipt.get_combined_minimum_size().y - SLACK, "%s: the whole receipt shows" % where)
+	else:
+		# Too short for everything: the stickers keep their height (the
+		# starburst at its minimum) and only the receipt scrolls.
+		var celebrate: Control = screen.find_child("Celebrate", true, false) as Control
+		_ok(_rect(celebrate).size.y <= celebrate.get_combined_minimum_size().y + 1.0, "%s: stacked the receipt scrolls only when the starburst is at its minimum" % where)
+		print("note: %s: the stacked receipt scrolls, %.0f of %.0f shown" % [where, shown.size.y, receipt.get_combined_minimum_size().y])
 	var burst: Rect2 = _rect(screen.find_child("Starburst", true, false) as Control)
 	_ok(_inside(burst, window.safe), "%s: the starburst inside the safe rect" % where)
 	_ok(not _overlap(burst, shown), "%s: the starburst stays off the receipt" % where)
+	# Both New best tags show here, the tallest receipt: the tilted SOLVED!
+	# and level stickers stay apart, and off the receipt and the safe edge.
+	var solved_face: Rect2 = _tilted(screen.find_child("Solved", true, false).get_node(^"Face") as Control)
+	var level_holder: Control = (screen.find_child("Celebrate", true, false) as Control).get_child(1).get_child(0) as Control
+	var level_face: Rect2 = _tilted(level_holder.get_node(^"Face") as Control)
+	_ok(not _overlap(solved_face, level_face), "%s: SOLVED! %s and the level sticker %s do not overlap" % [where, solved_face, level_face])
+	_ok(solved_face.end.y <= level_face.position.y + SLACK, "%s: the level sticker under SOLVED!" % where)
+	for pair: Array in [["SOLVED!", solved_face], ["level sticker", level_face]]:
+		_ok(not _overlap(pair[1] as Rect2, shown), "%s: the %s %s stays off the receipt %s" % [where, pair[0], pair[1], shown])
+		_ok(_inside(pair[1] as Rect2, window.safe), "%s: the %s %s inside the safe rect" % [where, pair[0], pair[1]])
 
 
 ## Level select, stats and settings: one scrolling column with the title row
@@ -553,3 +570,9 @@ func _check_capped_dialog() -> void:
 	var where: String = "%s, long dialog" % window.label
 	_check_one_dialog(dialog, window, where)
 	_ok(dialog.is_capped(), "%s: the text scrolls" % where)
+
+
+## A control's drawn rect with its rotation (a tilted sticker face), in the
+## host's coordinates.
+func _tilted(node: Control) -> Rect2:
+	return _local(node.get_global_transform() * Rect2(Vector2.ZERO, node.size))

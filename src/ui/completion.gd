@@ -31,6 +31,8 @@ var halves: HalvesBox = null
 ## above the buttons; stacked it is as tall as the receipt.
 var receipt_scroll: ScrollContainer = null
 var _receipt_room: MarginContainer = null
+var _receipt: Control = null
+var _side: bool = false
 
 
 func open(new_payload: Variant) -> void:
@@ -64,6 +66,12 @@ func build() -> void:
 	var solved: Control = UiKit.sticker(ThemeFactory.CELEBRATE_STICKER, ThemeFactory.CELEBRATE_DISPLAY, "Solved!", s.celebrate_tilt)
 	solved.name = "Solved"
 	solved_box.add_child(solved)
+	# The starburst may shrink to nothing, but never below the tilted SOLVED!
+	# sticker, so the level sticker under it never overlaps it.
+	var keep_room: Callable = func() -> void:
+		burst.custom_minimum_size.y = ceilf(tilted_height(solved.custom_minimum_size, s.celebrate_tilt))
+	solved.minimum_size_changed.connect(keep_room)
+	keep_room.call()
 
 	var level_box: CenterContainer = CenterContainer.new()
 	level_box.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -81,11 +89,11 @@ func build() -> void:
 	_receipt_room.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_receipt_room.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	receipt_scroll.add_child(_receipt_room)
-	_on_arranged(false)
 
 	var receipt: PanelContainer = UiKit.panel(ThemeFactory.CARD)
 	receipt.name = "Receipt"
 	_receipt_room.add_child(receipt)
+	_receipt = receipt
 	var rows: VBoxContainer = UiKit.vbox(s.space_s)
 	receipt.add_child(rows)
 	time_value = _line(rows, ThemeFactory.CAPTION, "Time", ThemeFactory.VALUE, UiKit.format_time(result.seconds))
@@ -101,7 +109,12 @@ func build() -> void:
 
 	var buttons: HBoxContainer = UiKit.hbox(s.space_m)
 	buttons.name = "Buttons"
-	results.add_child(UiKit.with_shadow_room(buttons, s))
+	# The buttons with their shadow room, then Buy me a coffee right under
+	# them with no gap: 8 dp between the faces, as on the title screen.
+	var bottom: VBoxContainer = UiKit.vbox(0.0)
+	bottom.name = "Bottom"
+	results.add_child(bottom)
+	bottom.add_child(UiKit.with_shadow_room(buttons, s))
 	play_again_button = UiKit.button(ThemeFactory.BUTTON_PRIMARY, "Play again", Layout.BUTTON_TALL)
 	play_again_button.name = "PlayAgain"
 	play_again_button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -116,24 +129,61 @@ func build() -> void:
 	coffee_touch = coffee
 	coffee_button = coffee.button
 	coffee_button.pressed.connect(_on_coffee)
-	results.add_child(coffee)
+	bottom.add_child(coffee)
+	halves.resized.connect(_fit_receipt)
+	receipt.minimum_size_changed.connect(_fit_receipt)
+	stack.minimum_size_changed.connect(_fit_receipt)
+	_fit_receipt()
 	_animate(solved)
 
 
-## Stacked, the receipt keeps its size and nothing scrolls (7.9). Side by
-## side the receipt scrolls in the space above the buttons, which stay
-## pinned at the bottom of the right half; it keeps room for its shadow
+## Stacked, the receipt keeps its size and nothing scrolls (7.9), unless
+## the window is too short for the stickers, the receipt and the buttons:
+## then the starburst is gone, SOLVED! and the level sticker keep their own
+## height, and the receipt scrolls in the height left. Side by side the
+## receipt scrolls in the space above the buttons, which stay pinned at the
+## bottom of the right half. While it scrolls it keeps room for its shadow
 ## inside the clipped scroll area.
 func _on_arranged(side: bool) -> void:
+	_side = side
+	_fit_receipt()
+
+
+## Stacked: the height the receipt may take, or INF before the first
+## layout. Everything else in the column keeps its minimum height.
+func _receipt_room_left() -> float:
+	if halves.size.y <= 0.0:
+		return INF
+	var celebrate: Control = halves.get_child(0) as Control
+	var results: VBoxContainer = halves.get_child(1) as VBoxContainer
+	var bottom: Control = results.get_node(^"Bottom") as Control
+	var gap: float = float(results.get_theme_constant(&"separation"))
+	return halves.size.y - halves.stacked_gap - celebrate.get_combined_minimum_size().y - gap - bottom.get_combined_minimum_size().y
+
+
+## Scrolls the receipt side by side, or stacked when it does not fit whole.
+func _fit_receipt() -> void:
 	var s: GameSkin = skin()
-	receipt_scroll.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_AUTO if side else ScrollContainer.SCROLL_MODE_DISABLED
-	receipt_scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL if side else Control.SIZE_FILL
-	receipt_scroll.clip_contents = side
-	var room: int = roundi(s.shadow_offset) if side else 0
+	var left: float = INF if _side else _receipt_room_left()
+	var need: float = _receipt.get_combined_minimum_size().y if _receipt != null else 0.0
+	var scrolls: bool = _side or need > left
+	receipt_scroll.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_AUTO if scrolls else ScrollContainer.SCROLL_MODE_DISABLED
+	receipt_scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL if scrolls else Control.SIZE_FILL
+	receipt_scroll.clip_contents = scrolls
+	var height: float = maxf(0.0, floorf(left)) if scrolls and not _side else 0.0
+	if not is_equal_approx(receipt_scroll.custom_minimum_size.y, height):
+		receipt_scroll.custom_minimum_size.y = height
+	var room: int = roundi(s.shadow_offset) if scrolls else 0
 	_receipt_room.add_theme_constant_override(&"margin_right", room)
 	_receipt_room.add_theme_constant_override(&"margin_bottom", room)
 	_receipt_room.add_theme_constant_override(&"margin_left", 0)
 	_receipt_room.add_theme_constant_override(&"margin_top", 0)
+
+
+## The height a sticker face of size takes when tilted by tilt degrees.
+static func tilted_height(size: Vector2, tilt: float) -> float:
+	var angle: float = deg_to_rad(absf(tilt))
+	return size.x * sin(angle) + size.y * cos(angle)
 
 
 ## Back goes to the main menu: there is nothing under this screen.

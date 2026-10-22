@@ -8,7 +8,7 @@ extends SceneTree
 ##   timeout 300 godot --path . --script res://tests/ui/capture_screens.gd -- title <folder>
 ##   timeout 300 godot --path . --script res://tests/ui/capture_screens.gd -- candidates <folder>
 ##   timeout 300 godot --path . --script res://tests/ui/capture_screens.gd -- license <folder>
-##   timeout 300 godot --path . --script res://tests/ui/capture_screens.gd -- coffee <folder>
+##   timeout 300 godot --path . --script res://tests/ui/capture_screens.gd -- coffee <folder> [screen,screen]
 ##
 ## Writes build/ui/<size>-<skin>-<screen>.png. Saves go to
 ## user://ui_capture/, which is wiped first, so real saves are untouched.
@@ -43,6 +43,8 @@ var _title: bool = false
 var _candidates: bool = false
 var _license: bool = false
 var _coffee: bool = false
+## Screen names to capture; empty captures all ("coffee <folder> a,b").
+var _only: PackedStringArray = PackedStringArray()
 var _out_dir: String = OUT_DIR
 var _app: AppService = null
 var _skins: Node = null
@@ -57,6 +59,8 @@ func _initialize() -> void:
 		_candidates = args[0] == "candidates"
 		_license = args[0] == "license"
 		_coffee = args[0] == "coffee"
+		if args.size() > 2:
+			_only = args[2].split(",")
 		if args.size() > 1:
 			_out_dir = args[1].replace("\\", "/")
 			if not _out_dir.ends_with("/"):
@@ -426,6 +430,8 @@ func _settle() -> void:
 
 
 func _shot(skin_name: String, screen: String) -> void:
+	if not _only.is_empty() and not _only.has(screen):
+		return
 	await _settle()
 	await RenderingServer.frame_post_draw
 	var image: Image = root.get_texture().get_image()

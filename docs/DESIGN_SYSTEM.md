@@ -1,6 +1,6 @@
 # Sudoku: Design System
 
-Owner: senior-graphic-designer. Status: Phase 2, 2026-10-11; Phase 3 addition 2026-10-12, the hint cross chip (Bart, Hard Stop 2; sections 1, 2.7 to 2.9); 2026-10-12, the SUDOKU wordmark and the icon placeholder (sections 7.1, 7.2 and 9); 2026-10-12, the final app icon, Ring, made bolder (sections 7.1 and 9); 2026-10-12, number pad labels fit their faces down to 320 by 568 dp (sections 3.2, 3.5, 4.6, 5 and 10); 2026-10-12, Phase 4: the header row, Continue and the hint panel fit their design, the making a puzzle wait, the lesson card's wrong tap tag and height, and which sizes are Layout constants (sections 1, 3.2, 3.6, 4.6, 4.8, 5, 6, 7 and 10); 2026-10-12, Phase 6: window shapes for foldables and split screen, side by side and too small (sections 4.7, 4.8, 4.9, 4.11, 7.6 and 10); 2026-10-14, the title screen, Info and About (Bart, title screen; sections 4.6, 4.9, 4.11, 7.15 to 7.17); 2026-10-17, Buy me a coffee on the title screen and the About card, and the new About card (Bart; sections 4.4, 4.6, 4.11, 7.15 and 7.17); 2026-10-18, the GPL v3 license on About: the copyright line without "All rights reserved.", the license line on the card, and the game's NOTICE and COPYING first in the notices (Bart; section 7.17). This is the contract the artists and developers build Phase 3 from. If something you need is missing or would force a guess, ask the senior-graphic-designer through the Development Manager; do not invent a value locally.
+Owner: senior-graphic-designer. Status: Phase 2, 2026-10-11; Phase 3 addition 2026-10-12, the hint cross chip (Bart, Hard Stop 2; sections 1, 2.7 to 2.9); 2026-10-12, the SUDOKU wordmark and the icon placeholder (sections 7.1, 7.2 and 9); 2026-10-12, the final app icon, Ring, made bolder (sections 7.1 and 9); 2026-10-12, number pad labels fit their faces down to 320 by 568 dp (sections 3.2, 3.5, 4.6, 5 and 10); 2026-10-12, Phase 4: the header row, Continue and the hint panel fit their design, the making a puzzle wait, the lesson card's wrong tap tag and height, and which sizes are Layout constants (sections 1, 3.2, 3.6, 4.6, 4.8, 5, 6, 7 and 10); 2026-10-12, Phase 6: window shapes for foldables and split screen, side by side and too small (sections 4.7, 4.8, 4.9, 4.11, 7.6 and 10); 2026-10-14, the title screen, Info and About (Bart, title screen; sections 4.6, 4.9, 4.11, 7.15 to 7.17); 2026-10-17, Buy me a coffee on the title screen and the About card, and the new About card (Bart; sections 4.4, 4.6, 4.11, 7.15 and 7.17); 2026-10-18, the GPL v3 license on About: the copyright line without "All rights reserved.", the license line on the card, and the game's NOTICE and COPYING first in the notices (Bart; section 7.17); 2026-10-22, Buy me a coffee and About on more screens: the small coffee button on the main menu, the pause menu, Settings and the completion screen, the coffee cup in the play screen's band, About on the main menu, the pause menu and Settings, and the main menu's two rows of two (Bart, GDD 15.7; sections 4.1, 4.4, 4.6, 4.7, 4.9, 4.11, 7.1, 7.5 to 7.9, 7.11, 7.15 and 7.17). This is the contract the artists and developers build Phase 3 from. If something you need is missing or would force a guess, ask the senior-graphic-designer through the Development Manager; do not invent a value locally.
 
 Bart's Hard Stop 1 decisions behind it: direction Pop, with the Phase 2 fixes from [design/ranking.md](design/ranking.md); v1 ships two skins, Pop light (the default) and Pop dark; candidate ring layout A, reading rows; Godot's built-in font, no font files; a digit crossed by hand is drawn on top of its X with a thin outline; the game fits and works at 320 by 568 dp and readability is judged at 360 dp wide; an app icon whose background follows Pop's palette; "New best time" and "New best score" on the completion screen. The game is called Sudoku for now, a placeholder name Bart may change. The app icon is Ring (section 9).
 
@@ -468,7 +468,8 @@ On the judged screen the board keeps its size either way; the header only ate ba
 - Cards, buttons, keys, stickers and the board cast a hard shadow (`shadow`, offset `shadow_offset` right and down). Tags, the scrim and the hatch cast none.
 - Radii: `radius_control` for buttons, keys, stickers, tags and the switch track; `radius_card` for cards, panels and dialogs; `board_radius` for the board.
 - Stickers tilt counterclockwise by `sticker_tilt`; the SOLVED! sticker by `celebrate_tilt`. Alternate stickers in a list tilt the other way.
-- Icons (ARCHITECTURE section 7) are one color, with a stroke of 0.14 of the icon side, square ends and mitered corners, 20 dp in buttons and 24 dp in icon buttons.
+- Icons (ARCHITECTURE section 7) are one color, with a stroke of 0.14 of the icon side, square ends and mitered corners, 20 dp in buttons and 24 dp in icon buttons. The set (`Icons.ALL`): `UNDO`, `ERASE`, `MODE_PLACE` (pencil), `MODE_CROSS_OUT` (crossed box), `HINT`, `PAUSE`, `PLAY`, `SETTINGS`, `BACK`, `CLOSE`, `CHECK`, `LOCK` and `COFFEE`.
+- `COFFEE` (2026-10-22, GDD 15.7): a mug, a filled body narrowing a little to its foot, a round open handle at the right and two wavy wisps of steam rising above it, all in the one icon color. It is used only on the play screen's coffee cup button (7.5), at 24 dp. The text buttons that say Buy me a coffee carry no icon.
 
 ### 4.2 Button states
 
@@ -488,7 +489,7 @@ The scale is `space_xs` 4, `space_s` 8, `space_m` 12, `space_l` 16 and `space_xl
 ### 4.4 Touch targets
 
 - Everything the player taps has a touch area of at least 48 by 48 dp. The face may be smaller; its touch area then extends into the gaps around it and over its own shadow, never into another control's touch area.
-- Keys: faces at least 40 dp tall, with 8 dp gaps, so each touch area is at least 48 dp. Icon buttons (Pause, back, close) and the small Buy me a coffee button (7.15): 40 dp faces, 48 dp touch areas.
+- Keys: faces at least 40 dp tall, with 8 dp gaps, so each touch area is at least 48 dp. Icon buttons (Pause, the coffee cup, back, close) and the small Buy me a coffee button (7.15, `UiKit.coffee_button`): 40 dp faces, 48 dp touch areas.
 - Cells are not held to 48 dp (they are 27 to 66 dp); the board's 81 cells are the one deliberate exception, as on every Sudoku.
 
 ### 4.5 Safe areas
@@ -516,7 +517,7 @@ The same in every skin, so not skin tokens. They are the constants of the `Layou
 | `KEY_ASPECT_MAX` | 1.6 | A digit key's face is never wider than this many times its height; the pad narrows and centers instead (4.7) |
 | `COLUMN_MAX` | 600 | Widest content column, centered, on tablets |
 | `HINT_FACE_W` | 64 | Width of the Hint button's face |
-| `ICON_FACE` | 40 | Face of every icon button (Pause, back, close on screens), height of the header faces (Hint, time, score) and of the Buy me a coffee face (7.15); its touch area is `TOUCH_MIN` |
+| `ICON_FACE` | 40 | Face of every icon button (Pause, the coffee cup, back, close on screens), height of the header faces (Hint, time, score) and of the Buy me a coffee face (7.15); its touch area is `TOUCH_MIN` |
 | `CLOSE_FACE` | 32 | Face of the close button on the hint panel and the lesson card; touch area `TOUCH_MIN` |
 | `BUTTON_TALL` | 56 | Face height of full width buttons: title screen, main menu, pause menu, completion, the first launch offer, the lesson NEXT button |
 | `TIME_MIN_W` | 80 | Narrowest time block (it grows to fit 1:02:05) |
@@ -543,7 +544,7 @@ The same in every skin, so not skin tokens. They are the constants of the `Layou
 | `PIP` | 10 | Level select pips (7.3) |
 | `LESSON_SQUARE` | 24 | Lessons completed squares (7.10) |
 | `DIALOG_MAX_W` | 328 | Widest dialog card (4.9) |
-| `HERO_MIN`, `HERO_MAX` | 64, 200 | The hero on the main menu and first launch offer (7.1, 7.2) |
+| `HERO_MIN`, `HERO_MAX` | 64, 200 | The hero on the title screen, the main menu and the first launch offer (7.1, 7.2, 7.15) |
 | `HERO_LAYER` | 108/66 | Hero drawing rect against its box (7.1) |
 
 And in src/lessons (lessons-dev): the lessons list row (72) and number sticker (36) of 7.12. If a second area ever needs one of these, it moves to `Layout` first.
@@ -552,7 +553,7 @@ And in src/lessons (lessons-dev): the lessons list row (72) and number sticker (
 
 Top to bottom inside the safe area, inset by `page_margin`, in a column `min(width, COLUMN_MAX)` wide and centered:
 
-1. **Info zone:** the header row (Hint, time and score, Pause; the play screen's own) and below it the band, the top of PlayArea (`band_rect_global()`), which holds the level sticker. The hint panel and the full board message cover the whole info zone, header row and band together (7.6).
+1. **Info zone:** the header row (Hint, time and score, Pause; the play screen's own) and below it the band, the top of PlayArea (`band_rect_global()`), which holds the level sticker at one end and the coffee cup, under Pause, at the other (7.5). The hint panel and the full board message cover the whole info zone, header row and band together, and the coffee cup hides while they show (7.6).
 2. **Board:** the largest square that fits, plus its outer line and shadow.
 3. **Gap.**
 4. **Controls:** three rows of keys.
@@ -586,7 +587,7 @@ Side by side (4.11) the card sits in the side column, with a simpler rule; see 4
 ### 4.9 Every other screen
 
 - Title row (`HEADER_ROW`): a back or close icon button at the left, the title in title style beside it.
-- Lists (level select, stats, lessons list, settings) and the two text screens (Info, About) scroll when they do not fit; the title row stays put. At 360 by 800 dp every list fits without scrolling except stats; Info and About always scroll.
+- Lists (level select, stats, lessons list, settings) and the two text screens (Info, About) scroll when they do not fit; the title row stays put. At 360 by 800 dp every list fits without scrolling except stats and, with a notch and a gesture bar, settings (it gained About and Buy me a coffee on 2026-10-22, 7.11); Info and About always scroll.
 - Dialogs: centered, at most 328 dp wide and at least 16 dp from the safe area's sides, over the scrim.
 - Full screen overlays (the pause menu, the first launch offer) fill the screen in `page_bg` and center their content in the safe area.
 - The same `COLUMN_MAX` and centering apply on tablets.
@@ -620,9 +621,10 @@ Bart, Phase 6: split screen is allowed, and the game must lay out well in any wi
 ```
 ┌───────────────────────────────────────────────────────────────┐
 │ ┌───────────────────────────┐  [II] [TIME][SCORE]    [HINT ]  │ header row 48, mirrored:
-│ │                           │                                 │ Hint at the far end from the board
-│ │                           │  (MEDIUM)                       │ band: level sticker; the hint panel
-│ │        board 345          │                                 │ covers header row and band
+│ │                           │  [cup]                          │ Hint at the far end from the board
+│ │                           │                                 │ band: cup under Pause, level sticker
+│ │        board 345          │                                 │ at the far end, 8 above the pad;
+│ │                           │                      (MEDIUM)   │ the hint panel covers both rows
 │ │                           │  [1][2][3]   20   [ PLACE     ] │
 │ │                           │  [4][5][6]        [ CROSS OUT ] │ the same pad, side column width
 │ │                           │  [7][8][9]        [UNDO][ERASE] │
@@ -656,8 +658,8 @@ The breakpoints, in content box dp:
 - PlayArea lays out everything from the whole safe rect: the board at the left, the side column at the right, the two centered as a group when the content box is wider than they need. When the board's width limits it, the board is centered vertically in H.
 - The side column's height is shared like the stacked one, with no board in it: start from the header row 48, `BAND_MIN` and the pad at `KEY_MIN`; the keys grow first, to `KEY_MAX`; then the band, to `BAND_MAX`; anything left is split above and below the side column.
 - **Header row, mirrored:** Pause at the left, next to the board; time and score centered; Hint at the right end. Hint must never sit next to the board, where a slip from a cell would buy a hint (the reason Hint moved in Phase 2). Next to the board, Pause is harmless: a slip there only pauses. Faces, guards and sizes are those of 7.5.
-- **Band:** the level sticker, `space_s` above the pad's left end, as it sits above the board when stacked.
-- **Hint panel and full board message:** they cover the side column's info zone (header row and band, down to `space_s` above the pad): the 7.6 rule in a different place. They never cover a cell. The panel is the side column's width, and its text steps down by the 7.6 rule (`ui_fit.gd` measures every hint text on every window below; side by side the longest need 12 dp, as at 320 by 568).
+- **Band, mirrored with the header row:** the coffee cup at the top of the band at the left end, right under Pause and next to the board (7.5); the level sticker at the right end, its right edge `space_s` in from the band's right end and its bottom `space_s` above the pad. Stacked, the two sit the other way round. A slip from the board onto the cup only pauses, as for Pause.
+- **Hint panel and full board message:** they cover the side column's info zone (header row and band, down to `space_s` above the pad): the 7.6 rule in a different place, and the coffee cup hides while they show. They never cover a cell. The panel is the side column's width, and its text steps down by the 7.6 rule (`ui_fit.gd` measures every hint text on every window below; side by side the longest need 12 dp, as at 320 by 568).
 - **Pad:** NumberPad does not change (with Show candidates off too, 7.5); it lays out in the side column's width with the 4.7 widths, including the `KEY_ASPECT_MAX` limit (never reached side by side: the side column is at most 360 and its keys at least 50.7 tall, so a key is at most 68 by 50.7, 1.34).
 - Touch areas stay at least 48 by 48. The pad is never narrower than at 320 by 568.
 
@@ -672,9 +674,10 @@ The breakpoints, in content box dp:
 Every screen reads the same arrangement. Stacked, every screen is as in section 7. Side by side:
 
 - **Title screen:** as the main menu below, with its four tall buttons (264 dp, the main menu's stack) on the right. They fill the right half at the smallest height, so the small Buy me a coffee button moves to the bottom of the left half, under the hero; see 7.15.
-- **Main menu and first launch offer:** two halves of the column `min(W, COLUMN_MAX)`, `space_xl` apart. Left: the wordmark at the top and the hero under it, filling the height left (64 to 200, 7.1). Right: the buttons (on the first launch offer, the card and its two buttons), centered vertically. At the inner top half the halves are 288 wide; the left has 352 - 66 - 48 = 238 for the hero, so it is 200; the buttons take 264 of 352.
-- **Pause menu:** two halves the same way. Left: PAUSED, the level sticker and the paused time (about 118). Right: RESUME, SETTINGS and MENU (196), centered.
-- **Completion:** two halves. Left: the starburst with SOLVED! and the level sticker, shrinking to the height. Right: the receipt, then PLAY AGAIN and MENU pinned at the bottom. When the receipt with both NEW BEST labels does not fit above the buttons, the receipt scrolls; the buttons never move.
+- **Main menu:** two halves of the column `min(W, COLUMN_MAX)`, `space_xl` apart. Left: the wordmark at the top, the hero under it with `space_l` above and below, filling the height left (64 to 200, 7.1), and the small Buy me a coffee button at the bottom, centered under the hero. Right: the button stack (Continue, New puzzle and the two rows of two, 264 dp), centered vertically. Buy me a coffee moves to the left half for the title screen's reason: the stack fills the right half exactly at the smallest height, 264. At 264 the left half has 264 - 66 - 32 - 48 = 118 for the hero. At the inner top half the halves are 288 wide; the left has 352 - 66 - 32 - 48 = 206, so the hero is 200; the buttons take 264 of 352.
+- **First launch offer:** the main menu's halves without Buy me a coffee, with the hero's gap `space_xl` as before. Right: the card and its two buttons, centered vertically.
+- **Pause menu:** two halves the same way. Left: PAUSED, the level sticker and the paused time (about 118), centered, then the small Buy me a coffee button at the bottom of the group, under the time. Right: RESUME, SETTINGS, MENU and ABOUT (264, the main menu's height), centered; like the main menu's, they fill the right half at the smallest height, so Buy me a coffee moves left.
+- **Completion:** two halves. Left: the starburst with SOLVED! and the level sticker, shrinking to the height. Right: the receipt, then PLAY AGAIN and MENU, then the small Buy me a coffee button, pinned at the bottom. When the receipt with both NEW BEST labels does not fit above the buttons, the receipt scrolls; the buttons and Buy me a coffee never move. Buy me a coffee stays in the right half here: the receipt scrolls, so the half always has room for it.
 - **Lists** (level select, stats, settings, lessons list) **and the text screens** (Info, About): no change. One column `min(W, COLUMN_MAX)` wide, the title row fixed, the list scrolls (all six scroll).
 - **Dialogs** (7.4, the Reset dialog of 7.11, the making a puzzle card of 7.14): no change in either arrangement; centered, at most 328 wide. A dialog card is never taller than the content box: if it would be, its text scrolls and its buttons stay in view. At the smallest supported height, 264, the tallest one (7.4: three lines of text and two 48 dp buttons) needs about 215.
 
@@ -842,30 +845,38 @@ Sketches are at 360 by 800 dp, the judged screen, with a 32 dp notch inset and a
 │         ╔══════════════╗             │ SUDOKU: CELEBRATE_STICKER +
 │         ║   SUDOKU     ║             │ CELEBRATE_DISPLAY, tilted
 │         ╚══════════════╝             │ sticker_tilt, centered
-│                                      │
+│                                      │ 16 (space_l)
 │            ┌────────┐                │ hero: the app icon foreground
 │            │  icon  │                │ (app_icon.gd draw_foreground),
 │            └────────┘                │ 64 to 200 square
-│                                      │
+│                                      │ 16 (space_l)
 │ [ CONTINUE                         ] │ BUTTON_PRIMARY, 56: PRIMARY_LABEL
 │ [ MEDIUM, 12:48                    ] │ over PRIMARY_CAPTION
-│ [ NEW PUZZLE                       ] │ BUTTON_SECONDARY, 56
-│ [ LESSONS                          ] │ 56
-│ [ STATS          ] [ SETTINGS      ] │ two halves, 56
-└──────────────────────────────────────┘ safe bottom - 8
+│ [ NEW PUZZLE                       ] │ BUTTON_SECONDARY, 56, gaps 12
+│ [ LESSONS        ] [ STATS         ] │ row of two, 56, 12 apart
+│ [ SETTINGS       ] [ ABOUT         ] │ row of two, 56
+│                                      │ 8 between faces
+│         [ BUY ME A COFFEE ]          │ UiKit.coffee_button: 40 face,
+└──────────────────────────────────────┘ 48 touch; safe bottom - 8
 ```
 
 - **Wordmark.** One word, SUDOKU, on one sticker: a `CELEBRATE_STICKER` panel (pink `celebrate_bg`, outline, hard shadow, `radius_control`) holding a `CELEBRATE_DISPLAY` label (display role, capitals, `celebrate_text`), tilted counterclockwise by `sticker_tilt` and centered in the column. The source string is "Sudoku"; the display role sets it in capitals. Its face is about 184 by 52 dp (the word about 168 dp wide at 44 dp, plus the sticker padding); with the tilt and the shadow it takes about 66 dp of height. It reuses the SOLVED! look, so its contrast is already checked (`celebrate_text` on `celebrate_bg`, both skins). It is not tappable.
 - **Hero.** The app icon's foreground, Ring (section 9), drawn in code by `app_icon.gd` `draw_foreground`: the white cell sticker with its ink outline and hard shadow, the nine Heavy candidates and the two magenta X, straight on the lemon page. It reads at both ends of its range: at 64 dp the candidates are about 11 dp Heavy, larger than on the board; at 200 dp they are about 34 dp. Checked on `build/icon_options/ring-final-sheet.png` (last row). The hero is a square box, centered. The foreground's art sits inside the 66 dp safe zone of a 108 dp layer, so the painter passes `draw_foreground` a rect 108/66 times the box side, centered on the box; the art then fills the box. No background layer and no tile: the art sits straight on `page_bg`. It is not tappable.
-- Buttons are full width with 12 dp gaps and sit at the bottom: 4 rows of 56, 3 gaps of 12 and the 4 dp shadow, 264 dp in all. The wordmark sits at the top. The hero takes the height between them less a `space_xl` (24 dp) gap above and below it, clamped to 64 to 200 dp, and is centered in that space when it stops at 200.
+- **The buttons** (Bart, 2026-10-22, GDD 15.1 and 15.7) sit at the bottom, `space_m` (12) apart, all `BUTTON_TALL` (56) faces: CONTINUE and NEW PUZZLE full width, then LESSONS and STATS as one row of two, then SETTINGS and ABOUT as a second row of two. In a row the two faces share the width equally, 12 apart. Reading order, left to right and top to bottom, is Continue, New puzzle, Lessons, Stats, Settings, About, then Buy me a coffee. 4 rows of 56, 3 gaps of 12 and the 4 dp shadow: 264 dp, as before. Why rows of two: a fifth full width row has no height in the right half of the smallest side by side window, and a row of three does not fit its width.
+- **ABOUT** (`BUTTON_SECONDARY`, source string "About") opens the About screen (7.17); Back there returns here. It does nothing while a puzzle is being made.
+- **Buy me a coffee** comes last: `UiKit.coffee_button()`, the title screen's small button (7.15: `BUTTON_SECONDARY`, a 40 dp face only as wide as its label in a 48 dp touch area), centered under the stack, its touch area right under the stack's 4 dp shadow room, so 8 dp between ABOUT's face and its face. Less prominent by size alone. It does nothing while a puzzle is being made. Side by side it moves to the bottom of the left half (4.11).
+- The wordmark sits at the top. The hero takes the height between it and the buttons less a `space_l` (16 dp) gap above and below it, clamped to 64 to 200 dp, and is centered in that space when it stops at 200. (Before 2026-10-22 the gap was `space_xl`; it is `space_l` now, as on the title screen, to make room for Buy me a coffee. The first launch offer keeps `space_xl`.)
 - **Continue** has two lines in two styles, set with variations only. The `BUTTON_PRIMARY` button has no text of its own. It holds a centered `VBoxContainer` (separation 0, mouse filter ignore) with two centered labels: CONTINUE in `PRIMARY_LABEL` (button role) and the level and time, "MEDIUM, 12:48", in `PRIMARY_CAPTION` (caption role); both in `button_primary_text`, a pair the checker already holds at 4.5:1. The box fills the button's content rect (the normal style's content margins), and it follows the face when the button sinks: on every draw of the button, move the box by the current style's `PopBox.face_rect(Rect2()).position` (the style for `get_draw_mode()`, which includes the press copy `Motion.press` puts on). Height: margins (2 + 8) x 2 = 20, plus 20 and 14 for the two lines, 54 of the 56 dp face. Before, both lines in the button role needed 57.
 - With no puzzle in progress there is no CONTINUE, and NEW PUZZLE becomes primary.
-- At 360 by 800 (32 dp notch, 24 dp gesture bar): 744 safe, 728 inside the margins; 728 minus 66, 264 and 48 leaves 350, so the hero is 200 dp.
-- At 320 by 568 with the same insets: 512 safe, 496 inside the margins; 496 minus 66, 264 and 48 leaves 118, so the hero is about 118 dp, or 186 dp with no CONTINUE row (one row and one gap fewer). Everything fits.
+- Heights: the stack 264 plus the 48 dp coffee touch area, 312, exactly the title screen's (7.15).
+- At 360 by 800 (32 dp notch, 24 dp gesture bar): 744 safe, 728 inside the margins; 728 minus 66, 312 and 32 leaves 318, so the hero is 200 dp.
+- At 320 by 568 with the same insets: 512 safe, 496 inside the margins; 496 minus 66, 312 and 32 leaves 86, so the hero is 86 dp, or 154 dp with no CONTINUE row (one row and one gap fewer). Everything fits.
+- The smallest stacked window (content box 491, 4.11): 491 minus 66, 312 and 32 leaves 81, above the 64 dp minimum. With `space_xl` it would be 65, which is why the gap changed.
+- Screenshots (2026-10-22, not committed): `build/ui/coffee2/360x800-light-main_menu.png`, `320x568-dark-main_menu.png`, `690x400-light-main_menu.png`.
 
 ### 7.2 First launch lesson offer
 
-A full screen before the main menu (GDD 15.3). The SUDOKU wordmark and the hero as on the main menu; below them a `CARD` with the GDD text in body ("New to Sudoku? Lesson 1 shows you how to play.") and two full width buttons, 12 dp apart: START LESSON (`BUTTON_PRIMARY`) and SKIP (`BUTTON_SECONDARY`). The hero takes the height left between the wordmark and the card, less a 24 dp gap above and below, clamped to 64 to 200 dp; at 320 by 568 it may stop at 64 when the card text wraps to three lines, and it never pushes the buttons out of the safe area.
+A full screen before the main menu (GDD 15.3). The SUDOKU wordmark and the hero as on the main menu (the hero's gap stays `space_xl` here); below them a `CARD` with the GDD text in body ("New to Sudoku? Lesson 1 shows you how to play.") and two full width buttons, 12 dp apart: START LESSON (`BUTTON_PRIMARY`) and SKIP (`BUTTON_SECONDARY`). The hero takes the height left between the wordmark and the card, less a 24 dp gap above and below, clamped to 64 to 200 dp; at 320 by 568 it may stop at 64 when the card text wraps to three lines, and it never pushes the buttons out of the safe area.
 
 ### 7.3 Level select
 
@@ -893,7 +904,7 @@ Over the level select, behind a `SCRIM`. A `DIALOG` card, centered, 328 dp wide 
 ┌────────────────────────────────────────┐ y 40 (safe top 32 + 8)
 │ [ HINT ]  [ TIME   ][ SCORE ]    [ II ] │ header row 48: faces 40, shadows 4
 │ [ -80  ]  [ 12:48  ][ 320   ]           │
-│                                         │ band
+│                                  [cup ] │ band: coffee cup right under Pause
 │  (MEDIUM)                               │ level sticker, 8 above the board
 ├─────────────────────────────────────────┤ info zone 130 from y 40
 │                                         │
@@ -913,9 +924,14 @@ Header row (the HUD), left to right:
 - **Time** (`HUD_TIME`): TIME caption over the value, a 40 dp tall face (`Layout.ICON_FACE`) with the two lines centered in it, at least 80 wide, growing to fit 9:59:59.
 - **Score** (`HUD_SCORE`): SCORE caption over the value, the same 40 dp face, at least 60 wide. Time and score are centered between Hint and Pause, at least 12 from each.
 - The row is `HEADER_ROW` (48) tall at every screen size; nothing in it may make it taller (3.6).
-- **Pause** (`ICON_BUTTON`): at the top right.
+- **Pause** (`ICON_BUTTON`): at the top right, with the coffee cup under it in the band.
 
-The band below holds the level name on a `STICKER`, tilted, 8 dp above the board's left end. It is not tappable.
+The band below the header row (Bart, 2026-10-22, GDD 15.7) holds two things, at its two ends:
+
+- **The coffee cup** (`UiKit.icon_button(Icons.COFFEE)`, `ICON_BUTTON`): a 40 dp face with the 24 dp `COFFEE` icon (4.1) in a 48 dp touch area, the size and touch area of Pause. Its touch area sits at the top of the band, right under Pause's: at the right end stacked, at the left end, next to the board, side by side (4.11). Its face lines up with Pause's face. It first does what Pause does, then opens the browser (GDD 15.7); it does nothing while a puzzle is being made. At the smallest band, `BAND_MIN` (48), its touch area fills the band's height, so its face's bottom is 4 dp above the board's outer line; a slip from a top right cell onto it only pauses, as Pause would. Why the band and not the header row: the header row has no room for a fifth 48 dp control at 304 dp (Hint, time, score, cup and Pause would need 357).
+- **The level name** on a `STICKER`, tilted, its bottom `space_s` (8) above the board, at the other end: stacked, `space_s` in from the band's left end; side by side, `space_s` in from the band's right end, so its bottom is 8 dp above the pad (4.11). It is not tappable.
+
+The cup shows exactly when Pause does: it hides while the hint panel (7.6) or the full board message (7.7) shows, even where a short panel would leave part of the band uncovered, and the too small layer covers it with everything else (4.11). Show candidates and Auto Cross do not change it. The lesson player has no header row and no cup (7.13). Colors: `button_text` on `button_bg`, as Pause.
 
 The pad:
 
@@ -973,16 +989,37 @@ When the puzzle completes, the board locks and the completion screen follows (6,
 - Then the hint text in `BODY_SMALL`, three lines at most. Before it would need a fourth line, or would make the panel taller than the info zone, it steps down to `BODY_SMALL_12` and then `BODY_SMALL_11`, by changing the label's `theme_type_variation` (3.2). The rule: use the first of the three at which the text wraps to three lines or fewer at the column's width and the panel fits the info zone.
 - Height at the smallest info zone, 88 dp (320 by 568 and 360 by 640): outline and padding (2 + 4) x 2 = 12, the top row 18, the gap 4, and three lines of 13 dp text 52, 86 in all. At 320 by 568 the longest texts need `BODY_SMALL_12` (three lines, 83 dp); everywhere else every hint text the game writes fits at 13 dp. `ui_fit.gd` checks every hint text template on all five screens. The 11 dp step is kept for safety; no text needs it today.
 - Side by side (4.11) the info zone is at the top of the side column, so the panel is the side column's width (304 to 360) and sits beside the board, never over it.
-- While it shows, the Hint button is covered (it is disabled anyway, GDD 10.2), as are the time, score and Pause. The timer keeps running; Android Back still opens the pause menu.
+- While it shows, the Hint button is covered (it is disabled anyway, GDD 10.2), as are the time, score and Pause, and the coffee cup in the band hides (7.5). The timer keeps running; Android Back still opens the pause menu.
 - The board marks the targets and reasons (2.7) for as long as the panel shows. Motion: `PANEL_IN`, `MARK_POP`, `PANEL_OUT`.
 
 ### 7.7 Full board message
 
-The GDD 6.3 text ("The board is full, but some digits clash. Fix the marked cells.") in a `BOARD_MESSAGE` panel in the same place and size as the hint panel, so it never covers a conflict cell. No close button: it closes at the player's next action (GDD 6.3). The two never show together, because the placement that fills the board closes any hint first.
+The GDD 6.3 text ("The board is full, but some digits clash. Fix the marked cells.") in a `BOARD_MESSAGE` panel in the same place and size as the hint panel, so it never covers a conflict cell; the coffee cup hides while it shows, as for the hint panel. No close button: it closes at the player's next action (GDD 6.3). The two never show together, because the placement that fills the board closes any hint first.
 
 ### 7.8 Pause menu
 
-A full screen overlay in `PAGE` that covers everything, the board included (GDD 8). Centered in the safe area: PAUSED in display style; the level `STICKER` and the paused time in value style under it; then full width buttons with 56 dp faces, 12 apart: RESUME (`BUTTON_PRIMARY`), SETTINGS and MENU (`BUTTON_SECONDARY`). Back resumes.
+```
+│                                        │
+│                PAUSED                  │ DISPLAY
+│               (MEDIUM)                 │ STICKER
+│                 6:20                   │ VALUE; 12 apart
+│                                        │ 24
+│ [ >             RESUME               ] │ BUTTON_PRIMARY, 56, play icon
+│ [ *            SETTINGS              ] │ BUTTON_SECONDARY, 56, settings icon
+│ [               MENU                 ] │ BUTTON_SECONDARY, 56
+│ [               ABOUT                ] │ BUTTON_SECONDARY, 56, gaps 12
+│                                        │ 8 between faces
+│          [ BUY ME A COFFEE ]           │ UiKit.coffee_button: 40 face, 48 touch
+│                                        │
+```
+
+A full screen overlay in `PAGE` that covers everything, the board included (GDD 8). Centered in the safe area as one group: PAUSED in display style; the level `STICKER` and the paused time in value style under it, `space_m` apart; `space_xl` below them, full width buttons with 56 dp faces, 12 apart: RESUME (`BUTTON_PRIMARY`, with the play icon), SETTINGS (with the settings icon), MENU and ABOUT (`BUTTON_SECONDARY`); then the small Buy me a coffee button (`UiKit.coffee_button()`, 7.15), centered, its touch area right under ABOUT's 4 dp shadow room, 8 dp between the faces. Back resumes.
+
+- **ABOUT** (Bart, 2026-10-22) opens the About screen over the paused puzzle; Back there returns here, still paused (GDD 15.7).
+- **Buy me a coffee** opens the browser; the puzzle stays paused and coming back shows this menu. The play screen's coffee cup (7.5) also lands here: it pauses, then opens the browser.
+- Neither does anything while a puzzle is being made.
+- Heights: the four buttons are 264 with the shadow, plus 48 for Buy me a coffee. At 320 by 568 everything fits (`build/ui/coffee2/320x568-dark-pause.png`).
+- Side by side (4.11): the info group and Buy me a coffee in the left half, the four buttons in the right.
 
 ### 7.9 Completion
 
@@ -1003,10 +1040,14 @@ A full screen overlay in `PAGE` that covers everything, the board included (GDD 
 │ │ HINTS USED                       2 │ │
 │ └────────────────────────────────────┘ │
 │ [ PLAY AGAIN        ] [ MENU         ] │ PRIMARY and SECONDARY, 56
+│                                        │ 8 between faces
+│          [ BUY ME A COFFEE ]           │ UiKit.coffee_button: 40 face, 48 touch
 ```
 
 - The NEW BEST labels are small `CELEBRATE_STICKER`s with `CELEBRATE_LABEL` text, "NEW BEST TIME" under the TIME caption and "NEW BEST SCORE" under the SCORE title, tilted like stickers. They show only when `CompletionResult` says so (GDD 12.1), and they are words, not color.
-- The starburst and SOLVED! take the height above the receipt, shrinking on short screens; the receipt and buttons keep their size.
+- **Buy me a coffee** (Bart, 2026-10-22, GDD 15.7): the small button (`UiKit.coffee_button()`, 7.15) under PLAY AGAIN and MENU, centered. The buttons and Buy me a coffee are one block: its touch area sits right under the buttons' 4 dp shadow room, so there are 8 dp between their faces and its face, as on every screen with the small button. It works from the first frame like the others, and does nothing while a puzzle is being made (so after PLAY AGAIN it stays quiet). Coming back from the browser shows this screen as left.
+- The starburst and SOLVED! take the height above the receipt, shrinking on short screens, but the starburst never gets shorter than the tilted SOLVED! sticker, so the level sticker always sits under SOLVED!, never over it. The buttons and Buy me a coffee keep their size.
+- When a stacked window is too short for the stickers, the receipt, the buttons and Buy me a coffee, only the receipt gives: it scrolls in the height left, and the buttons stay put. This replaces the earlier rule that a stacked receipt never scrolls. With both NEW BEST labels (receipt 311 dp) it shows 223 dp at 320 by 507, 228 at 320 by 568, 272 at 344 by 588 and 308 at 360 by 640; every other window we design for shows it whole. Screenshot: `build/ui/coffee2/320x568-dark-completion.png`.
 
 ### 7.10 Stats
 
@@ -1051,13 +1092,17 @@ A full screen overlay in `PAGE` that covers everything, the board included (GDD 
 │ │  LIGHT    (✓) │ │  DARK         │    │ check badge on the selected one
 │ └───────────────┘ └───────────────┘    │
 │                                        │ 24
-│ [ RESET STATS                        ] │ BUTTON_SECONDARY
+│ [ RESET STATS                        ] │ BUTTON_SECONDARY, 56
+│ [ ABOUT                              ] │ BUTTON_SECONDARY, 56, 12 apart
+│                                        │ 8 between faces
+│          [ BUY ME A COFFEE ]           │ UiKit.coffee_button: 40 face, 48 touch
 ```
 
 - Switches show on and off by the knob's side and the ON or OFF caption as well as by color.
 - The Auto Cross description text is the lead-game-designer's to write (one short line); the row grows to fit it.
 - **Show candidates** (Bart, 2026-10-14) is the same switch row as Auto Cross: a `CARD` row, the name in heading style, the `SWITCH` with its ON or OFF caption, and one short line in `BODY_MUTED` under it; the row grows to fit. It sits between Sound and Auto Cross, so the two ring settings are together and the one that decides whether the ring shows at all comes first. On by default. The description line is the lead-game-designer's to write; until the GDD gives one, the row is a plain 64 dp row like Sound. The Auto Cross switch stays usable when the ring is hidden, because Auto Cross keeps working out of sight. The skin cards keep drawing their ring whatever this switch says: they show the skin, not the setting.
-- With the extra row the list still fits 360 by 800 without scrolling (about 560 of 728 dp); at 320 by 568 it scrolls as before (4.9).
+- **ABOUT and Buy me a coffee** (Bart, 2026-10-22, GDD 15.7) end the list, under RESET STATS. ABOUT is a full width `BUTTON_SECONDARY` with a 56 dp face, `space_m` under RESET STATS; it opens About (7.17), and Back there returns to Settings. Buy me a coffee is the small button (`UiKit.coffee_button()`, 7.15), centered. ABOUT and Buy me a coffee are one block: its touch area sits right under ABOUT's 4 dp shadow room, so 8 dp between the faces, as on every screen with the small button. Opened from the pause menu, the puzzle stays paused through both. Neither does anything while a puzzle is being made.
+- Height: the list needs about 748 dp (measured on `build/ui/coffee2/360x800-light-settings_end.png`, which has no insets). At 360 by 800 with a 32 dp notch and a 24 dp gesture bar (728 dp) it now scrolls by about 20 dp; at 320 by 568 it scrolls as before (4.9).
 - Each skin card draws a 3 by 3 corner of a board in that skin (a given, a placed digit, a ring with a hand X, the selected cell) on that skin's page color, with its display name. Selecting one switches the skin at once (`Skins.apply`).
 - RESET STATS opens a `DIALOG` with the GDD 13.2 text ("Reset all stats? This cannot be undone.") and CANCEL (`BUTTON_SECONDARY`) over RESET (`BUTTON_DANGER`), laid out like 7.4.
 - Settings opens from the main menu and from the pause menu; back returns to where it came from.
@@ -1145,9 +1190,9 @@ Bart, 2026-10-14: every app start opens the title screen. PLAY goes straight int
 └──────────────────────────────────────┘ as wide as its label; safe bottom - 8
 ```
 
-- **Built from the main menu's parts, nothing new.** A `HalvesBox` made exactly as the main menu makes it (`stacked_mode` FILL_FIRST, `side_gap` `space_xl`), in the screen's `ScreenColumn`. First part: the main menu's brand, the wordmark (`CELEBRATE_STICKER` holding `CELEBRATE_DISPLAY`, tilted `sticker_tilt`) over the hero (`HeroIcon`), the same code as 7.1, with one change: on the title screen the hero's gap above and below is `space_l` (16), not `space_xl` (24), to make room for the fifth button. The main menu keeps `space_xl`. Second part, centered vertically: the four tall buttons in a VBox, `space_m` apart, with room for the shadow under the last one (`UiKit.with_shadow_room`), as on the main menu; then Buy me a coffee right under that shadow room.
+- **Built from the main menu's parts, nothing new.** A `HalvesBox` made exactly as the main menu makes it (`stacked_mode` FILL_FIRST, `side_gap` `space_xl`), in the screen's `ScreenColumn`. First part: the main menu's brand, the wordmark (`CELEBRATE_STICKER` holding `CELEBRATE_DISPLAY`, tilted `sticker_tilt`) over the hero (`HeroIcon`), the same code as 7.1, with the hero's gap above and below `space_l` (16), not `space_xl` (24), to make room for the fifth button. Since 2026-10-22 the main menu uses `space_l` too, for the same reason; the first launch offer keeps `space_xl`. Second part, centered vertically: the four tall buttons in a VBox, `space_m` apart, with room for the shadow under the last one (`UiKit.with_shadow_room`), as on the main menu; then Buy me a coffee right under that shadow room.
 - **The four tall buttons.** Full column width, `Layout.BUTTON_TALL` (56) faces, `space_m` (12) gaps: PLAY in `BUTTON_PRIMARY`, then MENU, INFO and ABOUT in `BUTTON_SECONDARY`, in that order. Labels: the source strings are "Play", "Menu", "Info" and "About" in sentence case; the button role sets them in capitals at display time (3.1), so they read PLAY, MENU, INFO and ABOUT, as Bart wrote them. No icons. The stack is 4 rows of 56, 3 gaps of 12 and the 4 dp shadow: 264 dp, exactly the main menu's stack with Continue (7.1).
-- **Buy me a coffee.** `UiKit.small_button(BUTTON_SECONDARY, "Buy me a coffee", Layout.ICON_FACE)`: a 40 dp face, only as wide as its label (about 165 dp), centered in a 48 dp touch area (4.4) and centered under the stack. The source string is in sentence case; the button role sets it in capitals, BUY ME A COFFEE. It reads as less prominent than the four above by size alone: a shorter face and a face that does not fill the column, in the same style and colors. Its touch area starts right under ABOUT's 4 dp shadow room, so there are 8 dp between ABOUT's face and its face, and its own shadow sits in the 4 dp under its face. No icon. Tapping it opens the browser and nothing else (GDD 15.0); while a puzzle is being made, it does nothing, like every title button.
+- **Buy me a coffee.** `UiKit.coffee_button()`, which is `UiKit.small_button(BUTTON_SECONDARY, "Buy me a coffee", Layout.ICON_FACE)` with size flags shrink center. The same button, built by the same call, is on the main menu, the pause menu, Settings and the completion screen (2026-10-22; 7.1, 7.8, 7.9, 7.11), and About uses the same look left aligned (7.17). A 40 dp face, only as wide as its label (about 165 dp), centered in a 48 dp touch area (4.4) and centered under the stack. The source string is in sentence case; the button role sets it in capitals, BUY ME A COFFEE. It reads as less prominent than the four above by size alone: a shorter face and a face that does not fill the column, in the same style and colors. Its touch area starts right under ABOUT's 4 dp shadow room, so there are 8 dp between ABOUT's face and its face, and its own shadow sits in the 4 dp under its face. No icon. Tapping it opens the browser and nothing else (GDD 15.0); while a puzzle is being made, it does nothing, like every title button.
 - PLAY is the one primary button, because it is what nearly every visit is for. It always says PLAY, with or without a puzzle in progress: the title screen shows no level or time (that stays Continue on the main menu).
 - Nothing else on the screen is tappable: no back button, no settings. Back is Android Back.
 - **Stacked heights.** The buttons take 264 plus the 48 dp coffee touch area, 312. The hero takes the height the wordmark (66) and the buttons leave, less a `space_l` gap above and below it (32), clamped to 64 to 200 dp and centered when it stops at 200.
@@ -1260,7 +1305,7 @@ A card with the game name and version, the credit, the copyright line, a short p
 │ ...                                    │ the page scrolls
 ```
 
-- **Title row:** as Info, `UiKit.title_row("About", space_s, back)`, reading ABOUT. Back returns to the title screen. Under it, `space_s` below, the same `ScrollContainer` as Info (horizontal scrolling disabled) holding one VBox.
+- **Title row:** as Info, `UiKit.title_row("About", space_s, back)`, reading ABOUT. About opens from the title screen, the main menu, the pause menu and Settings (2026-10-22, GDD 15.7); the back button and Android Back return to the screen it was opened from, as left. Opened over a paused puzzle, the puzzle stays paused. Under it, `space_s` below, the same `ScrollContainer` as Info (horizontal scrolling disabled) holding one VBox.
 - **The card** (`CARD`, full list width, shadow room under it as on Info) holds eleven items, each `space_s` below the one above, in this order and style:
   1. "Sudoku" in `TITLE` (capitals: SUDOKU).
   2. "Version 1.0" in `CAPTION`, the version from `ProjectSettings` `application/config/version`.

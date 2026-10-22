@@ -85,13 +85,17 @@ func build() -> void:
 	about_button = UiKit.button(ThemeFactory.BUTTON_SECONDARY, "About", Layout.BUTTON_TALL)
 	about_button.name = "About"
 	about_button.pressed.connect(_on_about)
-	rows.add_child(about_button)
-	# The shadow room of About sits in the gap; Buy me a coffee ends the list.
+	# About with its shadow room, then Buy me a coffee right under it with no
+	# gap: 8 dp between the faces (the shadow room and the touch margin), as
+	# on the title screen. Buy me a coffee ends the list.
+	var end_block: VBoxContainer = UiKit.with_shadow_room(about_button, s)
+	end_block.name = "End"
+	rows.add_child(end_block)
 	var coffee: UiKit.TouchTarget = UiKit.coffee_button()
 	coffee_touch = coffee
 	coffee_button = coffee.button
 	coffee_button.pressed.connect(_on_coffee)
-	rows.add_child(coffee)
+	end_block.add_child(coffee)
 
 	confirm = ConfirmDialog.new()
 	confirm.name = "Confirm"
