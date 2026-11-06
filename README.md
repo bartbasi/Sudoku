@@ -28,7 +28,7 @@ The runner exits with 0 when every test passes and 1 otherwise.
 
 ## Android build
 
-The debug APK is built and installed from Git Bash on Windows. The Android export preset is in `export_presets.cfg` (preset "Android", package `com.bartbasi.sudoku`, arm64-v8a, no permissions).
+The debug APK is built and installed from Git Bash on Windows. The Android export preset is in `export_presets.cfg` (preset "Android", package `io.github.bartbasi.sudoku`, arm64-v8a, no permissions).
 
 The game version is set in two places that must always match: `application/config/version` in `project.godot` (shown on the About screen) and `version/name` in `export_presets.cfg` (the Android version name). When the version changes, change both together, and raise `version/code` in `export_presets.cfg` too.
 
@@ -66,8 +66,12 @@ godot --headless --path . --export-debug "Android" build/sudoku-debug.apk
 `install_debug.sh` uses `C:/Android/Sdk/platform-tools/adb`; set `ADB` to use another one. `adb install -r` keeps the app's saved data. To read the app's log after it starts:
 
 ```
-adb logcat -d --pid=$(adb shell pidof com.bartbasi.sudoku)
+adb logcat -d --pid=$(adb shell pidof io.github.bartbasi.sudoku)
 ```
+
+### Release build
+
+`tools/build/build_release.sh` builds the signed release: `build/sudoku.aab` for Google Play (preset "Android AAB", a Gradle build) and `build/sudoku.apk` to share directly (preset "Android"). It needs the upload key, which is kept outside the repo. The key, the checks, the version rule and the Play steps are in [docs/release.md](docs/release.md). The store listing is in [docs/store/listing.md](docs/store/listing.md).
 
 ### Checking permissions
 
@@ -77,7 +81,7 @@ The app requests no Android permissions. To check an APK:
 C:/Android/Sdk/build-tools/35.0.1/aapt2 dump permissions build/sudoku-debug.apk
 ```
 
-It prints only the package line, `package: com.bartbasi.sudoku`, with no `uses-permission` lines.
+It prints only the package line, `package: io.github.bartbasi.sudoku`, with no `uses-permission` lines.
 
 The "Buy me a coffee" button calls `OS.shell_open`, which hands the address to the phone's browser with a standard Android view intent. The browser does the network work, so the game itself needs no permission for it, `INTERNET` included.
 

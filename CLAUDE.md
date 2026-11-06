@@ -71,6 +71,8 @@ Sudoku (working name in older docs: bartssudoku; Bart may choose a final name la
 
 - 2026-10-22, easier to donate (Bart): the small Buy me a coffee button is also on the main menu, the pause menu, the settings screen and the completion screen. The play screen has a coffee cup icon in the band with the level sticker, under Pause (it did not fit in the header row at 320 dp; Bart chose this spot). The main menu is Continue, New puzzle, then Lessons | Stats and Settings | About in two rows of two, then the coffee button. The cup tapping it pauses the game first, then opens the browser. Not shown in lessons. About is also reachable from the main menu, the pause menu and the settings screen; Back returns to where it was opened, and a paused puzzle stays paused.
 
+- 2026-11-06: package renamed to io.github.bartbasi.sudoku before the first Play upload (Bart approved). Bart also approved release signing (an upload key kept outside the repo, see docs/release.md), the store material in docs/store/ and the Play upload, which he does in Play Console himself. Store title: "Sudoku: Cross Out Candidates" (the DM's choice under that go ahead; the launcher name stays "Sudoku").
+
 ## Ownership
 
 Each path has one owner. Edit only what you own.

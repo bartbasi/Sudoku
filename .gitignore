@@ -9,15 +9,20 @@ export_credentials.cfg
 *.aab
 *.idsig
 
-# Signing keys never go in the repo
+# Signing keys and their passwords never go in the repo
 *.keystore
 *.jks
+*-password.txt
 
-# Android Gradle build template, not used (we export with the prebuilt templates)
+# Android Gradle build template, unpacked by tools/build/build_release.sh for
+# the Play bundle (AAB). The debug and release APKs use the prebuilt templates.
 /android/
 
 # Personal Claude Code settings (agent files in .claude/agents/ are committed)
 .claude/settings.local.json
+
+# The store icon is made by tools/build/store_graphics.gd. The app icon is never committed as an image.
+/docs/store/graphics/icon_512.png
 
 # OS and editor clutter
 .DS_Store

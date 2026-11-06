@@ -7,7 +7,7 @@ set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 APK="$ROOT/build/sudoku-debug.apk"
-PACKAGE="com.bartbasi.sudoku"
+PACKAGE="io.github.bartbasi.sudoku"
 ADB="${ADB:-/c/Android/Sdk/platform-tools/adb}"
 
 if [ ! -f "$APK" ]; then

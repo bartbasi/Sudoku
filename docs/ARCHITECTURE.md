@@ -743,11 +743,12 @@ Rules (security, checked by the security reviewer):
 
 ## 13. Platform (platform-dev)
 
-- Name Sudoku. Android package `com.bartbasi.sudoku`. Portrait only. Compatibility renderer.
+- Name Sudoku. Android package `io.github.bartbasi.sudoku`. Portrait only. Compatibility renderer.
 - Stretch mode `canvas_items`, aspect `expand`, base size 411 by 914 with no window override, so the desktop window is a typical phone in dp. `ScreenMetrics.apply_dp_scale` makes one unit one dp on every device.
 - Export only game files: exclude `tests/*`, `tools/*`, `docs/*`, `build/*`. The lesson data is JSON, not a Godot resource, so the export preset must include `src/lessons/data/*.json` explicitly (and the bank file, if Bart picks one).
 - No Android permissions in debug or release.
 - Launcher icons are rendered at build time from `src/design/app_icon.gd` into build/ and never committed.
+- Two export presets: "Android" (prebuilt template; the debug APK and the signed release APK) and "Android AAB" (Gradle build, the Play bundle). Both carry the same options. The Gradle template is unpacked into `android/`, which git and Godot ignore. Release signing reads the upload key from outside the repo (docs/release.md).
 - No boot splash image; a plain background color from Pop.
 
 ## 14. Main flows
